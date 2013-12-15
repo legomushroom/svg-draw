@@ -5,16 +5,8 @@ html
 		title Calypso draw
 		link(rel="stylesheet", type="text/css", href="css/main.css")
 	body
-		.main-l#js-main-l
-			canvas(id="paths-place", resize)
+		.main-l#js-main(role="main")
+			svg#svg-canvas
+				console.log(document.rootElement)
 
-		script(type="text/javascript", src="js/lib/jquery-2.0.1.js")
-		script(type="text/javascript", src="js/lib/md5.js")
-		script(type="text/javascript", src="js/jquery.hammer.min.js")
-		script(type="text/javascript", src="js/tween.min.js")
-		script(type="text/javascript", src="js/dat.gui.min.js")
-		script(type="text/javascript", src="js/helpers.js")
-		script(type="text/javascript", src="js/paper.js")
-		script(type="text/paperscript", src="js/paths.js", canvas="paths-place")
-
-		script(type="text/javascript", src="js/main.js")
+		script(type='text/javascript', src='js/lib/require.js', data-main='js/main')
