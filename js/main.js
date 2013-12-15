@@ -6,7 +6,8 @@
       underscore: 'lib/lodash.underscore',
       hammer: 'lib/hammer',
       tween: 'lib/tween.min',
-      two: 'lib/two'
+      two: 'lib/two',
+      path: 'modules/path'
     },
     shim: {
       "two": {
@@ -15,60 +16,49 @@
     }
   });
 
-  define('main', ['helpers', 'hammer', 'jquery', 'two'], function(_, hammer, $, Two) {
-    var Application;
+  define('main', ['helpers', 'hammer', 'jquery', 'two', 'path'], function(helpers, hammer, $, Two, Path) {
+    'use strict';
+    var App;
 
-    Application = (function() {
-      function Application() {
+    App = (function() {
+      function App() {
         this.initVars();
         this.listenToTouches();
       }
 
-      Application.prototype.initVars = function() {
+      App.prototype.initVars = function() {
         this.two = new Two({
           fullscreen: true,
           autostart: true
         }).appendTo($('#js-main')[0]);
-        return this.$svgCanvas = $(this.two.renderer.domElement);
+        this.$svgCanvas = $(this.two.renderer.domElement);
+        this.helpers = helpers;
+        this.paths = [];
+        return this.objects = [];
       };
 
-      Application.prototype.listenToTouches = function() {
-        var v, _i, _len, _ref,
-          _this = this;
+      App.prototype.listenToTouches = function() {
+        var _this = this;
 
-        this.line = this.two.makeLine(0, 0, 0, 0);
-        this.line.noFill().stroke = "#00DFFC";
-        this.line.noFill().linewidth = 2;
-        _ref = this.line.vertices;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          v = _ref[_i];
-          v.addSelf(this.line.translation);
-        }
-        this.line.translation.clear();
-        return hammer(this.$svgCanvas[0]).on('drag', function(e) {
-          return _this.line.vertices.push(_this.makePoint(_.getNearestCellCenter({
-            x: e.gesture.center.pageX,
-            y: e.gesture.center.pageY
-          })));
+        this.currDrawLine = null;
+        hammer(this.$svgCanvas[0]).on('touch', function(e) {
+          _this.currDrawLine = new Path({
+            coords: _this.helpers.getNearestCellCenter({
+              x: e.gesture.center.pageX,
+              y: e.gesture.center.pageY
+            })
+          });
+          return _this.paths.push(_this.currDrawLine);
+        });
+        return hammer(this.$svgCanvas[0]).on('release', function(e) {
+          return _this.currDrawLine.line.vertices.length === 2 && _this.currDrawLine.line.remove();
         });
       };
 
-      Application.prototype.makePoint = function(x, y) {
-        var v;
-
-        if (arguments.length <= 1) {
-          y = x.y;
-          x = x.x;
-        }
-        v = new Two.Vector(x, y);
-        v.position = new Two.Vector().copy(v);
-        return v;
-      };
-
-      return Application;
+      return App;
 
     })();
-    return new Application;
+    return window.App = new App;
   });
 
 }).call(this);

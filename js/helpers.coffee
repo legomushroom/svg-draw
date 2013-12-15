@@ -8,7 +8,7 @@ define 'helpers', [], ->
 	  @length = (if from < 0 then @length + from else from)
 	  @push.apply this, rest
 
-	App.helpers = 
+	helpers = 
 		getNearestCell:(coords)->
 			x = App.gs * ~~(coords.x / App.gs)
 			y = App.gs * ~~(coords.y / App.gs)
@@ -23,6 +23,33 @@ define 'helpers', [], ->
 			result = 
 				x: coords.x + (App.gs/2)
 				y: coords.y + (App.gs/2)
+
+		to2Coordinates:(e)->
+			@makePoint( helpers.getNearestCellCenter { x: e.gesture.center.pageX, y: e.gesture.center.pageY })
+
+		makePoint:(x, y)->
+			if arguments.length <= 1
+				y = x.y
+				x = x.x
+
+			v = new Two.Vector(x, y)
+			v.position = new Two.Vector().copy(v)
+			v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 		timeIn:(name)->
@@ -120,4 +147,4 @@ define 'helpers', [], ->
 					coords: coords
 					size: size
 
-	App.helpers
+	helpers

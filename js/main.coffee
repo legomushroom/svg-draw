@@ -5,12 +5,13 @@ require.config
 		hammer: 			'lib/hammer'
 		tween: 				'lib/tween.min'
 		two: 					'lib/two'
+		path: 				'modules/path'
 
 	shim: { "two": { exports: "Two" } }
 
-define 'main', ['helpers', 'hammer', 'jquery', 'two'], (_, hammer, $, Two )->
-	
-	class Application
+define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path'], (helpers, hammer, $, Two, Path )->
+	'use strict'
+	class App
 		constructor:->
 			@initVars()
 			@listenToTouches()    
@@ -22,29 +23,24 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two'], (_, hammer, $, Two )->
 			).appendTo($('#js-main')[0])
 
 			@$svgCanvas = $ @two.renderer.domElement
+			@helpers = helpers
+			@paths 		= []
+			@objects 	= []
+
 
 
 		listenToTouches:->
-			@line = @two.makeLine(0,0,0,0)
-			@line.noFill().stroke = "#00DFFC" 
-			@line.noFill().linewidth = 2
-			for v in @line.vertices
-				v.addSelf @line.translation
-			@line.translation.clear()
+			@currDrawLine = null
+			hammer(@$svgCanvas[0]).on 'touch', (e)=>
+				@currDrawLine = new Path
+							coords: @helpers.getNearestCellCenter { x: e.gesture.center.pageX, y: e.gesture.center.pageY }
+				@paths.push @currDrawLine
 
-			hammer(@$svgCanvas[0]).on 'drag', (e)=>
-				@line.vertices.push @makePoint( _.getNearestCellCenter { x: e.gesture.center.pageX, y: e.gesture.center.pageY })
+			hammer(@$svgCanvas[0]).on 'release', (e)=>
+				@currDrawLine.line.vertices.length is 2 and @currDrawLine.line.remove()
 
-
-		makePoint:(x, y)->
-			if arguments.length <= 1
-				y = x.y
-				x = x.x
-
-			v = new Two.Vector(x, y)
-			v.position = new Two.Vector().copy(v)
-			v
-
+			# hammer(@$svgCanvas[0]).on 'drag', (e)=>
+			# 	@currDrawLine.vertices.push @helpers.to2Coordinates e
 
 		
-	new Application
+	window.App = new App
