@@ -40,18 +40,22 @@
       App.prototype.listenToTouches = function() {
         var _this = this;
 
-        this.currDrawLine = null;
+        this.currPath = null;
         hammer(this.$svgCanvas[0]).on('touch', function(e) {
-          _this.currDrawLine = new Path({
+          _this.currPath = new Path({
             coords: _this.helpers.getNearestCellCenter({
               x: e.gesture.center.pageX,
               y: e.gesture.center.pageY
             })
           });
-          return _this.paths.push(_this.currDrawLine);
+          return _this.paths.push(_this.currPath);
         });
-        return hammer(this.$svgCanvas[0]).on('release', function(e) {
-          return _this.currDrawLine.line.vertices.length === 2 && _this.currDrawLine.line.remove();
+        hammer(this.$svgCanvas[0]).on('release', function(e) {
+          _this.currPath.removeIfEmpty();
+          return _this.currPath.simplify();
+        });
+        return hammer(this.$svgCanvas[0]).on('drag', function(e) {
+          return _this.currPath.addPoint(_this.helpers.to2Coordinates(e));
         });
       };
 

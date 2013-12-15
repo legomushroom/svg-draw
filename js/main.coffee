@@ -30,17 +30,18 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path'], (helpers, hammer,
 
 
 		listenToTouches:->
-			@currDrawLine = null
+			@currPath = null
 			hammer(@$svgCanvas[0]).on 'touch', (e)=>
-				@currDrawLine = new Path
+				@currPath = new Path
 							coords: @helpers.getNearestCellCenter { x: e.gesture.center.pageX, y: e.gesture.center.pageY }
-				@paths.push @currDrawLine
+				@paths.push @currPath
 
 			hammer(@$svgCanvas[0]).on 'release', (e)=>
-				@currDrawLine.line.vertices.length is 2 and @currDrawLine.line.remove()
+				@currPath.removeIfEmpty()
+				@currPath.simplify()
 
-			# hammer(@$svgCanvas[0]).on 'drag', (e)=>
-			# 	@currDrawLine.vertices.push @helpers.to2Coordinates e
+			hammer(@$svgCanvas[0]).on 'drag', (e)=>
+				@currPath.addPoint @helpers.to2Coordinates e
 
 		
 	window.App = new App

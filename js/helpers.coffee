@@ -1,4 +1,4 @@
-define 'helpers', [], ->
+define 'helpers', ['two'], (Two)->
 	App = {}
 	App.gs = 16
 
@@ -27,30 +27,14 @@ define 'helpers', [], ->
 		to2Coordinates:(e)->
 			@makePoint( helpers.getNearestCellCenter { x: e.gesture.center.pageX, y: e.gesture.center.pageY })
 
-		makePoint:(x, y)->
+		makePoint:(x,y)->
 			if arguments.length <= 1
 				y = x.y
 				x = x.x
 
-			v = new Two.Vector(x, y)
-			v.position = new Two.Vector().copy(v)
+			v = new Two.Vector x, y
+			v.position = new Two.Vector().copy v
 			v
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		timeIn:(name)->
 			console.time name
