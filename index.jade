@@ -5,8 +5,10 @@ html
 		title Calypso draw
 		link(rel="stylesheet", type="text/css", href="css/main.css")
 	body
+		svg(style="position:absolute;margin-left: -100%")
+			marker(id = "marker-mid", viewBox = "0 0 12 12", refX = "5", refY = "5", markerUnits = "strokeWidth", markerWidth = "2", markerHeight = "2", fill = "#00DFFC", orient = "auto")
+				circle(cx = "5", cy = "5", r = "5")
+
 		.main-l#js-main(role="main")
-			svg#svg-canvas
-				console.log(document.rootElement)
 
 		script(type='text/javascript', src='js/lib/require.js', data-main='js/main')

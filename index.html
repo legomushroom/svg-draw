@@ -6,11 +6,12 @@
     <link rel="stylesheet" type="text/css" href="css/main.css">
   </head>
   <body>
-    <div id="js-main" role="main" class="main-l">
-      <svg id="svg-canvas">
-        <console document.rootElement class="log"></console>
-      </svg>
-    </div>
+    <svg style="position:absolute;margin-left: -100%">
+      <marker id="marker-mid" viewBox="0 0 12 12" refX="5" refY="5" markerUnits="strokeWidth" markerWidth="2" markerHeight="2" fill="#00DFFC" orient="auto">
+        <circle cx="5" cy="5" r="5"></circle>
+      </marker>
+    </svg>
+    <div id="js-main" role="main" class="main-l"></div>
     <script type="text/javascript" src="js/lib/require.js" data-main="js/main"></script>
   </body>
 </html>
