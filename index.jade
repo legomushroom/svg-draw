@@ -5,10 +5,23 @@ html
 		title Calypso draw
 		link(rel="stylesheet", type="text/css", href="css/main.css")
 	body
+		include css/icons.svg
 		svg(style="position:absolute;margin-left: -100%")
 			marker(id = "marker-mid", viewBox = "0 0 12 12", refX = "5", refY = "5", markerUnits = "strokeWidth", markerWidth = "2", markerHeight = "2", fill = "#00DFFC", orient = "auto")
 				circle(cx = "5", cy = "5", r = "5")
 
 		.main-l#js-main(role="main")
+			.tools-l#js-tools
+				
+				.btn-b.is-hoverable.is-check(data-role="path", title="path")#js-tool
+					.iconmelon
+						svg(viewBox="0 0 32 32")
+							use(xlink:href="#pen-feather")
+
+				.btn-b.is-hoverable(data-role="block", title="block")#js-tool
+					.iconmelon
+						svg(viewBox="0 0 32 32")
+							use(xlink:href="#handle-vector")
+				
 
 		script(type='text/javascript', src='js/lib/require.js', data-main='js/main')

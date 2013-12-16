@@ -18,6 +18,7 @@ html {
   min-height: 100%;
   position: relative;
   margin: 0 auto;
+  overflow-y: auto;
   background-color: #343838;
   background-image: linear-gradient(#005f6b 0.125em, transparent 0.125em), linear-gradient(90deg, #005f6b 0.125em, transparent 0.125em), linear-gradient(#005f6b 0.0625em, transparent 0.0625em), linear-gradient(90deg, #005f6b 0.0625em, transparent 0.0625em);
   background-size: 8em 8em, 8em 8em, 1em 1em, 1em 1em;
@@ -31,6 +32,52 @@ html {
 }
 .block-e {
   border-color: rgba(69,173,168,0.95);
-  background-color: rgba(69,173,168,0.75);
   background-color: rgba(69,173,168,0.1);
+}
+.tools-l {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2em;
+  background-color: rgba(0,95,107,0.95);
+  box-shadow: 0 0 4px #000;
+}
+.tools-l .btn-b {
+  float: left;
+}
+.iconmelon {
+  position: relative;
+  width: 2em;
+  height: 2em;
+  display: block;
+  fill: #525151;
+}
+.iconmelon:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.btn-b {
+  background-color: #008c9e;
+  display: inline-block;
+  padding: 0.5em;
+}
+.btn-b.is-hoverable {
+  cursor: pointer;
+}
+.btn-b.is-hoverable:hover {
+  box-shadow: inset 0 -0.125em 0 #00dffc;
+}
+.btn-b.is-check {
+  box-shadow: inset 0 -0.125em 0 #00dffc;
+}
+.btn-b .iconmelon {
+  width: 1em;
+  height: 1em;
+  fill: #fff;
 }

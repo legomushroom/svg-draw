@@ -25,6 +25,7 @@
       function App() {
         this.initVars();
         this.listenToTouches();
+        this.listenToTools();
       }
 
       App.prototype.initVars = function() {
@@ -41,9 +42,23 @@
         this.settings = {
           isSmartPath: true
         };
-        return this.debug = {
+        this.debug = {
           isGrid: false
         };
+        return this.currTool = 'path';
+      };
+
+      App.prototype.listenToTools = function() {
+        var it;
+
+        it = this;
+        return $('#js-tools').on('click', '#js-tool', function(e) {
+          var $this;
+
+          $this = $(this);
+          it.currTool = $this.data().role;
+          return $this.addClass('is-check').siblings().removeClass('is-check');
+        });
       };
 
       App.prototype.listenToTouches = function() {
@@ -51,31 +66,52 @@
 
         this.currPath = null;
         hammer(this.$svgCanvas[0]).on('touch', function(e) {
-          var coords;
-
-          coords = helpers.getEventCoords(e);
-          if (!_this.grid.isFreeCell(coords)) {
-            _this.currPath = null;
-            return;
+          switch (_this.currTool) {
+            case 'path':
+              return _this.touchPath(e);
           }
-          _this.currPath = new Path({
-            coords: _this.grid.getNearestCellCenter(coords)
-          });
-          return _this.paths.push(_this.currPath);
         });
         hammer(this.$svgCanvas[0]).on('release', function(e) {
-          var _ref;
-
-          return (_ref = _this.currPath) != null ? _ref.removeIfEmpty() : void 0;
-        });
-        return hammer(this.$svgCanvas[0]).on('drag', function(e) {
-          var coords, _ref;
-
-          coords = helpers.getEventCoords(e);
-          if (_this.grid.isFreeCell(coords)) {
-            return (_ref = _this.currPath) != null ? _ref.addPoint(coords) : void 0;
+          switch (_this.currTool) {
+            case 'path':
+              return _this.releasePath(e);
           }
         });
+        return hammer(this.$svgCanvas[0]).on('drag', function(e) {
+          switch (_this.currTool) {
+            case 'path':
+              return _this.dragPath(e);
+          }
+        });
+      };
+
+      App.prototype.touchPath = function(e) {
+        var coords;
+
+        coords = helpers.getEventCoords(e);
+        if (!this.grid.isFreeCell(coords)) {
+          this.currPath = null;
+          return;
+        }
+        this.currPath = new Path({
+          coords: this.grid.getNearestCellCenter(coords)
+        });
+        return this.paths.push(this.currPath);
+      };
+
+      App.prototype.releasePath = function(e) {
+        var _ref;
+
+        return (_ref = this.currPath) != null ? _ref.removeIfEmpty() : void 0;
+      };
+
+      App.prototype.dragPath = function(e) {
+        var coords, _ref;
+
+        coords = helpers.getEventCoords(e);
+        if (this.grid.isFreeCell(coords)) {
+          return (_ref = this.currPath) != null ? _ref.addPoint(coords) : void 0;
+        }
       };
 
       return App;

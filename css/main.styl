@@ -17,6 +17,7 @@ body, html
 	min-height 100%
 	position relative
 	margin 0 auto
+	overflow-y auto
 	background-color #343838
 	lineColor = #005F6B
 	background-image: linear-gradient(lineColor 2*ex, transparent 2*ex),linear-gradient(90deg, lineColor 2*ex, transparent 2*ex),linear-gradient(lineColor ex, transparent ex),linear-gradient(90deg, lineColor ex, transparent ex);
@@ -31,6 +32,70 @@ body, html
 .block-e
 	@extends .place-preview-e
 	border-color rgba(rgb(c-green1),.95)
-	background-color rgba(rgb(c-green1),.75)
 	background-color rgba(rgb(c-green1),0.1)
+
+.tools-l
+	position: fixed
+	z-index: 10
+	top 0 
+	left 0
+	width 100%
+	height 4*gs
+	background-color rgba(#005F6B, .95)
+	box-shadow 0 0 4px black
+
+	.btn-b
+		float: left
+	
+.iconmelon
+	position: relative
+	rect 4*gs
+	display: block
+	fill: #525151
+	&:after
+		content: ''
+		position: absolute
+		top: 0
+		left: 0
+		rect 100%
+
+.btn-b
+	background-color #008C9E
+	display inline-block
+	padding gs
+	activeShadow = inset 0 (- 2*ex) 0 #00DFFC
+	&.is-hoverable
+		cursor pointer
+		&:hover
+			box-shadow activeShadow
+
+
+	&.is-check
+		box-shadow activeShadow
+
+
+	.iconmelon
+		rect 2*gs
+		fill white
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

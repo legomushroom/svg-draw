@@ -5,13 +5,95 @@
     <title>Calypso draw</title>
     <link rel="stylesheet" type="text/css" href="css/main.css">
   </head>
-  <body>
+  <body><svg id="svg-source" height="0" version="1.1" 
+  xmlns="http://www.w3.org/2000/svg" style="position:absolute; margin-left: -100%" 
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g id="handle-vector" data-iconmelon="Streamline Icon Set:da851cfd86bcc245db14e6266e6f2c4e">
+    <g id="Expanded">
+      <g>
+        <g>
+          <rect x="28" y="6"  width="1.333" height="20"></rect>
+        </g>
+        <g>
+          <rect x="6" y="2.667"  width="20" height="1.333"></rect>
+        </g>
+        <g>
+          <rect x="3.333" y="6"  width="1.333" height="20"></rect>
+        </g>
+        <g>
+          <rect x="6" y="28"  width="20" height="1.333"></rect>
+        </g>
+        <g>
+          <path  d="M6.667,6.667H0V0h6.667V6.667z M1.333,5.333h4v-4h-4V5.333z"></path>
+        </g>
+        <g>
+          <path  d="M32,6.667h-6.667V0H32V6.667z M26.667,5.333h4v-4h-4V5.333z"></path>
+        </g>
+        <g>
+          <path  d="M6.667,32H0v-6.667h6.667V32z M1.333,30.667h4v-4h-4V30.667z"></path>
+        </g>
+        <g>
+          <path  d="M32,32h-6.667v-6.667H32V32z M26.667,30.667h4v-4h-4V30.667z"></path>
+        </g>
+      </g>
+    </g>
+  </g>
+  <g id="pen-feather" data-iconmelon="Streamline Icon Set:7ce069334d7a9b90494fbd15547d1869">
+    <g id="Expanded">
+      <g>
+        <g>
+          <path  d="M0.001,32v-0.684c0-0.205,0.029-5.091,2.58-7.617c0.768-0.761,1.785-1.179,2.862-1.179
+				c1.078,0,2.092,0.419,2.854,1.181c0.766,0.766,1.186,1.783,1.186,2.866C9.482,27.646,9.06,28.66,8.296,29.42
+				c-2.54,2.531-7.406,2.577-7.613,2.577L0.001,32z M5.443,23.881c-0.717,0-1.393,0.278-1.905,0.785
+				c-1.625,1.61-2.037,4.571-2.141,5.934c1.359-0.108,4.317-0.526,5.939-2.143c0.506-0.503,0.785-1.175,0.786-1.891
+				c0-0.719-0.279-1.394-0.787-1.902C6.831,24.159,6.158,23.881,5.443,23.881z"></path>
+        </g>
+        <g>
+          <path  d="M0.682,31.997c-0.174,0-0.349-0.066-0.481-0.199c-0.266-0.267-0.266-0.696,0-0.962l3.85-3.849
+				c0.266-0.267,0.696-0.267,0.962,0c0.266,0.266,0.266,0.696,0,0.962l-3.85,3.849C1.03,31.931,0.856,31.997,0.682,31.997z"></path>
+        </g>
+        <g>
+          <path  d="M10.147,26.381L10.147,26.381c-0.18,0-0.354-0.071-0.481-0.199l-3.848-3.851
+				c-0.266-0.266-0.266-0.695,0-0.962l21.17-21.17C27.116,0.071,27.288,0,27.47,0l0,0c0.18,0,0.354,0.071,0.48,0.199l3.849,3.85
+				c0.267,0.266,0.267,0.696,0,0.962l-21.17,21.17C10.501,26.31,10.328,26.381,10.147,26.381z M7.261,21.851l2.886,2.888
+				L30.355,4.53L27.47,1.643L7.261,21.851z"></path>
+        </g>
+        <g>
+          <path  d="M14.959,10.022c-0.174,0-0.348-0.067-0.481-0.2c-0.266-0.266-0.266-0.696,0-0.962l7.698-7.699
+				c1.326-1.327,3.486-1.327,4.812,0c0.266,0.266,0.266,0.696,0,0.962c-0.266,0.267-0.696,0.267-0.962,0
+				c-0.797-0.796-2.093-0.796-2.889,0L15.44,9.822C15.308,9.955,15.133,10.022,14.959,10.022z"></path>
+        </g>
+        <g>
+          <path  d="M23.62,12.909c-0.175,0-0.349-0.067-0.481-0.2L19.291,8.86c-0.267-0.266-0.267-0.696,0-0.962
+				c0.266-0.266,0.695-0.266,0.961,0l3.849,3.85c0.267,0.266,0.267,0.696,0,0.962C23.969,12.842,23.794,12.909,23.62,12.909z"></path>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
     <svg style="position:absolute;margin-left: -100%">
       <marker id="marker-mid" viewBox="0 0 12 12" refX="5" refY="5" markerUnits="strokeWidth" markerWidth="2" markerHeight="2" fill="#00DFFC" orient="auto">
         <circle cx="5" cy="5" r="5"></circle>
       </marker>
     </svg>
-    <div id="js-main" role="main" class="main-l"></div>
+    <div id="js-main" role="main" class="main-l">
+      <div id="js-tools" class="tools-l">
+        <div data-role="path" title="path" id="js-tool" class="btn-b is-hoverable is-check">
+          <div class="iconmelon">
+            <svg viewBox="0 0 32 32">
+              <use xlink:href="#pen-feather"></use>
+            </svg>
+          </div>
+        </div>
+        <div data-role="block" title="block" id="js-tool" class="btn-b is-hoverable">
+          <div class="iconmelon">
+            <svg viewBox="0 0 32 32">
+              <use xlink:href="#handle-vector"></use>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="text/javascript" src="js/lib/require.js" data-main="js/main"></script>
   </body>
 </html>

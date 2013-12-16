@@ -16,6 +16,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'grid', 'path-find
 		constructor:->
 			@initVars()
 			@listenToTouches()    
+			@listenToTools()    
 
 		initVars:->
 
@@ -39,28 +40,49 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'grid', 'path-find
 			@debug = 
 				isGrid: false
 
+			@currTool = 'path'
+
+		listenToTools:->
+			it = @; 
+			$('#js-tools').on 'click', '#js-tool', (e)-> 
+				$this = $(@); it.currTool = $this.data().role
+				$this.addClass('is-check').siblings().removeClass('is-check')
 
 
 		listenToTouches:->
 			@currPath = null
 			hammer(@$svgCanvas[0]).on 'touch', (e)=>
-				coords = helpers.getEventCoords(e)
-
-				if !@grid.isFreeCell coords
-					@currPath = null
-					return
-
-				@currPath = new Path
-							coords: @grid.getNearestCellCenter coords
-				@paths.push @currPath
+				switch @currTool
+					when 'path'
+						@touchPath(e)
 
 			hammer(@$svgCanvas[0]).on 'release', (e)=>
-				@currPath?.removeIfEmpty()
+				switch @currTool
+					when 'path'
+						@releasePath(e)
 
 			hammer(@$svgCanvas[0]).on 'drag', (e)=>
-				coords = helpers.getEventCoords(e)
-				if @grid.isFreeCell coords
-					@currPath?.addPoint coords
+				switch @currTool
+					when 'path'
+						@dragPath(e)
+				
+
+		touchPath:(e)->
+			coords = helpers.getEventCoords(e)
+			if !@grid.isFreeCell coords
+				@currPath = null
+				return
+
+			@currPath = new Path
+						coords: @grid.getNearestCellCenter coords
+			@paths.push @currPath
+
+		releasePath:(e)-> @currPath?.removeIfEmpty()
+
+		dragPath:(e)->
+			coords = helpers.getEventCoords(e)
+			if @grid.isFreeCell coords
+				@currPath?.addPoint coords
 
 
 		
