@@ -1,4 +1,4 @@
-define 'helpers', ['two'], (Two)->
+define 'helpers', ['two', 'md5'], (Two, md5)->
 
 	helpers = 
 		arrayRemove:(from, to) ->

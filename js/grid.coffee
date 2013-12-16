@@ -29,12 +29,22 @@ define 'grid', ['path-finder'], (PathFinder)->
 			
 		holdCell:(ij, obj)->
 			ij = if ij.x then @toIJ ij else ij
-			
-			if !@grid.isWalkableAt ij.i, ij.j
-				console.error 'Hold cell error - current cell is already taken'
-				return
+			node = @grid.getNodeAt(ij.i, ij.j)
 
-			@grid.setWalkableAt(ij.i, ij.j, false)
+			if obj.isHoldCell 
+				node.walkable = false
+				node.holder = obj
+			else 
+				node.lines ?= {}
+				node.lines[obj.id] = obj
+				console.log node.lines.length
+
+				
+			# if !node.walkable and (node.holder.id isnt obj.id)
+			# 	console.error 'Hold cell error - current cell is already taken'
+			# 	return false
+
+
 			@refreshGrid()
 
 		releaseCell:(ij, obj)->
@@ -44,7 +54,9 @@ define 'grid', ['path-finder'], (PathFinder)->
 				console.warn 'Release cell warning - current cell is already empty'
 				return
 
-			@grid.setWalkableAt(ij.i, ij.j, true)
+			node = @grid.getNodeAt(ij.i, ij.j)
+			node.walkable = true
+			node.holder = null
 			@refreshGrid()
 
 		holdCellXY:(coords, obj)->
@@ -78,7 +90,8 @@ define 'grid', ['path-finder'], (PathFinder)->
 			@clearGrid()
 			for j in [0...@h]
 				for i in [0...@w]
-					if (@grid.getNodeAt i, j).walkable is false
+					node = @grid.getNodeAt i, j
+					if node.walkable is false or node.lines?.length > 0
 						rect = App.two.makeRectangle (i*App.gs)+(App.gs/2), (j*App.gs)+(App.gs/2), App.gs, App.gs
 						rect.fill = 'rgba(255,255,255,.15)'
 						rect.noStroke()

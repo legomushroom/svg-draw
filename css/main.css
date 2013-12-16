@@ -31,8 +31,10 @@ html {
   background-color: rgba(0,0,0,0.1);
 }
 .block-e {
-  border-color: rgba(69,173,168,0.95);
-  background-color: rgba(69,173,168,0.1);
+  border-color: rgba(0,223,252,0.95);
+}
+.block-e.is-invalid {
+  border-color: #f00;
 }
 .tools-l {
   position: fixed;

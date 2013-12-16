@@ -5,12 +5,14 @@ require.config
 		hammer: 			'lib/hammer'
 		tween: 				'lib/tween.min'
 		two: 					'lib/two'
+		md5: 					'lib/md5'
 		'path-finder':'lib/pathfinding-browser'
 		path: 				'modules/path'
+		block: 				'modules/block'
 
 	shim: { "two": { exports: "Two" } }
 
-define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'grid', 'path-finder'], (helpers, hammer, $, Two, Path, Grid, PathFinder )->
+define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', 'path-finder'], (helpers, hammer, $, Two, Path, Block, Grid, PathFinder )->
 	'use strict'
 	class App
 		constructor:->
@@ -18,12 +20,14 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'grid', 'path-find
 			@listenToTouches()    
 			@listenToTools()    
 
-		initVars:->
+		initVars:->	
+			@$main = $('#js-main')
+			@$tools = $('#js-tools')
 
 			@two = new Two(
 				fullscreen: true
 				autostart:  true
-			).appendTo($('#js-main')[0])
+			).appendTo(@$main[0])
 
 			@$svgCanvas = $ @two.renderer.domElement
 			@helpers = helpers
@@ -38,9 +42,13 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'grid', 'path-find
 				isSmartPath: true
 
 			@debug = 
-				isGrid: false
+				isGrid: true
 
 			@currTool = 'path'
+			
+			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'
+
+			@
 
 		listenToTools:->
 			it = @; 
@@ -55,17 +63,30 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'grid', 'path-find
 				switch @currTool
 					when 'path'
 						@touchPath(e)
+					when 'block'
+						@touchBlock(e)
+
+			hammer(@$svgCanvas[0]).on 'drag', (e)=>
+				switch @currTool
+					when 'path'
+						@dragPath(e)
+					when 'block'
+						@dragBlock(e)
 
 			hammer(@$svgCanvas[0]).on 'release', (e)=>
 				switch @currTool
 					when 'path'
 						@releasePath(e)
 
-			hammer(@$svgCanvas[0]).on 'drag', (e)=>
-				switch @currTool
-					when 'path'
-						@dragPath(e)
-				
+		touchBlock:(e)->
+			coords = helpers.getEventCoords(e)
+			if !@grid.isFreeCell coords then return
+			@currBlock = new Block coords: coords
+
+		dragBlock:(e)->
+			coords = helpers.getEventCoords(e)
+			if @grid.isFreeCell coords
+				@currBlock?.dragResize  {x: e.gesture.deltaX, y:  e.gesture.deltaY}
 
 		touchPath:(e)->
 			coords = helpers.getEventCoords(e)

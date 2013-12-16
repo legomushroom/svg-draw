@@ -31,8 +31,13 @@ body, html
 
 .block-e
 	@extends .place-preview-e
-	border-color rgba(rgb(c-green1),.95)
-	background-color rgba(rgb(c-green1),0.1)
+	border-color rgba(#00DFFC,.95)
+	// background-color rgba(#00DFFC,0.1)
+	// min-width 1em
+	// min-height 1em
+
+	&.is-invalid
+		border-color red
 
 .tools-l
 	position: fixed

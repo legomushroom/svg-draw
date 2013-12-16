@@ -7,8 +7,10 @@
       hammer: 'lib/hammer',
       tween: 'lib/tween.min',
       two: 'lib/two',
+      md5: 'lib/md5',
       'path-finder': 'lib/pathfinding-browser',
-      path: 'modules/path'
+      path: 'modules/path',
+      block: 'modules/block'
     },
     shim: {
       "two": {
@@ -17,7 +19,7 @@
     }
   });
 
-  define('main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'grid', 'path-finder'], function(helpers, hammer, $, Two, Path, Grid, PathFinder) {
+  define('main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', 'path-finder'], function(helpers, hammer, $, Two, Path, Block, Grid, PathFinder) {
     'use strict';
     var App;
 
@@ -29,10 +31,12 @@
       }
 
       App.prototype.initVars = function() {
+        this.$main = $('#js-main');
+        this.$tools = $('#js-tools');
         this.two = new Two({
           fullscreen: true,
           autostart: true
-        }).appendTo($('#js-main')[0]);
+        }).appendTo(this.$main[0]);
         this.$svgCanvas = $(this.two.renderer.domElement);
         this.helpers = helpers;
         this.paths = [];
@@ -43,9 +47,11 @@
           isSmartPath: true
         };
         this.debug = {
-          isGrid: false
+          isGrid: true
         };
-        return this.currTool = 'path';
+        this.currTool = 'path';
+        this.$tools.find("[data-role=\"" + this.currTool + "\"]").addClass('is-check');
+        return this;
       };
 
       App.prototype.listenToTools = function() {
@@ -69,20 +75,48 @@
           switch (_this.currTool) {
             case 'path':
               return _this.touchPath(e);
+            case 'block':
+              return _this.touchBlock(e);
           }
         });
-        hammer(this.$svgCanvas[0]).on('release', function(e) {
+        hammer(this.$svgCanvas[0]).on('drag', function(e) {
+          switch (_this.currTool) {
+            case 'path':
+              return _this.dragPath(e);
+            case 'block':
+              return _this.dragBlock(e);
+          }
+        });
+        return hammer(this.$svgCanvas[0]).on('release', function(e) {
           switch (_this.currTool) {
             case 'path':
               return _this.releasePath(e);
           }
         });
-        return hammer(this.$svgCanvas[0]).on('drag', function(e) {
-          switch (_this.currTool) {
-            case 'path':
-              return _this.dragPath(e);
-          }
+      };
+
+      App.prototype.touchBlock = function(e) {
+        var coords;
+
+        coords = helpers.getEventCoords(e);
+        if (!this.grid.isFreeCell(coords)) {
+          return;
+        }
+        return this.currBlock = new Block({
+          coords: coords
         });
+      };
+
+      App.prototype.dragBlock = function(e) {
+        var coords, _ref;
+
+        coords = helpers.getEventCoords(e);
+        if (this.grid.isFreeCell(coords)) {
+          return (_ref = this.currBlock) != null ? _ref.dragResize({
+            x: e.gesture.deltaX,
+            y: e.gesture.deltaY
+          }) : void 0;
+        }
       };
 
       App.prototype.touchPath = function(e) {

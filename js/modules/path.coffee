@@ -1,11 +1,16 @@
 define 'path', ['two', 'jquery', 'helpers'], (Two, $, helpers)->
 	class Path
 		constructor:(@o={})->
+			@id = helpers.genHash()
+			@type = 'path'
+			@isHoldCell = false
+
 			@line = App.two.makeLine(@o.coords.x, @o.coords.y, @o.coords.x, @o.coords.y)
 			@line.noFill().stroke = @o.strokeColor or "#00DFFC" 
 			@line.linewidth = @o.strokeWidth or 2
 
-			App.grid.holdCell @o.coords
+
+			App.grid.holdCell @o.coords, @
 
 			for vert in @line.vertices
 				vert.addSelf @line.translation
@@ -46,7 +51,7 @@ define 'path', ['two', 'jquery', 'helpers'], (Two, $, helpers)->
 
 
 		pushPoint:(point)->
-			App.grid.holdCell point
+			App.grid.holdCell point, @
 			@line.vertices.push point
 
 

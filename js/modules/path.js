@@ -9,10 +9,13 @@
           _this = this;
 
         this.o = o != null ? o : {};
+        this.id = helpers.genHash();
+        this.type = 'path';
+        this.isHoldCell = false;
         this.line = App.two.makeLine(this.o.coords.x, this.o.coords.y, this.o.coords.x, this.o.coords.y);
         this.line.noFill().stroke = this.o.strokeColor || "#00DFFC";
         this.line.linewidth = this.o.strokeWidth || 2;
-        App.grid.holdCell(this.o.coords);
+        App.grid.holdCell(this.o.coords, this);
         _ref = this.line.vertices;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           vert = _ref[_i];
@@ -84,7 +87,7 @@
       };
 
       Path.prototype.pushPoint = function(point) {
-        App.grid.holdCell(point);
+        App.grid.holdCell(point, this);
         return this.line.vertices.push(point);
       };
 

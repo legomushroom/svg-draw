@@ -11,17 +11,19 @@ html
 				circle(cx = "5", cy = "5", r = "5")
 
 		.main-l#js-main(role="main")
-			.tools-l#js-tools
-				
-				.btn-b.is-hoverable.is-check(data-role="path", title="path")#js-tool
-					.iconmelon
-						svg(viewBox="0 0 32 32")
-							use(xlink:href="#pen-feather")
 
-				.btn-b.is-hoverable(data-role="block", title="block")#js-tool
-					.iconmelon
-						svg(viewBox="0 0 32 32")
-							use(xlink:href="#handle-vector")
+		.tools-l#js-tools
+			.btn-b.is-hoverable(data-role="path", title="path")#js-tool
+				.iconmelon
+					svg(viewBox="0 0 32 32")
+						use(xlink:href="#pen-feather")
+
+			.btn-b.is-hoverable(data-role="block", title="block")#js-tool
+				.iconmelon
+					svg(viewBox="0 0 32 32")
+						use(xlink:href="#handle-vector")
+
+				
 				
 
 		script(type='text/javascript', src='js/lib/require.js', data-main='js/main')
