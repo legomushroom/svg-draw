@@ -5,11 +5,12 @@ require.config
 		hammer: 			'lib/hammer'
 		tween: 				'lib/tween.min'
 		two: 					'lib/two'
+		'path-finder':'lib/pathfinding-browser'
 		path: 				'modules/path'
 
 	shim: { "two": { exports: "Two" } }
 
-define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path'], (helpers, hammer, $, Two, Path )->
+define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'grid', 'path-finder'], (helpers, hammer, $, Two, Path, Grid, PathFinder )->
 	'use strict'
 	class App
 		constructor:->
@@ -17,6 +18,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path'], (helpers, hammer,
 			@listenToTouches()    
 
 		initVars:->
+
 			@two = new Two(
 				fullscreen: true
 				autostart:  true
@@ -26,22 +28,40 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path'], (helpers, hammer,
 			@helpers = helpers
 			@paths 		= []
 			@objects 	= []
+			
+			@gs = 16
+
+			@grid 		= new Grid
+
+			@settings = 
+				isSmartPath: true
+
+			@debug = 
+				isGrid: false
 
 
 
 		listenToTouches:->
 			@currPath = null
 			hammer(@$svgCanvas[0]).on 'touch', (e)=>
+				coords = helpers.getEventCoords(e)
+
+				if !@grid.isFreeCell coords
+					@currPath = null
+					return
+
 				@currPath = new Path
-							coords: @helpers.getNearestCellCenter { x: e.gesture.center.pageX, y: e.gesture.center.pageY }
+							coords: @grid.getNearestCellCenter coords
 				@paths.push @currPath
 
 			hammer(@$svgCanvas[0]).on 'release', (e)=>
-				@currPath.removeIfEmpty()
-				@currPath.simplify()
+				@currPath?.removeIfEmpty()
 
 			hammer(@$svgCanvas[0]).on 'drag', (e)=>
-				@currPath.addPoint @helpers.to2Coordinates e
+				coords = helpers.getEventCoords(e)
+				if @grid.isFreeCell coords
+					@currPath?.addPoint coords
+
 
 		
 	window.App = new App

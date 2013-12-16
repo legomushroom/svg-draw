@@ -7,6 +7,7 @@
       hammer: 'lib/hammer',
       tween: 'lib/tween.min',
       two: 'lib/two',
+      'path-finder': 'lib/pathfinding-browser',
       path: 'modules/path'
     },
     shim: {
@@ -16,7 +17,7 @@
     }
   });
 
-  define('main', ['helpers', 'hammer', 'jquery', 'two', 'path'], function(helpers, hammer, $, Two, Path) {
+  define('main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'grid', 'path-finder'], function(helpers, hammer, $, Two, Path, Grid, PathFinder) {
     'use strict';
     var App;
 
@@ -34,7 +35,15 @@
         this.$svgCanvas = $(this.two.renderer.domElement);
         this.helpers = helpers;
         this.paths = [];
-        return this.objects = [];
+        this.objects = [];
+        this.gs = 16;
+        this.grid = new Grid;
+        this.settings = {
+          isSmartPath: true
+        };
+        return this.debug = {
+          isGrid: false
+        };
       };
 
       App.prototype.listenToTouches = function() {
@@ -42,20 +51,30 @@
 
         this.currPath = null;
         hammer(this.$svgCanvas[0]).on('touch', function(e) {
+          var coords;
+
+          coords = helpers.getEventCoords(e);
+          if (!_this.grid.isFreeCell(coords)) {
+            _this.currPath = null;
+            return;
+          }
           _this.currPath = new Path({
-            coords: _this.helpers.getNearestCellCenter({
-              x: e.gesture.center.pageX,
-              y: e.gesture.center.pageY
-            })
+            coords: _this.grid.getNearestCellCenter(coords)
           });
           return _this.paths.push(_this.currPath);
         });
         hammer(this.$svgCanvas[0]).on('release', function(e) {
-          _this.currPath.removeIfEmpty();
-          return _this.currPath.simplify();
+          var _ref;
+
+          return (_ref = _this.currPath) != null ? _ref.removeIfEmpty() : void 0;
         });
         return hammer(this.$svgCanvas[0]).on('drag', function(e) {
-          return _this.currPath.addPoint(_this.helpers.to2Coordinates(e));
+          var coords, _ref;
+
+          coords = helpers.getEventCoords(e);
+          if (_this.grid.isFreeCell(coords)) {
+            return (_ref = _this.currPath) != null ? _ref.addPoint(coords) : void 0;
+          }
         });
       };
 
