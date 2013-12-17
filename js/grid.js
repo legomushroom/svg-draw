@@ -12,74 +12,40 @@
         this.grid = new PathFinder.Grid(this.w, this.h);
         this.finder = new PathFinder.AStarFinder({
           allowDiagonal: true,
-          dontCrossCorners: true
+          dontCrossCorners: true,
+          heuristic: this.pf.Heuristic.manhattan
         });
         this.debugGrid = [];
         this;
       }
 
-      Grid.prototype.toIJ = function(coords) {
-        var result;
-
-        return result = {
-          i: ~~(coords.x / App.gs),
-          j: ~~(coords.y / App.gs)
-        };
-      };
-
-      Grid.prototype.fromIJ = function(ij) {
-        var result;
-
-        return result = {
-          x: ij.i * App.gs + (App.gs / 2),
-          y: ij.j * App.gs + (App.gs / 2)
-        };
-      };
-
-      Grid.prototype.isFreeCell = function(coords) {
-        var ij;
-
-        ij = this.toIJ(coords);
-        return this.grid.isWalkableAt(ij.i, ij.j);
-      };
-
       Grid.prototype.holdCell = function(ij, obj) {
+        var node;
+
+        ij = ij.x ? this.toIJ(ij) : ij;
+        node = this.grid.getNodeAt(ij.i, ij.j);
+        if (!node.walkable && (node.holder.id !== obj.id)) {
+          console.error('Hold cell error - current cell is already taken');
+          return false;
+        }
+        node.walkable = false;
+        node.holder = obj;
+        return true;
+      };
+
+      Grid.prototype.releaseCell = function(ij, obj) {
         var node, _ref;
 
         ij = ij.x ? this.toIJ(ij) : ij;
         node = this.grid.getNodeAt(ij.i, ij.j);
-        if (obj.isHoldCell) {
-          node.walkable = false;
-          node.holder = obj;
-        } else {
-          if ((_ref = node.lines) == null) {
-            node.lines = {};
-          }
-          node.lines[obj.id] = obj;
-          console.log(node.lines.length);
+        if (((_ref = node.holder) != null ? _ref.id : void 0) === obj.id) {
+          node.walkable = true;
+          return node.holder = null;
         }
-        return this.refreshGrid();
       };
 
-      Grid.prototype.releaseCell = function(ij, obj) {
-        var node;
-
-        ij = ij.x ? this.toIJ(ij) : ij;
-        if (this.grid.isWalkableAt(ij.i, ij.j)) {
-          console.warn('Release cell warning - current cell is already empty');
-          return;
-        }
-        node = this.grid.getNodeAt(ij.i, ij.j);
-        node.walkable = true;
-        node.holder = null;
-        return this.refreshGrid();
-      };
-
-      Grid.prototype.holdCellXY = function(coords, obj) {
-        var ij;
-
-        ij = this.toIJ(coords);
-        return this.holdCell(ij, obj);
+      Grid.prototype.atIJ = function(ij) {
+        return this.grid.getNodeAt(ij.i, ij.j);
       };
 
       Grid.prototype.getNearestCell = function(coords) {
@@ -106,14 +72,63 @@
       Grid.prototype.getGapPolyfill = function(fromTo) {
         var from, to;
 
-        from = this.toIJ(fromTo.from);
-        to = this.toIJ(fromTo.to);
+        from = fromTo.from;
+        to = fromTo.to;
+        if (from.x) {
+          from = this.toIJ(from);
+          to = this.toIJ(to);
+        }
         this.gridBackup = this.grid.clone();
         return this.finder.findPath(from.i, from.j, to.i, to.j, this.gridBackup);
       };
 
+      Grid.prototype.toIJ = function(coords) {
+        var result;
+
+        return result = {
+          i: ~~(coords.x / App.gs),
+          j: ~~(coords.y / App.gs)
+        };
+      };
+
+      Grid.prototype.fromIJ = function(ij) {
+        var result;
+
+        return result = {
+          x: ij.i * App.gs + (App.gs / 2),
+          y: ij.j * App.gs + (App.gs / 2)
+        };
+      };
+
+      Grid.prototype.isFreeCell = function(coords) {
+        var ij;
+
+        if (coords.x) {
+          ij = this.toIJ(coords);
+        } else {
+          ij = coords;
+        }
+        return this.grid.isWalkableAt(ij.i, ij.j);
+      };
+
+      Grid.prototype.ifBlockCell = function(coords) {
+        var ij, node, _ref;
+
+        if (coords.x) {
+          ij = this.toIJ(coords);
+        } else {
+          ij = coords;
+        }
+        node = this.grid.getNodeAt(ij.i, ij.j);
+        if (((_ref = node.holder) != null ? _ref.type : void 0) === 'block') {
+          return node.holder;
+        } else {
+          return false;
+        }
+      };
+
       Grid.prototype.refreshGrid = function() {
-        var i, j, node, rect, _i, _ref, _results;
+        var i, j, rect, _i, _ref, _results;
 
         if (!App.debug.isGrid) {
           return;
@@ -122,12 +137,11 @@
         _results = [];
         for (j = _i = 0, _ref = this.h; 0 <= _ref ? _i < _ref : _i > _ref; j = 0 <= _ref ? ++_i : --_i) {
           _results.push((function() {
-            var _j, _ref1, _ref2, _results1;
+            var _j, _ref1, _results1;
 
             _results1 = [];
             for (i = _j = 0, _ref1 = this.w; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
-              node = this.grid.getNodeAt(i, j);
-              if (node.walkable === false || ((_ref2 = node.lines) != null ? _ref2.length : void 0) > 0) {
+              if ((this.grid.getNodeAt(i, j)).walkable === false) {
                 rect = App.two.makeRectangle((i * App.gs) + (App.gs / 2), (j * App.gs) + (App.gs / 2), App.gs, App.gs);
                 rect.fill = 'rgba(255,255,255,.15)';
                 rect.noStroke();

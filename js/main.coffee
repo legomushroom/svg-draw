@@ -9,6 +9,7 @@ require.config
 		'path-finder':'lib/pathfinding-browser'
 		path: 				'modules/path'
 		block: 				'modules/block'
+		ProtoClass: 	'modules/ProtoClass'
 
 	shim: { "two": { exports: "Two" } }
 
@@ -45,7 +46,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', '
 				isGrid: true
 
 			@currTool = 'path'
-			
+
 			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'
 
 			@
@@ -59,24 +60,28 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', '
 
 		listenToTouches:->
 			@currPath = null
-			hammer(@$svgCanvas[0]).on 'touch', (e)=>
+			hammer(@$main[0]).on 'touch', (e)=>
 				switch @currTool
 					when 'path'
 						@touchPath(e)
 					when 'block'
 						@touchBlock(e)
 
-			hammer(@$svgCanvas[0]).on 'drag', (e)=>
+			hammer(@$main[0]).on 'drag', (e)=>
 				switch @currTool
 					when 'path'
 						@dragPath(e)
 					when 'block'
 						@dragBlock(e)
 
-			hammer(@$svgCanvas[0]).on 'release', (e)=>
+			hammer(@$main[0]).on 'release', (e)=>
 				switch @currTool
 					when 'path'
 						@releasePath(e)
+					when 'block'
+						@releaseBlock(e)
+
+		releaseBlock:(e)-> @currBlock.addFinilize()
 
 		touchBlock:(e)->
 			coords = helpers.getEventCoords(e)
@@ -94,17 +99,43 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', '
 				@currPath = null
 				return
 
-			@currPath = new Path
-						coords: @grid.getNearestCellCenter coords
-			@paths.push @currPath
+			@addCurrentPath(coords)
 
 		releasePath:(e)-> @currPath?.removeIfEmpty()
 
 		dragPath:(e)->
 			coords = helpers.getEventCoords(e)
 			if @grid.isFreeCell coords
-				@currPath?.addPoint coords
+				if @isBlockToPath
+					@currPath = @isBlockToPath; @isBlockToPath = false
+				else @currPath?.addPoint coords
+
+
+		addCurrentPath:(coords)->
+			@currPath = new Path
+					coords: @grid.getNearestCellCenter coords
+			@paths.push @currPath
 
 
 		
 	window.App = new App
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,21 +4,121 @@
     var Path;
 
     Path = (function() {
-      function Path(o) {
-        var vert, _i, _len, _ref,
-          _this = this;
+      Path.prototype.alwaysRecalc = true;
 
+      function Path(o) {
         this.o = o != null ? o : {};
         this.id = helpers.genHash();
         this.type = 'path';
         this.isHoldCell = false;
-        this.line = App.two.makeLine(this.o.coords.x, this.o.coords.y, this.o.coords.x, this.o.coords.y);
+        if (this.o.coords) {
+          this.addLine(this.o.coords);
+        }
+      }
+
+      Path.prototype.addLine = function(coords, normalize) {
+        var vert, _i, _len, _ref, _ref1, _ref2, _ref3, _ref4,
+          _this = this;
+
+        this.ij = App.grid.toIJ(coords);
+        if (normalize) {
+          if (((_ref = App.grid.atIJ({
+            i: ij.i - 1,
+            j: ij.j
+          }).holder) != null ? _ref.id : void 0) === this.connectedTo.id) {
+            coords.x -= App.gs / 2;
+          }
+          if (((_ref1 = App.grid.atIJ({
+            i: ij.i + 1,
+            j: ij.j
+          }).holder) != null ? _ref1.id : void 0) === this.connectedTo.id) {
+            coords.x += App.gs / 2;
+          }
+          if (((_ref2 = App.grid.atIJ({
+            i: ij.i,
+            j: ij.j - 1
+          }).holder) != null ? _ref2.id : void 0) === this.connectedTo.id) {
+            coords.y -= App.gs / 2;
+          }
+          if (((_ref3 = App.grid.atIJ({
+            i: ij.i,
+            j: ij.j + 1
+          }).holder) != null ? _ref3.id : void 0) === this.connectedTo.id) {
+            coords.y += App.gs / 2;
+          }
+        }
+        this.line = App.two.makeLine(coords.x, coords.y, coords.x, coords.y);
         this.line.noFill().stroke = this.o.strokeColor || "#00DFFC";
         this.line.linewidth = this.o.strokeWidth || 2;
-        App.grid.holdCell(this.o.coords, this);
-        _ref = this.line.vertices;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          vert = _ref[_i];
+        App.grid.holdCell(coords, this);
+        _ref4 = this.line.vertices;
+        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+          vert = _ref4[_i];
+          vert.addSelf(this.line.translation);
+        }
+        this.line.translation.clear();
+        return setTimeout((function() {
+          _this.$dom = $("#two-" + _this.line.id);
+          return _this.addMarkers();
+        }), 25);
+      };
+
+      Path.prototype.removeIfEmpty = function() {
+        if (!this.isEmpty()) {
+          return;
+        }
+        App.grid.releaseCell({
+          x: this.line.vertices[0].x,
+          y: this.line.vertices[0].y
+        }, this);
+        return this.line.remove();
+      };
+
+      Path.prototype.isEmpty = function() {
+        return this.line.vertices.length <= 2;
+      };
+
+      Path.prototype.addPoint = function(coords) {
+        var twojsCoords;
+
+        coords = App.grid.getNearestCellCenter(coords);
+        if (!this.line) {
+          return this.addLine(coords, true);
+        } else {
+          if (!this.alwaysRecalc) {
+            twojsCoords = helpers.makePoint(coords.x, coords.y);
+            App.settings.isSmartPath && this.fillGapOnAdd(coords);
+            return this.pushPoint(twojsCoords);
+          } else {
+            return this.newEndPoint(coords);
+          }
+        }
+      };
+
+      Path.prototype.newEndPoint = function(coords) {
+        var path;
+
+        this.endIJ = App.grid.toIJ(coords);
+        path = App.grid.getGapPolyfill({
+          from: this.ij,
+          to: this.endIJ
+        });
+        return this.resetLine(path);
+      };
+
+      Path.prototype.resetLine = function(path) {
+        var i, point, vert, xy, _i, _j, _len, _len1, _ref, _ref1, _results,
+          _this = this;
+
+        if ((_ref = this.line) != null) {
+          _ref.remove();
+        }
+        this.line = App.two.makeLine(path[0][0] * App.gs, path[0][1] * App.gs, path[0][0] * App.gs, path[0][1] * App.gs);
+        this.line.noFill().stroke = this.o.strokeColor || "#00DFFC";
+        this.line.linewidth = this.o.strokeWidth || 2;
+        _ref1 = this.line.vertices;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          vert = _ref1[_i];
           vert.addSelf(this.line.translation);
         }
         this.line.translation.clear();
@@ -26,26 +126,19 @@
           _this.$dom = $("#two-" + _this.line.id);
           return _this.addMarkers();
         }), 25);
-      }
-
-      Path.prototype.removeIfEmpty = function() {
-        if (this.line.vertices.length > 2) {
-          return;
+        _results = [];
+        for (i = _j = 0, _len1 = path.length; _j < _len1; i = ++_j) {
+          point = path[i];
+          if (i === 0) {
+            continue;
+          }
+          xy = App.grid.fromIJ({
+            i: point[0],
+            j: point[1]
+          });
+          _results.push(this.line.vertices.push(helpers.makePoint(xy.x, xy.y)));
         }
-        App.grid.releaseCell({
-          x: this.line.vertices[0].x,
-          y: this.line.vertices[0].y
-        });
-        return this.line.remove();
-      };
-
-      Path.prototype.addPoint = function(coords) {
-        var twojsCoords;
-
-        coords = App.grid.getNearestCellCenter(coords);
-        twojsCoords = helpers.makePoint(coords.x, coords.y);
-        App.settings.isSmartPath && this.fillGapOnAdd(coords);
-        return this.pushPoint(twojsCoords);
+        return _results;
       };
 
       Path.prototype.fillGapOnAdd = function(coords) {

@@ -10,7 +10,8 @@
       md5: 'lib/md5',
       'path-finder': 'lib/pathfinding-browser',
       path: 'modules/path',
-      block: 'modules/block'
+      block: 'modules/block',
+      ProtoClass: 'modules/ProtoClass'
     },
     shim: {
       "two": {
@@ -71,7 +72,7 @@
         var _this = this;
 
         this.currPath = null;
-        hammer(this.$svgCanvas[0]).on('touch', function(e) {
+        hammer(this.$main[0]).on('touch', function(e) {
           switch (_this.currTool) {
             case 'path':
               return _this.touchPath(e);
@@ -79,7 +80,7 @@
               return _this.touchBlock(e);
           }
         });
-        hammer(this.$svgCanvas[0]).on('drag', function(e) {
+        hammer(this.$main[0]).on('drag', function(e) {
           switch (_this.currTool) {
             case 'path':
               return _this.dragPath(e);
@@ -87,12 +88,18 @@
               return _this.dragBlock(e);
           }
         });
-        return hammer(this.$svgCanvas[0]).on('release', function(e) {
+        return hammer(this.$main[0]).on('release', function(e) {
           switch (_this.currTool) {
             case 'path':
               return _this.releasePath(e);
+            case 'block':
+              return _this.releaseBlock(e);
           }
         });
+      };
+
+      App.prototype.releaseBlock = function(e) {
+        return this.currBlock.addFinilize();
       };
 
       App.prototype.touchBlock = function(e) {
@@ -127,10 +134,7 @@
           this.currPath = null;
           return;
         }
-        this.currPath = new Path({
-          coords: this.grid.getNearestCellCenter(coords)
-        });
-        return this.paths.push(this.currPath);
+        return this.addCurrentPath(coords);
       };
 
       App.prototype.releasePath = function(e) {
@@ -144,8 +148,20 @@
 
         coords = helpers.getEventCoords(e);
         if (this.grid.isFreeCell(coords)) {
-          return (_ref = this.currPath) != null ? _ref.addPoint(coords) : void 0;
+          if (this.isBlockToPath) {
+            this.currPath = this.isBlockToPath;
+            return this.isBlockToPath = false;
+          } else {
+            return (_ref = this.currPath) != null ? _ref.addPoint(coords) : void 0;
+          }
         }
+      };
+
+      App.prototype.addCurrentPath = function(coords) {
+        this.currPath = new Path({
+          coords: this.grid.getNearestCellCenter(coords)
+        });
+        return this.paths.push(this.currPath);
       };
 
       return App;

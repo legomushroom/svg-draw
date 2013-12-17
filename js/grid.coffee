@@ -9,59 +9,35 @@ define 'grid', ['path-finder'], (PathFinder)->
 			@finder = new PathFinder.AStarFinder
 											allowDiagonal: 		true
 											dontCrossCorners: true
+											heuristic: @pf.Heuristic.manhattan
 
 			@debugGrid = []
 			@
-
-		toIJ:(coords)->
-			result = 
-				i: ~~(coords.x/App.gs)
-				j: ~~(coords.y/App.gs)
-
-		fromIJ:(ij)->
-			result =
-				x: ij.i*App.gs+(App.gs/2)
-				y: ij.j*App.gs+(App.gs/2)
-
-		isFreeCell:(coords)->
-			ij = @toIJ(coords)
-			@grid.isWalkableAt ij.i, ij.j
 			
 		holdCell:(ij, obj)->
 			ij = if ij.x then @toIJ ij else ij
 			node = @grid.getNodeAt(ij.i, ij.j)
 
-			if obj.isHoldCell 
-				node.walkable = false
-				node.holder = obj
-			else 
-				node.lines ?= {}
-				node.lines[obj.id] = obj
-				console.log node.lines.length
+			
+			if !node.walkable and (node.holder.id isnt obj.id)
+				console.error 'Hold cell error - current cell is already taken'
+				return false
 
-				
-			# if !node.walkable and (node.holder.id isnt obj.id)
-			# 	console.error 'Hold cell error - current cell is already taken'
-			# 	return false
-
-
-			@refreshGrid()
+			node.walkable = false
+			node.holder = obj
+			true
 
 		releaseCell:(ij, obj)->
 			ij = if ij.x then @toIJ ij else ij
 			
-			if @grid.isWalkableAt ij.i, ij.j
-				console.warn 'Release cell warning - current cell is already empty'
-				return
-
 			node = @grid.getNodeAt(ij.i, ij.j)
-			node.walkable = true
-			node.holder = null
-			@refreshGrid()
+			if node.holder?.id is obj.id
+				node.walkable = true
+				node.holder = null
 
-		holdCellXY:(coords, obj)->
-			ij = @toIJ(coords)
-			@holdCell ij, obj
+		atIJ:(ij)->
+			@grid.getNodeAt(ij.i, ij.j)
+	
 
 		getNearestCell:(coords)->
 			x = App.gs * ~~(coords.x / App.gs)
@@ -78,11 +54,47 @@ define 'grid', ['path-finder'], (PathFinder)->
 				y: coords.y + (App.gs/2)
 
 		getGapPolyfill:(fromTo)->
-			from = @toIJ fromTo.from
-			to   = @toIJ fromTo.to
+			from = fromTo.from
+			to   = fromTo.to
+			
+			if from.x
+				from = @toIJ 	from
+				to = @toIJ 		to
+
 			@gridBackup = @grid.clone()
 			@finder.findPath from.i, from.j, to.i, to.j, @gridBackup
 
+
+		toIJ:(coords)->
+			result = 
+				i: ~~(coords.x/App.gs)
+				j: ~~(coords.y/App.gs)
+
+		fromIJ:(ij)->
+			result =
+				x: ij.i*App.gs+(App.gs/2)
+				y: ij.j*App.gs+(App.gs/2)
+
+		isFreeCell:(coords)->
+			if coords.x
+				ij = @toIJ(coords)
+			else ij = coords
+
+			@grid.isWalkableAt ij.i, ij.j
+
+		ifBlockCell:(coords)->
+			if coords.x
+				ij = @toIJ(coords)
+			else ij = coords
+
+			node = @grid.getNodeAt(ij.i, ij.j)
+			return if node.holder?.type is 'block' then node.holder else false
+
+
+
+		# holdCellXY:(coords, obj)->
+		# 	ij = @toIJ(coords)
+		# 	@holdCell ij, obj
 
 		# DEBUG SECTION
 		refreshGrid:->
@@ -90,8 +102,7 @@ define 'grid', ['path-finder'], (PathFinder)->
 			@clearGrid()
 			for j in [0...@h]
 				for i in [0...@w]
-					node = @grid.getNodeAt i, j
-					if node.walkable is false or node.lines?.length > 0
+					if (@grid.getNodeAt i, j).walkable is false
 						rect = App.two.makeRectangle (i*App.gs)+(App.gs/2), (j*App.gs)+(App.gs/2), App.gs, App.gs
 						rect.fill = 'rgba(255,255,255,.15)'
 						rect.noStroke()
