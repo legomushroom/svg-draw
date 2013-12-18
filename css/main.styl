@@ -26,7 +26,7 @@ body, html
 
 .place-preview-e
 	position: absolute
-	border 1px solid rgba(0,0,0,.2)
+	border ex solid rgba(0,0,0,.2)
 	background-color rgba(0,0,0,.1)
 
 .block-e
@@ -34,10 +34,15 @@ body, html
 	border-color rgba(#00DFFC,.95)
 
 	&.is-connect-path
-		box-shadow 0 0 16px #00DFFC
+		box-shadow 0 0 2*gs #00DFFC
+		cursor se-resize
 
 	&.is-invalid
 		border-color red
+
+	&.is-drag
+		cursor move
+		box-shadow 0 0 2*gs #12ff00
 
 .tools-l
 	position: fixed
@@ -47,7 +52,7 @@ body, html
 	width 100%
 	height 4*gs
 	background-color rgba(#005F6B, .95)
-	box-shadow 0 0 4px black
+	box-shadow 0 0 (gs/2) black
 
 	.btn-b
 		float: left

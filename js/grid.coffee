@@ -100,6 +100,7 @@ define 'grid', ['path-finder'], (PathFinder)->
 
 		# DEBUG SECTION
 		refreshGrid:->
+
 			return if !App.debug.isGrid 
 			@clearGrid()
 			for j in [0...@h]

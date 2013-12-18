@@ -48,7 +48,7 @@
         this.debug = {
           isGrid: true
         };
-        this.currTool = 'path';
+        this.currTool = 'block';
         this.$tools.find("[data-role=\"" + this.currTool + "\"]").addClass('is-check');
         return this;
       };
@@ -103,12 +103,10 @@
         var coords, _ref;
 
         coords = helpers.getEventCoords(e);
-        if (this.grid.isFreeCell(coords)) {
-          return (_ref = this.currBlock) != null ? _ref.dragResize({
-            x: e.gesture.deltaX,
-            y: e.gesture.deltaY
-          }) : void 0;
-        }
+        return (_ref = this.currBlock) != null ? _ref.setSizeDelta(this.grid.normalizeCoords({
+          x: e.gesture.deltaX,
+          y: e.gesture.deltaY
+        })) : void 0;
       };
 
       App.prototype.touchPath = function(e) {

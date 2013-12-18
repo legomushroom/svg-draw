@@ -41,7 +41,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', '
 			@debug = 
 				isGrid: true
 
-			@currTool = 'path'
+			@currTool = 'block'
 			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'
 
 			@
@@ -78,13 +78,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', '
 
 		dragBlock:(e)->
 			coords = helpers.getEventCoords(e)
-			if @grid.isFreeCell coords
-				@currBlock?.dragResize  {x: e.gesture.deltaX, y:  e.gesture.deltaY}
-
-
-
-
-
+			@currBlock?.setSizeDelta @grid.normalizeCoords {x: e.gesture.deltaX, y: e.gesture.deltaY}
 
 
 		touchPath:(e)->

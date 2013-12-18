@@ -13,32 +13,32 @@
 
       Block.prototype.isValid = false;
 
-      Block.prototype.sizeIJ = {
-        i: 1,
-        j: 1
-      };
-
-      Block.prototype.newSizeIJ = {
+      Block.prototype.startIJ = {
         i: 0,
         j: 0
       };
 
-      Block.prototype.paths = [];
+      Block.prototype.endIJ = {
+        i: 0,
+        j: 0
+      };
+
+      Block.prototype.isDragMode = true;
 
       function Block(o) {
+        var coords;
+
         this.o = o != null ? o : {};
         this.id = helpers.genHash();
-        this.coords = App.grid.getNearestCell(this.o.coords || {
-          x: 0,
-          y: 0
-        });
-        this.startIJ = App.grid.toIJ({
-          x: this.coords.x,
-          y: this.coords.y
-        });
-        this.addSelfToDom();
-        this.onChange = this.render;
+        if (this.o.coords) {
+          coords = App.grid.normalizeCoords(App.grid.getNearestCell(this.o.coords || {
+            x: 0,
+            y: 0
+          }));
+          this.set('startIJ', coords);
+        }
         this.createPorts();
+        this.onChange = this.render;
         this;
       }
 
@@ -58,15 +58,26 @@
         return _results;
       };
 
-      Block.prototype.addSelfToDom = function() {
-        this.$el = $('<div>').addClass('block-e').append($('<div>'));
-        App.$main.append(this.$el);
-        this.set({
-          'top': this.coords.y,
-          'left': this.coords.x
-        });
-        this.listenEvents();
+      Block.prototype.render = function() {
+        this.calcDimentions();
+        if (this.$el == null) {
+          this.$el = $('<div>').addClass('block-e').append($('<div>'));
+          App.$main.append(this.$el);
+          this.listenEvents();
+        }
+        this.$el.css({
+          'width': this.w * App.gs,
+          'height': this.h * App.gs,
+          'top': this.startIJ.j * App.gs,
+          'left': this.startIJ.i * App.gs
+        }).toggleClass('is-invalid', !this.isValid || (this.w * App.gs < App.gs) || (this.h * App.gs < App.gs));
         return this;
+      };
+
+      Block.prototype.calcDimentions = function() {
+        this.w = this.endIJ.i - this.startIJ.i;
+        this.h = this.endIJ.j - this.startIJ.j;
+        return this.refreshPorts();
       };
 
       Block.prototype.listenEvents = function() {
@@ -77,28 +88,77 @@
 
           coords = helpers.getEventCoords(e);
           if (App.currTool === 'path') {
-            return _this.getNearestPort(coords).addConnection();
+            return App.isBlockToPath = _this.getNearestPort(coords).addConnection();
+          }
+        });
+        hammer(this.$el[0]).on('drag', function(e) {
+          var coords;
+
+          coords = helpers.getEventCoords(e);
+          if (App.currTool === 'block') {
+            _this.moveTo({
+              x: e.gesture.deltaX,
+              y: e.gesture.deltaY
+            });
+            return false;
           }
         });
         hammer(this.$el[0]).on('release', function(e) {
           var coords;
 
           coords = helpers.getEventCoords(e);
-          if (App.currTool === 'path' && App.currPath) {
-            return _this.getNearestPort(coords).addConnection(App.currPath);
+          if (App.currTool === 'path') {
+            if (App.currPath && App.currBlock) {
+              App.currBlock.getNearestPort(coords).addConnection(App.currPath);
+              return App.isBlockToPath = null;
+            }
+          } else {
+            _this.removeOldSelfFromGrid();
+            _this.addFinilize();
+            return false;
           }
         });
         this.$el.on('mouseenter', function() {
+          if (_this.isDragMode) {
+            return;
+          }
           App.currBlock = _this;
           if (App.currTool === 'path') {
             return _this.$el.addClass('is-connect-path');
+          } else {
+            return _this.$el.addClass('is-drag');
           }
         });
         return this.$el.on('mouseleave', function() {
+          if (_this.isDragMode) {
+            return;
+          }
           App.currBlock = null;
           if (App.currTool === 'path') {
             return _this.$el.removeClass('is-connect-path');
+          } else {
+            return _this.$el.removeClass('is-drag');
           }
+        });
+      };
+
+      Block.prototype.moveTo = function(coords) {
+        coords = App.grid.normalizeCoords(coords);
+        if (!this.isMoveTo) {
+          this.buffStartIJ = this.startIJ;
+          this.buffEndIJ = this.endIJ;
+          this.isMoveTo = true;
+        }
+        return this.set({
+          'startIJ': {
+            i: this.buffStartIJ.i + coords.i,
+            j: this.buffStartIJ.j + coords.j
+          },
+          'endIJ': {
+            i: this.buffEndIJ.i + coords.i,
+            j: this.buffEndIJ.j + coords.j
+          },
+          'isValid': this.isSuiteSize()
         });
       };
 
@@ -108,19 +168,17 @@
         ij = App.grid.normalizeCoords(coords);
         min = {
           ij: {
-            i: -1,
-            j: -1
+            i: 9999999999,
+            j: 9999999999
           },
           port: null
         };
         _ref = this.ports;
         for (portName in _ref) {
           port = _ref[portName];
-          console.log(port.ij);
           i = Math.abs(port.ij.i - ij.i);
           j = Math.abs(port.ij.j - ij.j);
-          console.log(i, j);
-          if (min.ij.i < i || min.ij.j < j) {
+          if (min.ij.i > i || min.ij.j > j) {
             min.ij = {
               i: i,
               j: j
@@ -128,7 +186,6 @@
             min.port = port;
           }
         }
-        console.log(min.port);
         if (min.port === null) {
           return this.ports['bottom'];
         } else {
@@ -136,16 +193,39 @@
         }
       };
 
-      Block.prototype.dragResize = function(deltas) {
-        deltas = App.grid.getNearestCell(deltas);
-        this.set('newSizeIJ', App.grid.toIJ(deltas));
-        this.refreshPorts();
-        this.set({
-          'isValid': this.isSuiteSize(),
-          'w': deltas.x,
-          'h': deltas.y
+      Block.prototype.setSizeDelta = function(deltas) {
+        return this.set({
+          'endIJ': {
+            i: this.startIJ.i + deltas.i,
+            j: this.startIJ.j + deltas.j
+          },
+          'isValid': this.isSuiteSize()
         });
-        return this;
+      };
+
+      Block.prototype.isSuiteSize = function() {
+        var i, j, node, _i, _j, _ref, _ref1, _ref2, _ref3;
+
+        for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+            node = App.grid.grid.getNodeAt(i, j);
+            if (!node.walkable && (node.holder.id !== this.id)) {
+              return false;
+            }
+          }
+        }
+        this.calcDimentions();
+        return this.w > 0 && this.h > 0;
+      };
+
+      Block.prototype.addFinilize = function() {
+        this.isMoveTo = false;
+        if (!this.isValid) {
+          this.removeSelf();
+          return false;
+        }
+        this.setToGrid();
+        return this.isDragMode = false;
       };
 
       Block.prototype.refreshPorts = function() {
@@ -160,25 +240,11 @@
         return _results;
       };
 
-      Block.prototype.isSuiteSize = function() {
-        var i, j, node, _i, _j, _ref, _ref1, _ref2, _ref3;
-
-        for (i = _i = _ref = this.startIJ.i + this.sizeIJ.i, _ref1 = this.startIJ.i + this.newSizeIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
-          for (j = _j = _ref2 = this.startIJ.j + this.sizeIJ.j, _ref3 = this.startIJ.j + this.newSizeIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
-            node = App.grid.grid.getNodeAt(i, j);
-            if (!node.walkable && (node.holder.id !== this.id)) {
-              return false;
-            }
-          }
-        }
-        return this.newSizeIJ.i > 0 && this.newSizeIJ.j > 0;
-      };
-
       Block.prototype.setToGrid = function() {
         var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
 
-        for (i = _i = _ref = this.startIJ.i, _ref1 = this.startIJ.i + this.newSizeIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
-          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.startIJ.j + this.newSizeIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+        for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
             if (!App.grid.holdCell({
               i: i,
               j: j
@@ -188,24 +254,8 @@
             }
           }
         }
-      };
-
-      Block.prototype.render = function() {
-        return this.$el.css({
-          'width': this.w || 0,
-          'height': this.h || 0,
-          'top': this.top || 0,
-          'left': this.left || 0
-        }).toggleClass('is-invalid', !this.isValid || (this.w < App.gs) || (this.h < App.gs));
-      };
-
-      Block.prototype.addFinilize = function() {
-        if (!this.isValid) {
-          this.removeSelf();
-          return false;
-        }
-        this.setToGrid();
-        return App.grid.refreshGrid();
+        App.grid.refreshGrid();
+        return true;
       };
 
       Block.prototype.removeSelf = function() {
@@ -214,28 +264,35 @@
       };
 
       Block.prototype.removeSelfFromGrid = function() {
-        var i, j, _i, _ref, _ref1, _results;
+        var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
 
-        _results = [];
-        for (i = _i = _ref = this.startIJ.i, _ref1 = this.startIJ.i + this.newSizeIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
-          _results.push((function() {
-            var _j, _ref2, _ref3, _results1;
-
-            _results1 = [];
-            for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.startIJ.j + this.newSizeIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
-              _results1.push(App.grid.releaseCell({
-                i: i,
-                j: j
-              }, this));
-            }
-            return _results1;
-          }).call(this));
+        for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+            App.grid.releaseCell({
+              i: i,
+              j: j
+            }, this);
+          }
         }
-        return _results;
+        return App.grid.refreshGrid();
       };
 
       Block.prototype.removeSelfFromDom = function() {
         return this.$el.remove();
+      };
+
+      Block.prototype.removeOldSelfFromGrid = function() {
+        var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
+
+        for (i = _i = _ref = this.buffStartIJ.i, _ref1 = this.buffEndIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.buffStartIJ.j, _ref3 = this.buffEndIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+            App.grid.releaseCell({
+              i: i,
+              j: j
+            }, this);
+          }
+        }
+        return App.grid.refreshGrid();
       };
 
       return Block;

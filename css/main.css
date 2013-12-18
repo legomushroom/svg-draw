@@ -27,17 +27,22 @@ html {
 .place-preview-e,
 .block-e {
   position: absolute;
-  border: 1px solid rgba(0,0,0,0.2);
+  border: 0.0625em solid rgba(0,0,0,0.2);
   background-color: rgba(0,0,0,0.1);
 }
 .block-e {
   border-color: rgba(0,223,252,0.95);
 }
 .block-e.is-connect-path {
-  box-shadow: 0 0 16px #00dffc;
+  box-shadow: 0 0 1em #00dffc;
+  cursor: se-resize;
 }
 .block-e.is-invalid {
   border-color: #f00;
+}
+.block-e.is-drag {
+  cursor: move;
+  box-shadow: 0 0 1em #12ff00;
 }
 .tools-l {
   position: fixed;
@@ -47,7 +52,7 @@ html {
   width: 100%;
   height: 2em;
   background-color: rgba(0,95,107,0.95);
-  box-shadow: 0 0 4px #000;
+  box-shadow: 0 0 0.25em #000;
 }
 .tools-l .btn-b {
   float: left;
