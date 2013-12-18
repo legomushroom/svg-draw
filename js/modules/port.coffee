@@ -1,16 +1,20 @@
 define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 	class Port extends ProtoClass
-		connections: []
-		ij: null
+		
 		constructor:(@o={})->
 			@o.parent and (@parent = @o.parent)
 			@o.role 	and (@role = @o.role)
+			@connections ?= []
 			@setIJ @o.role
 			@
 
 		onChange:->
-			for path in @connections
+			# console.log @connections 
+			for path,i in @connections 
+				# console.log "i:#{i}, #{path.direction}, #{@role}, connections: #{@connections.length}"
 				path.set "#{path.direction}IJ", @ij
+
+			App.grid.refreshGrid()
 
 		addConnection:(path)->
 			if !path
@@ -21,14 +25,15 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 					'endIJ': 	 @ij
 					'direction': 'start'
 
-				@connections.push path
 			else path.set 
 						'endIJ': @ij
 						'direction': 'end'
+
+			@connections.push path
+
 			path
 
 		setIJ:(role)->
-			console.log role
 			switch (role or @role)
 				when 'top'
 					i = @parent.startIJ.i + ~~(@parent.w/2)

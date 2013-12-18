@@ -11,25 +11,21 @@
 
       Block.prototype.type = 'block';
 
-      Block.prototype.isValid = false;
-
-      Block.prototype.startIJ = {
-        i: 0,
-        j: 0
-      };
-
-      Block.prototype.endIJ = {
-        i: 0,
-        j: 0
-      };
-
-      Block.prototype.isDragMode = true;
-
       function Block(o) {
         var coords;
 
         this.o = o != null ? o : {};
         this.id = helpers.genHash();
+        this.isValid = false;
+        this.startIJ = {
+          i: 0,
+          j: 0
+        };
+        this.endIJ = {
+          i: 0,
+          j: 0
+        };
+        this.isDragMode = true;
         if (this.o.coords) {
           coords = App.grid.normalizeCoords(App.grid.getNearestCell(this.o.coords || {
             x: 0,
@@ -148,6 +144,7 @@
           this.buffStartIJ = this.startIJ;
           this.buffEndIJ = this.endIJ;
           this.isMoveTo = true;
+          this.removeOldSelfFromGrid();
         }
         return this.set({
           'startIJ': {
@@ -241,19 +238,6 @@
       };
 
       Block.prototype.setToGrid = function() {
-        var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
-
-        for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
-          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
-            if (!App.grid.holdCell({
-              i: i,
-              j: j
-            }, this)) {
-              this.set('isValid', false);
-              return false;
-            }
-          }
-        }
         App.grid.refreshGrid();
         return true;
       };
@@ -264,16 +248,6 @@
       };
 
       Block.prototype.removeSelfFromGrid = function() {
-        var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
-
-        for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
-          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
-            App.grid.releaseCell({
-              i: i,
-              j: j
-            }, this);
-          }
-        }
         return App.grid.refreshGrid();
       };
 
@@ -282,16 +256,6 @@
       };
 
       Block.prototype.removeOldSelfFromGrid = function() {
-        var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
-
-        for (i = _i = _ref = this.buffStartIJ.i, _ref1 = this.buffEndIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
-          for (j = _j = _ref2 = this.buffStartIJ.j, _ref3 = this.buffEndIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
-            App.grid.releaseCell({
-              i: i,
-              j: j
-            }, this);
-          }
-        }
         return App.grid.refreshGrid();
       };
 

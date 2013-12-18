@@ -6,7 +6,7 @@ define 'grid', ['path-finder'], (PathFinder)->
 			
 			@pf = PathFinder
 			@grid 	= new PathFinder.Grid @w, @h
-			@finder = new PathFinder.AStarFinder
+			@finder = new PathFinder.IDAStarFinder
 											allowDiagonal: 		true
 											dontCrossCorners: true
 											heuristic: @pf.Heuristic.manhattan

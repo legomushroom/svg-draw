@@ -2,13 +2,14 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 
 	class Block extends ProtoClass
 		type:  			'block'
-		isValid: 		false
-		startIJ: 		{i:0, j:0}
-		endIJ: 		  {i:0, j:0}
-		isDragMode: true
+		
 
 		constructor:(@o={})->
 			@id = helpers.genHash()
+			@isValid= 		false
+			@startIJ= 		{i:0, j:0}
+			@endIJ= 		  {i:0, j:0}
+			@isDragMode= 	true
 			
 			if @o.coords
 				coords 	= App.grid.normalizeCoords App.grid.getNearestCell @o.coords or {x: 0, y: 0}
@@ -16,6 +17,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 
 			@createPorts()
 			@onChange = @render
+
 			@
 
 		createPorts:->
@@ -95,7 +97,8 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				@buffEndIJ 		= @endIJ
 				@isMoveTo = true
 
-			# console.log @buffStartIJ is @startIJ
+				@removeOldSelfFromGrid()
+
 			@set
 				'startIJ': 	{i: @buffStartIJ.i + coords.i, j: @buffStartIJ.j + coords.j }
 				'endIJ': 		{i: @buffEndIJ.i + coords.i, j: @buffEndIJ.j + coords.j }
@@ -143,10 +146,10 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				port.setIJ()
 
 		setToGrid:->
-			for i in [@startIJ.i...@endIJ.i]
-				for j in [@startIJ.j...@endIJ.j]
-					if !App.grid.holdCell {i:i, j:j}, @
-						@set('isValid', false); return false
+			# for i in [@startIJ.i...@endIJ.i]
+			# 	for j in [@startIJ.j...@endIJ.j]
+			# 		if !App.grid.holdCell {i:i, j:j}, @
+			# 			@set('isValid', false); return false
 
 			App.grid.refreshGrid()
 			true
@@ -154,17 +157,17 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 		######### REMOVE SECTION
 		removeSelf:-> @removeSelfFromGrid(); @removeSelfFromDom();
 		removeSelfFromGrid:->
-			for i in [@startIJ.i...@endIJ.i]
-				for j in [@startIJ.j...@endIJ.j]
-					App.grid.releaseCell {i:i, j:j}, @
+			# for i in [@startIJ.i...@endIJ.i]
+			# 	for j in [@startIJ.j...@endIJ.j]
+			# 		App.grid.releaseCell {i:i, j:j}, @
 			App.grid.refreshGrid()
 
 		removeSelfFromDom:-> @$el.remove()
 
 		removeOldSelfFromGrid:->
-			for i in [@buffStartIJ.i...@buffEndIJ.i]
-				for j in [@buffStartIJ.j...@buffEndIJ.j]
-					App.grid.releaseCell {i:i, j:j}, @
+			# for i in [@buffStartIJ.i...@buffEndIJ.i]
+			# 	for j in [@buffStartIJ.j...@buffEndIJ.j]
+			# 		App.grid.releaseCell {i:i, j:j}, @
 			App.grid.refreshGrid()
 
 

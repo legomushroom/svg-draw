@@ -10,7 +10,7 @@
         this.h = this.o.height || 100;
         this.pf = PathFinder;
         this.grid = new PathFinder.Grid(this.w, this.h);
-        this.finder = new PathFinder.AStarFinder({
+        this.finder = new PathFinder.IDAStarFinder({
           allowDiagonal: true,
           dontCrossCorners: true,
           heuristic: this.pf.Heuristic.manhattan

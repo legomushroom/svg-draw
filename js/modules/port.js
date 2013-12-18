@@ -9,28 +9,28 @@
     Port = (function(_super) {
       __extends(Port, _super);
 
-      Port.prototype.connections = [];
-
-      Port.prototype.ij = null;
-
       function Port(o) {
+        var _ref;
+
         this.o = o != null ? o : {};
         this.o.parent && (this.parent = this.o.parent);
         this.o.role && (this.role = this.o.role);
+        if ((_ref = this.connections) == null) {
+          this.connections = [];
+        }
         this.setIJ(this.o.role);
         this;
       }
 
       Port.prototype.onChange = function() {
-        var path, _i, _len, _ref, _results;
+        var i, path, _i, _len, _ref;
 
         _ref = this.connections;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          path = _ref[_i];
-          _results.push(path.set("" + path.direction + "IJ", this.ij));
+        for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+          path = _ref[i];
+          path.set("" + path.direction + "IJ", this.ij);
         }
-        return _results;
+        return App.grid.refreshGrid();
       };
 
       Port.prototype.addConnection = function(path) {
@@ -42,20 +42,19 @@
             'endIJ': this.ij,
             'direction': 'start'
           });
-          this.connections.push(path);
         } else {
           path.set({
             'endIJ': this.ij,
             'direction': 'end'
           });
         }
+        this.connections.push(path);
         return path;
       };
 
       Port.prototype.setIJ = function(role) {
         var i, j;
 
-        console.log(role);
         switch (role || this.role) {
           case 'top':
             i = this.parent.startIJ.i + ~~(this.parent.w / 2);
