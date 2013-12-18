@@ -13,10 +13,16 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 			@startIJ 		= App.grid.toIJ {x: @coords.x, y: @coords.y}
 			@addSelfToDom()
 			@onChange = @render
-			@port1 = new Port 
-										role: 	'top'
-										parent: @
+			@createPorts()
 			@
+
+		createPorts:->
+			@ports = {}
+			portRoles = ['top', 'bottom', 'left', 'right']
+			for role, i in portRoles
+				@ports[role] = new Port 
+					role: 	portRoles[i]
+					parent: @
 
 		addSelfToDom:->
 			@$el = $('<div>').addClass('block-e').append($('<div>')); App.$main.append @$el
@@ -25,25 +31,53 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 			@
 
 		listenEvents:->
-			hammer(@$el[0]).on 'touch', =>
+			hammer(@$el[0]).on 'touch', (e)=>
+				coords = helpers.getEventCoords e
 				if App.currTool is 'path'
-					@connectPath()
+					@getNearestPort(coords).addConnection()
+
+			hammer(@$el[0]).on 'release', (e)=>
+				coords = helpers.getEventCoords e
+				if App.currTool is 'path' and App.currPath
+					@getNearestPort(coords).addConnection App.currPath
 
 			@$el.on 'mouseenter', =>
+				App.currBlock = @
 				if App.currTool is 'path'
 					@$el.addClass 'is-connect-path'
 
 			@$el.on 'mouseleave', =>
+				App.currBlock = null
 				if App.currTool is 'path'
 					@$el.removeClass 'is-connect-path'
 
-		connectPath:->
-			App.isBlockToPath = @port1.addConnection()
- 
+		getNearestPort:(coords)->
+			ij = App.grid.normalizeCoords coords
+			min = 
+				ij:
+					i: -1
+					j: -1
+				port: null
+
+			for portName, port of @ports
+				console.log port.ij
+				
+				i = Math.abs( port.ij.i - ij.i ); j = Math.abs( port.ij.j - ij.j )
+				console.log i, j
+
+				if min.ij.i < i or min.ij.j < j
+					min.ij 		= {i: i, j: j}
+					min.port 	= port
+
+			console.log min.port
+
+			if min.port is null then @ports['bottom'] else min.port
+
+
 		dragResize:(deltas)->
 			deltas = App.grid.getNearestCell deltas
-			@newSizeIJ  = App.grid.toIJ deltas
-			@port1.setIJ()
+			@set 'newSizeIJ', App.grid.toIJ deltas
+			@refreshPorts()
 
 			@set 
 				'isValid': @isSuiteSize()
@@ -51,6 +85,10 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				'h': deltas.y
 
 			@
+
+		refreshPorts:->
+			for portName, port of @ports
+				port.setIJ()
 
 
 		isSuiteSize:->

@@ -16,6 +16,7 @@
       function Port(o) {
         this.o = o != null ? o : {};
         this.o.parent && (this.parent = this.o.parent);
+        this.o.role && (this.role = this.o.role);
         this.setIJ(this.o.role);
         this;
       }
@@ -23,7 +24,6 @@
       Port.prototype.onChange = function() {
         var conection, _i, _len, _ref, _results;
 
-        console.log('change');
         _ref = this.connections;
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -33,30 +33,55 @@
         return _results;
       };
 
-      Port.prototype.addConnection = function() {
-        var path;
-
-        path = new Path;
-        path.connectedTo = this.parent;
-        path.set({
-          'startIJ': this.ij,
-          'endIJ': this.ij
-        });
-        this.connections.push(path);
+      Port.prototype.addConnection = function(path) {
+        if (!path) {
+          path = new Path;
+          path.connectedTo = this.parent;
+          path.set({
+            'startIJ': this.ij,
+            'endIJ': this.ij
+          });
+          this.connections.push(path);
+        } else {
+          path.set('endIJ', {
+            i: this.ij.i - 1,
+            j: this.ij.j
+          });
+        }
         return path;
       };
 
       Port.prototype.setIJ = function(role) {
         var i, j;
 
-        if (role == null) {
-          role = this.role;
-        }
-        switch (role) {
+        switch (role || this.role) {
           case 'top':
-            i = this.parent.startIJ.i + ~~((this.parent.startIJ.i + this.parent.sizeIJ.i) / 2);
+            i = this.parent.startIJ.i + ~~(this.parent.newSizeIJ.i / 2);
             j = this.parent.startIJ.j;
-            console.log(i, j);
+            this.set('ij', {
+              i: i,
+              j: j
+            });
+            break;
+          case 'bottom':
+            i = this.parent.startIJ.i + ~~(this.parent.newSizeIJ.i / 2);
+            j = this.parent.startIJ.j + this.parent.newSizeIJ.j - 1;
+            this.set('ij', {
+              i: i,
+              j: j
+            });
+            break;
+          case 'left':
+            i = this.parent.startIJ.i;
+            j = this.parent.startIJ.j + ~~(this.parent.newSizeIJ.j / 2);
+            this.set('ij', {
+              i: i,
+              j: j
+            });
+            break;
+          case 'right':
+            i = this.parent.startIJ.i + this.parent.newSizeIJ.i - 1;
+            j = this.parent.startIJ.j + ~~(this.parent.newSizeIJ.j / 2);
             this.set('ij', {
               i: i,
               j: j

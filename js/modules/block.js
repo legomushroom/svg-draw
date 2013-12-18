@@ -38,12 +38,25 @@
         });
         this.addSelfToDom();
         this.onChange = this.render;
-        this.port1 = new Port({
-          role: 'top',
-          parent: this
-        });
+        this.createPorts();
         this;
       }
+
+      Block.prototype.createPorts = function() {
+        var i, portRoles, role, _i, _len, _results;
+
+        this.ports = {};
+        portRoles = ['top', 'bottom', 'left', 'right'];
+        _results = [];
+        for (i = _i = 0, _len = portRoles.length; _i < _len; i = ++_i) {
+          role = portRoles[i];
+          _results.push(this.ports[role] = new Port({
+            role: portRoles[i],
+            parent: this
+          }));
+        }
+        return _results;
+      };
 
       Block.prototype.addSelfToDom = function() {
         this.$el = $('<div>').addClass('block-e').append($('<div>'));
@@ -59,37 +72,92 @@
       Block.prototype.listenEvents = function() {
         var _this = this;
 
-        hammer(this.$el[0]).on('touch', function() {
+        hammer(this.$el[0]).on('touch', function(e) {
+          var coords;
+
+          coords = helpers.getEventCoords(e);
           if (App.currTool === 'path') {
-            return _this.connectPath();
+            return _this.getNearestPort(coords).addConnection();
+          }
+        });
+        hammer(this.$el[0]).on('release', function(e) {
+          var coords;
+
+          coords = helpers.getEventCoords(e);
+          if (App.currTool === 'path' && App.currPath) {
+            return _this.getNearestPort(coords).addConnection(App.currPath);
           }
         });
         this.$el.on('mouseenter', function() {
+          App.currBlock = _this;
           if (App.currTool === 'path') {
             return _this.$el.addClass('is-connect-path');
           }
         });
         return this.$el.on('mouseleave', function() {
+          App.currBlock = null;
           if (App.currTool === 'path') {
             return _this.$el.removeClass('is-connect-path');
           }
         });
       };
 
-      Block.prototype.connectPath = function() {
-        return App.isBlockToPath = this.port1.addConnection();
+      Block.prototype.getNearestPort = function(coords) {
+        var i, ij, j, min, port, portName, _ref;
+
+        ij = App.grid.normalizeCoords(coords);
+        min = {
+          ij: {
+            i: -1,
+            j: -1
+          },
+          port: null
+        };
+        _ref = this.ports;
+        for (portName in _ref) {
+          port = _ref[portName];
+          console.log(port.ij);
+          i = Math.abs(port.ij.i - ij.i);
+          j = Math.abs(port.ij.j - ij.j);
+          console.log(i, j);
+          if (min.ij.i < i || min.ij.j < j) {
+            min.ij = {
+              i: i,
+              j: j
+            };
+            min.port = port;
+          }
+        }
+        console.log(min.port);
+        if (min.port === null) {
+          return this.ports['bottom'];
+        } else {
+          return min.port;
+        }
       };
 
       Block.prototype.dragResize = function(deltas) {
         deltas = App.grid.getNearestCell(deltas);
-        this.newSizeIJ = App.grid.toIJ(deltas);
-        this.port1.setIJ();
+        this.set('newSizeIJ', App.grid.toIJ(deltas));
+        this.refreshPorts();
         this.set({
           'isValid': this.isSuiteSize(),
           'w': deltas.x,
           'h': deltas.y
         });
         return this;
+      };
+
+      Block.prototype.refreshPorts = function() {
+        var port, portName, _ref, _results;
+
+        _ref = this.ports;
+        _results = [];
+        for (portName in _ref) {
+          port = _ref[portName];
+          _results.push(port.setIJ());
+        }
+        return _results;
       };
 
       Block.prototype.isSuiteSize = function() {

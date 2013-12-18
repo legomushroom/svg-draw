@@ -7,6 +7,8 @@ define 'helpers', ['two', 'md5'], (Two, md5)->
 		  @length = (if from < 0 then @length + from else from)
 		  @push.apply this, rest
 
+		
+
 		getEventCoords:(e)-> { x: e.gesture.center.pageX, y: e.gesture.center.pageY }
 		
 		timeIn:(name)->  console.time name

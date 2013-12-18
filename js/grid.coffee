@@ -37,7 +37,9 @@ define 'grid', ['path-finder'], (PathFinder)->
 
 		atIJ:(ij)->
 			@grid.getNodeAt(ij.i, ij.j)
-	
+
+		normalizeCoords:(coords)->
+			if coords.x then @toIJ coords else coords
 
 		getNearestCell:(coords)->
 			x = App.gs * ~~(coords.x / App.gs)

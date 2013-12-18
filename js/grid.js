@@ -48,6 +48,14 @@
         return this.grid.getNodeAt(ij.i, ij.j);
       };
 
+      Grid.prototype.normalizeCoords = function(coords) {
+        if (coords.x) {
+          return this.toIJ(coords);
+        } else {
+          return coords;
+        }
+      };
+
       Grid.prototype.getNearestCell = function(coords) {
         var result, x, y;
 
