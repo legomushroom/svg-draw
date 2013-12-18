@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('block', ['helpers', 'ProtoClass', 'hammer', 'path'], function(helpers, ProtoClass, hammer, Path) {
+  define('block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], function(helpers, ProtoClass, hammer, Path, Port) {
     var Block;
 
     Block = (function(_super) {
@@ -32,12 +32,16 @@
           x: 0,
           y: 0
         });
-        this.ij = App.grid.toIJ({
+        this.startIJ = App.grid.toIJ({
           x: this.coords.x,
           y: this.coords.y
         });
         this.addSelfToDom();
         this.onChange = this.render;
+        this.port1 = new Port({
+          role: 'top',
+          parent: this
+        });
         this;
       }
 
@@ -55,23 +59,31 @@
       Block.prototype.listenEvents = function() {
         var _this = this;
 
-        return hammer(this.$el[0]).on('touch', function() {
+        hammer(this.$el[0]).on('touch', function() {
           if (App.currTool === 'path') {
             return _this.connectPath();
+          }
+        });
+        this.$el.on('mouseenter', function() {
+          if (App.currTool === 'path') {
+            return _this.$el.addClass('is-connect-path');
+          }
+        });
+        return this.$el.on('mouseleave', function() {
+          if (App.currTool === 'path') {
+            return _this.$el.removeClass('is-connect-path');
           }
         });
       };
 
       Block.prototype.connectPath = function() {
-        this.connectPath = new Path;
-        this.connectPath.connectedTo = this;
-        this.paths.push(this.connectPath);
-        return App.isBlockToPath = this.connectPath;
+        return App.isBlockToPath = this.port1.addConnection();
       };
 
       Block.prototype.dragResize = function(deltas) {
         deltas = App.grid.getNearestCell(deltas);
         this.newSizeIJ = App.grid.toIJ(deltas);
+        this.port1.setIJ();
         this.set({
           'isValid': this.isSuiteSize(),
           'w': deltas.x,
@@ -83,8 +95,8 @@
       Block.prototype.isSuiteSize = function() {
         var i, j, node, _i, _j, _ref, _ref1, _ref2, _ref3;
 
-        for (i = _i = _ref = this.ij.i + this.sizeIJ.i, _ref1 = this.ij.i + this.newSizeIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
-          for (j = _j = _ref2 = this.ij.j + this.sizeIJ.j, _ref3 = this.ij.j + this.newSizeIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+        for (i = _i = _ref = this.startIJ.i + this.sizeIJ.i, _ref1 = this.startIJ.i + this.newSizeIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.startIJ.j + this.sizeIJ.j, _ref3 = this.startIJ.j + this.newSizeIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
             node = App.grid.grid.getNodeAt(i, j);
             if (!node.walkable && (node.holder.id !== this.id)) {
               return false;
@@ -97,8 +109,8 @@
       Block.prototype.setToGrid = function() {
         var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
 
-        for (i = _i = _ref = this.ij.i, _ref1 = this.ij.i + this.newSizeIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
-          for (j = _j = _ref2 = this.ij.j, _ref3 = this.ij.j + this.newSizeIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+        for (i = _i = _ref = this.startIJ.i, _ref1 = this.startIJ.i + this.newSizeIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.startIJ.j + this.newSizeIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
             if (!App.grid.holdCell({
               i: i,
               j: j
@@ -137,12 +149,12 @@
         var i, j, _i, _ref, _ref1, _results;
 
         _results = [];
-        for (i = _i = _ref = this.ij.i, _ref1 = this.ij.i + this.newSizeIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+        for (i = _i = _ref = this.startIJ.i, _ref1 = this.startIJ.i + this.newSizeIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
           _results.push((function() {
             var _j, _ref2, _ref3, _results1;
 
             _results1 = [];
-            for (j = _j = _ref2 = this.ij.j, _ref3 = this.ij.j + this.newSizeIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+            for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.startIJ.j + this.newSizeIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
               _results1.push(App.grid.releaseCell({
                 i: i,
                 j: j

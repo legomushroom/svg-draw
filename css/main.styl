@@ -32,9 +32,9 @@ body, html
 .block-e
 	@extends .place-preview-e
 	border-color rgba(#00DFFC,.95)
-	// background-color rgba(#00DFFC,0.1)
-	// min-width 1em
-	// min-height 1em
+
+	&.is-connect-path
+		box-shadow 0 0 16px #00DFFC
 
 	&.is-invalid
 		border-color red

@@ -1,4 +1,4 @@
-define 'block', ['helpers', 'ProtoClass', 'hammer', 'path'], (helpers, ProtoClass, hammer, Path)->
+define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, ProtoClass, hammer, Path, Port)->
 
 	class Block extends ProtoClass
 		type:  	'block'
@@ -10,9 +10,12 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path'], (helpers, ProtoClas
 		constructor:(@o={})->
 			@id = helpers.genHash()
 			@coords = App.grid.getNearestCell @o.coords or {x: 0, y: 0}
-			@ij 		= App.grid.toIJ {x: @coords.x, y: @coords.y}
+			@startIJ 		= App.grid.toIJ {x: @coords.x, y: @coords.y}
 			@addSelfToDom()
 			@onChange = @render
+			@port1 = new Port 
+										role: 	'top'
+										parent: @
 			@
 
 		addSelfToDom:->
@@ -26,17 +29,21 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path'], (helpers, ProtoClas
 				if App.currTool is 'path'
 					@connectPath()
 
+			@$el.on 'mouseenter', =>
+				if App.currTool is 'path'
+					@$el.addClass 'is-connect-path'
+
+			@$el.on 'mouseleave', =>
+				if App.currTool is 'path'
+					@$el.removeClass 'is-connect-path'
+
 		connectPath:->
-			@connectPath = new Path
-			@connectPath.connectedTo = @
-			@paths.push @connectPath
-			App.isBlockToPath = @connectPath
-
-
+			App.isBlockToPath = @port1.addConnection()
  
 		dragResize:(deltas)->
 			deltas = App.grid.getNearestCell deltas
 			@newSizeIJ  = App.grid.toIJ deltas
+			@port1.setIJ()
 
 			@set 
 				'isValid': @isSuiteSize()
@@ -45,9 +52,10 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path'], (helpers, ProtoClas
 
 			@
 
+
 		isSuiteSize:->
-			for i in [@ij.i+@sizeIJ.i...@ij.i+@newSizeIJ.i]
-				for j in [@ij.j+@sizeIJ.j...@ij.j+@newSizeIJ.j]
+			for i in [@startIJ.i+@sizeIJ.i...@startIJ.i+@newSizeIJ.i]
+				for j in [@startIJ.j+@sizeIJ.j...@startIJ.j+@newSizeIJ.j]
 					node = App.grid.grid.getNodeAt i, j
 					return false if !node.walkable and (node.holder.id isnt @id)
 
@@ -55,8 +63,8 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path'], (helpers, ProtoClas
 
 
 		setToGrid:->
-			for i in [@ij.i...@ij.i+@newSizeIJ.i]
-				for j in [@ij.j...@ij.j+@newSizeIJ.j]
+			for i in [@startIJ.i...@startIJ.i+@newSizeIJ.i]
+				for j in [@startIJ.j...@startIJ.j+@newSizeIJ.j]
 					if !App.grid.holdCell {i:i, j:j}, @
 						@set('isValid', false); return false;
 
@@ -79,8 +87,8 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path'], (helpers, ProtoClas
 		removeSelf:-> @removeSelfFromGrid(); @removeSelfFromDom();
 
 		removeSelfFromGrid:->
-			for i in [@ij.i...@ij.i+@newSizeIJ.i]
-				for j in [@ij.j...@ij.j+@newSizeIJ.j]
+			for i in [@startIJ.i...@startIJ.i+@newSizeIJ.i]
+				for j in [@startIJ.j...@startIJ.j+@newSizeIJ.j]
 					App.grid.releaseCell {i:i, j:j}, @
 
 		removeSelfFromDom:-> @$el.remove()

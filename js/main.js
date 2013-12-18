@@ -11,6 +11,7 @@
       'path-finder': 'lib/pathfinding-browser',
       path: 'modules/path',
       block: 'modules/block',
+      port: 'modules/port',
       ProtoClass: 'modules/ProtoClass'
     },
     shim: {
@@ -40,32 +41,16 @@
         }).appendTo(this.$main[0]);
         this.$svgCanvas = $(this.two.renderer.domElement);
         this.helpers = helpers;
-        this.paths = [];
-        this.objects = [];
         this.gs = 16;
         this.grid = new Grid;
-        this.settings = {
-          isSmartPath: true
-        };
+        this.paths = [];
+        this.blocks = [];
         this.debug = {
           isGrid: true
         };
         this.currTool = 'path';
         this.$tools.find("[data-role=\"" + this.currTool + "\"]").addClass('is-check');
         return this;
-      };
-
-      App.prototype.listenToTools = function() {
-        var it;
-
-        it = this;
-        return $('#js-tools').on('click', '#js-tool', function(e) {
-          var $this;
-
-          $this = $(this);
-          it.currTool = $this.data().role;
-          return $this.addClass('is-check').siblings().removeClass('is-check');
-        });
       };
 
       App.prototype.listenToTouches = function() {
@@ -152,9 +137,22 @@
             this.currPath = this.isBlockToPath;
             return this.isBlockToPath = false;
           } else {
-            return (_ref = this.currPath) != null ? _ref.addPoint(coords) : void 0;
+            return (_ref = this.currPath) != null ? _ref.set('endIJ', this.grid.toIJ(coords)) : void 0;
           }
         }
+      };
+
+      App.prototype.listenToTools = function() {
+        var it;
+
+        it = this;
+        return $('#js-tools').on('click', '#js-tool', function(e) {
+          var $this;
+
+          $this = $(this);
+          it.currTool = $this.data().role;
+          return $this.addClass('is-check').siblings().removeClass('is-check');
+        });
       };
 
       App.prototype.addCurrentPath = function(coords) {

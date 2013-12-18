@@ -33,6 +33,9 @@ html {
 .block-e {
   border-color: rgba(0,223,252,0.95);
 }
+.block-e.is-connect-path {
+  box-shadow: 0 0 16px #00dffc;
+}
 .block-e.is-invalid {
   border-color: #f00;
 }

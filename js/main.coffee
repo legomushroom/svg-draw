@@ -9,6 +9,7 @@ require.config
 		'path-finder':'lib/pathfinding-browser'
 		path: 				'modules/path'
 		block: 				'modules/block'
+		port: 	'modules/port'
 		ProtoClass: 	'modules/ProtoClass'
 
 	shim: { "two": { exports: "Two" } }
@@ -32,31 +33,18 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', '
 
 			@$svgCanvas = $ @two.renderer.domElement
 			@helpers = helpers
-			@paths 		= []
-			@objects 	= []
-			
 			@gs = 16
-
 			@grid 		= new Grid
-
-			@settings = 
-				isSmartPath: true
+			@paths 	= []
+			@blocks = []
 
 			@debug = 
 				isGrid: true
 
 			@currTool = 'path'
-
 			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'
 
 			@
-
-		listenToTools:->
-			it = @; 
-			$('#js-tools').on 'click', '#js-tool', (e)-> 
-				$this = $(@); it.currTool = $this.data().role
-				$this.addClass('is-check').siblings().removeClass('is-check')
-
 
 		listenToTouches:->
 			@currPath = null
@@ -93,9 +81,15 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', '
 			if @grid.isFreeCell coords
 				@currBlock?.dragResize  {x: e.gesture.deltaX, y:  e.gesture.deltaY}
 
+
+
+
+
+
+
 		touchPath:(e)->
 			coords = helpers.getEventCoords(e)
-			if !@grid.isFreeCell coords
+			if not @grid.isFreeCell coords
 				@currPath = null
 				return
 
@@ -108,7 +102,15 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', '
 			if @grid.isFreeCell coords
 				if @isBlockToPath
 					@currPath = @isBlockToPath; @isBlockToPath = false
-				else @currPath?.addPoint coords
+				else @currPath?.set 'endIJ', @grid.toIJ coords
+
+
+
+		listenToTools:->
+			it = @; 
+			$('#js-tools').on 'click', '#js-tool', (e)-> 
+				$this = $(@); it.currTool = $this.data().role
+				$this.addClass('is-check').siblings().removeClass('is-check')
 
 
 		addCurrentPath:(coords)->
