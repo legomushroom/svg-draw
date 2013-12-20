@@ -39,14 +39,15 @@ define 'path', ['two', 'jquery', 'helpers', 'ProtoClass'], (Two, $, helpers, Pro
 
 		isEmpty:-> @line.vertices.length <= 2
 
-		coordsToTwo:(x,y)->
-			if arguments.length <= 1
-				y = x.y
-				x = x.x
+		# coordsToTwo:(x,y)->
+		# 	h = helpers.getRand(0,10)
+		# 	if arguments.length <= 1
+		# 		y = x.y
+		# 		x = x.x
 
-			v = new Two.Vector x, y
-			v.position = new Two.Vector().copy v
-			v
+		# 	v = new Two.Anchor x, y
+		# 	v.position = new Two.Anchor().copy v
+		# 	v
 
 		addMarkers:->
 			@$dom.attr 'marker-mid', "url('#marker-mid')"

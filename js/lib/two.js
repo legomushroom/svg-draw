@@ -3062,7 +3062,6 @@ var Backbone = Backbone || {};
     });
 
     this._command = command || commands.move;
-
     if (!command) {
       return this;
     }
@@ -3094,6 +3093,7 @@ var Backbone = Backbone || {};
         left: new Two.Vector(x, y),
         right: new Two.Vector(x, y)
       };
+
 
     }
 

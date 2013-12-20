@@ -26,20 +26,27 @@
       genHash: function() {
         return md5((new Date) + (new Date).getMilliseconds() + Math.random(9999999999999) + Math.random(9999999999999) + Math.random(9999999999999));
       },
+      getRandom: function(min, max) {
+        return Math.floor((Math.random() * ((max + 1) - min)) + min);
+      },
       stopEvent: function(e) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       },
       makePoint: function(x, y) {
-        var v;
+        var h, v;
 
+        h = this.getRandom(0, 10);
         if (arguments.length <= 1) {
           y = x.y;
           x = x.x;
         }
-        v = new Two.Vector(x, y);
-        v.position = new Two.Vector().copy(v);
+        if (h === 5) {
+          v = new Two.Anchor(x, y, x * 2, y * 2, x * 1.5, y * 1.5, Two.Commands.curve);
+        } else {
+          v = new Two.Anchor(x, y);
+        }
         return v;
       }
     };

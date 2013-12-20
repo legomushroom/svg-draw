@@ -81,18 +81,6 @@
         return this.line.vertices.length <= 2;
       };
 
-      Path.prototype.coordsToTwo = function(x, y) {
-        var v;
-
-        if (arguments.length <= 1) {
-          y = x.y;
-          x = x.x;
-        }
-        v = new Two.Vector(x, y);
-        v.position = new Two.Vector().copy(v);
-        return v;
-      };
-
       Path.prototype.addMarkers = function() {
         return this.$dom.attr('marker-mid', "url('#marker-mid')");
       };
