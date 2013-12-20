@@ -3701,6 +3701,7 @@ var Backbone = Backbone || {};
           this._renderer.elem = svg.createElement('g', {
             id: Two.Identifier + this.id
           });
+          
           domElement.appendChild(this._renderer.elem);
         }
 

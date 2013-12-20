@@ -92,3 +92,6 @@ html {
   height: 1em;
   fill: #fff;
 }
+svg {
+  display: block;
+}

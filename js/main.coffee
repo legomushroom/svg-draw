@@ -9,13 +9,13 @@ require.config
 		'path-finder':'lib/pathfinding-browser'
 		path: 				'modules/path'
 		block: 				'modules/block'
-		port: 	'modules/port'
+		port: 				'modules/port'
+		line: 				'modules/line'
 		ProtoClass: 	'modules/ProtoClass'
 
 	shim: { "two": { exports: "Two" } }
 
-define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', 'path-finder'], (helpers, hammer, $, Two, Path, Block, Grid, PathFinder )->
-	'use strict'
+define 'main', ['helpers', 'hammer', 'jquery', 'two', 'svg', 'path', 'block', 'grid', 'path-finder'], (helpers, hammer, $, Two, SVG, Path, Block, Grid, PathFinder )->
 	class App
 		constructor:->
 			@initVars()
@@ -26,12 +26,9 @@ define 'main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', '
 			@$main = $('#js-main')
 			@$tools = $('#js-tools')
 
-			@two = new Two(
-				fullscreen: true
-				autostart:  true
-			).appendTo(@$main[0])
+			@SVG = new SVG $el: @$main
 
-			@$svgCanvas = $ @two.renderer.domElement
+			# @$svgCanvas = $ @two.renderer.domElement
 			@helpers = helpers
 			@gs = 16
 			@grid 		= new Grid

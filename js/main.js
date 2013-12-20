@@ -12,6 +12,7 @@
       path: 'modules/path',
       block: 'modules/block',
       port: 'modules/port',
+      line: 'modules/line',
       ProtoClass: 'modules/ProtoClass'
     },
     shim: {
@@ -21,8 +22,7 @@
     }
   });
 
-  define('main', ['helpers', 'hammer', 'jquery', 'two', 'path', 'block', 'grid', 'path-finder'], function(helpers, hammer, $, Two, Path, Block, Grid, PathFinder) {
-    'use strict';
+  define('main', ['helpers', 'hammer', 'jquery', 'two', 'svg', 'path', 'block', 'grid', 'path-finder'], function(helpers, hammer, $, Two, SVG, Path, Block, Grid, PathFinder) {
     var App;
 
     App = (function() {
@@ -35,11 +35,9 @@
       App.prototype.initVars = function() {
         this.$main = $('#js-main');
         this.$tools = $('#js-tools');
-        this.two = new Two({
-          fullscreen: true,
-          autostart: true
-        }).appendTo(this.$main[0]);
-        this.$svgCanvas = $(this.two.renderer.domElement);
+        this.SVG = new SVG({
+          $el: this.$main
+        });
         this.helpers = helpers;
         this.gs = 16;
         this.grid = new Grid;
