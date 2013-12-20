@@ -31,7 +31,7 @@ html {
 }
 .block-e {
   position: absolute;
-  border-color: #00dffc;
+  border: 0.0625em solid #00dffc;
   background-color: #00dffc;
 }
 .block-e.is-connect-path {

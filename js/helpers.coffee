@@ -16,6 +16,11 @@ define 'helpers', ['two', 'md5'], (Two, md5)->
 		timeOut:(name)-> console.timeEnd name
 		
 		genHash:-> md5 (new Date) + (new Date).getMilliseconds() + Math.random(9999999999999) + Math.random(9999999999999) + Math.random(9999999999999)
+
+		stopEvent:(e)->
+			e.preventDefault()
+			e.stopPropagation()
+			false
 		
 		makePoint:(x,y)->
 			if arguments.length <= 1

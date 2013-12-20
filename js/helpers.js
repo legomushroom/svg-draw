@@ -26,6 +26,11 @@
       genHash: function() {
         return md5((new Date) + (new Date).getMilliseconds() + Math.random(9999999999999) + Math.random(9999999999999) + Math.random(9999999999999));
       },
+      stopEvent: function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      },
       makePoint: function(x, y) {
         var v;
 

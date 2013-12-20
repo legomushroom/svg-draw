@@ -15,6 +15,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				@set 'startIJ', coords
 
 			@createPort()
+			@render()
 			@onChange = @render
 
 			@
@@ -47,11 +48,14 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				if App.currTool is 'path'
 					App.isBlockToPath = @port.addConnection()
 
+				helpers.stopEvent e
+
 			hammer(@$el[0]).on 'drag', (e)=>
 				coords = helpers.getEventCoords e
 				if App.currTool is 'block'
 					@moveTo {x: e.gesture.deltaX, y:  e.gesture.deltaY}
-					return false
+					helpers.stopEvent e
+
 
 			hammer(@$el[0]).on 'release', (e)=>
 				coords = helpers.getEventCoords e
@@ -65,6 +69,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 					@addFinilize()
 					return false
 
+				helpers.stopEvent e
 
 			@$el.on 'mouseenter', =>
 				if @isDragMode then return
@@ -88,13 +93,27 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 			if !@isMoveTo
 				@buffStartIJ 	= @startIJ
 				@buffEndIJ 		= @endIJ
-				@isMoveTo = true
+				@isMoveTo 		-= true
 
-				@removeOldSelfFromGrid()
+			top  		= (@buffStartIJ.j + coords.j)
+			bottom 	= (@buffEndIJ.j + coords.j)
+
+			left 	=  @buffStartIJ.i + coords.i
+			right =  @buffEndIJ.i + coords.i
+
+			if top < 0
+				shift = top
+				top = 0
+				bottom = top + @h
+
+			if left < 0 
+				shift = left
+				left = 0 
+				right = left + @w
 
 			@set
-				'startIJ': 	{i: @buffStartIJ.i + coords.i, j: @buffStartIJ.j + coords.j }
-				'endIJ': 		{i: @buffEndIJ.i + coords.i, j: @buffEndIJ.j + coords.j }
+				'startIJ': 	{i: left, 	j: top }
+				'endIJ': 		{i: right, 	j: bottom }
 				'isValid':  @isSuiteSize()
 
 
@@ -104,10 +123,10 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				'isValid':  @isSuiteSize()
 
 		isSuiteSize:->
-			for i in [@startIJ.i...@endIJ.i]
-				for j in [@startIJ.j...@endIJ.j]
-					node = App.grid.grid.getNodeAt i, j
-					return false if !node.walkable and (node.holder.id isnt @id)
+			# for i in [@startIJ.i...@endIJ.i]
+			# 	for j in [@startIJ.j...@endIJ.j]
+			# 		node = App.grid.grid.getNodeAt i, j
+			# 		return false if !node.walkable and (node.holder.id isnt @id)
 
 			@calcDimentions()
 			@w > 0 and @h > 0
@@ -115,7 +134,6 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 		addFinilize:->
 			@isMoveTo = false
 			if !@isValid then @removeSelf(); return false
-			@setToGrid()
 			@isDragMode = false
 			
 

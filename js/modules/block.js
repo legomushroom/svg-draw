@@ -34,6 +34,7 @@
           this.set('startIJ', coords);
         }
         this.createPort();
+        this.render();
         this.onChange = this.render;
         this;
       }
@@ -74,8 +75,9 @@
 
           coords = helpers.getEventCoords(e);
           if (App.currTool === 'path') {
-            return App.isBlockToPath = _this.port.addConnection();
+            App.isBlockToPath = _this.port.addConnection();
           }
+          return helpers.stopEvent(e);
         });
         hammer(this.$el[0]).on('drag', function(e) {
           var coords;
@@ -86,7 +88,7 @@
               x: e.gesture.deltaX,
               y: e.gesture.deltaY
             });
-            return false;
+            return helpers.stopEvent(e);
           }
         });
         hammer(this.$el[0]).on('release', function(e) {
@@ -96,13 +98,14 @@
           if (App.currTool === 'path') {
             if (App.currPath && App.currBlock) {
               App.currBlock.port.addConnection(App.currPath);
-              return App.isBlockToPath = null;
+              App.isBlockToPath = null;
             }
           } else {
             _this.removeOldSelfFromGrid();
             _this.addFinilize();
             return false;
           }
+          return helpers.stopEvent(e);
         });
         this.$el.on('mouseenter', function() {
           if (_this.isDragMode) {
@@ -129,21 +132,36 @@
       };
 
       Block.prototype.moveTo = function(coords) {
+        var bottom, left, right, shift, top;
+
         coords = App.grid.normalizeCoords(coords);
         if (!this.isMoveTo) {
           this.buffStartIJ = this.startIJ;
           this.buffEndIJ = this.endIJ;
-          this.isMoveTo = true;
-          this.removeOldSelfFromGrid();
+          this.isMoveTo -= true;
+        }
+        top = this.buffStartIJ.j + coords.j;
+        bottom = this.buffEndIJ.j + coords.j;
+        left = this.buffStartIJ.i + coords.i;
+        right = this.buffEndIJ.i + coords.i;
+        if (top < 0) {
+          shift = top;
+          top = 0;
+          bottom = top + this.h;
+        }
+        if (left < 0) {
+          shift = left;
+          left = 0;
+          right = left + this.w;
         }
         return this.set({
           'startIJ': {
-            i: this.buffStartIJ.i + coords.i,
-            j: this.buffStartIJ.j + coords.j
+            i: left,
+            j: top
           },
           'endIJ': {
-            i: this.buffEndIJ.i + coords.i,
-            j: this.buffEndIJ.j + coords.j
+            i: right,
+            j: bottom
           },
           'isValid': this.isSuiteSize()
         });
@@ -160,16 +178,6 @@
       };
 
       Block.prototype.isSuiteSize = function() {
-        var i, j, node, _i, _j, _ref, _ref1, _ref2, _ref3;
-
-        for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
-          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
-            node = App.grid.grid.getNodeAt(i, j);
-            if (!node.walkable && (node.holder.id !== this.id)) {
-              return false;
-            }
-          }
-        }
         this.calcDimentions();
         return this.w > 0 && this.h > 0;
       };
@@ -180,7 +188,6 @@
           this.removeSelf();
           return false;
         }
-        this.setToGrid();
         return this.isDragMode = false;
       };
 
