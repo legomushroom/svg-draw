@@ -6,9 +6,8 @@
     return Line = (function() {
       function Line(o) {
         this.o = o != null ? o : {};
-        this.SVG = this.o.SVG;
         this.id = helpers.genHash();
-        this.points = [];
+        this.points = this.o.points || [];
         this.addDomElement();
         this;
       }
@@ -24,9 +23,9 @@
           fill: 'none',
           'marker-mid': 'url(#marker-mid)'
         };
-        this.line = this.SVG.createElement('path', attr);
+        this.line = App.SVG.createElement('path', attr);
         this.serialize();
-        return this.SVG.lineToDom(this.id, this.line);
+        return App.SVG.lineToDom(this.id, this.line);
       };
 
       Line.prototype.serialize = function() {
@@ -41,8 +40,17 @@
           }
           str += point.type == null ? "L " + point.x + ", " + point.y : str += "a1,1 0 0,1 " + App.gs + ",0";
         }
-        this.SVG.setAttribute.call(this.line, 'd', str);
+        App.SVG.setAttribute.call(this.line, 'd', str);
         return this;
+      };
+
+      Line.prototype.remove = function() {
+        this.removeFromDom();
+        return this;
+      };
+
+      Line.prototype.removeFromDom = function() {
+        return App.SVG.canvas.removeChild(this.line);
       };
 
       return Line;

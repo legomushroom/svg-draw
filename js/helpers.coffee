@@ -1,4 +1,4 @@
-define 'helpers', ['two', 'md5'], (Two, md5)->
+define 'helpers', ['md5'], (md5)->
 
 	helpers = 
 		arrayRemove:(from, to) ->
@@ -23,19 +23,6 @@ define 'helpers', ['two', 'md5'], (Two, md5)->
 			e.preventDefault()
 			e.stopPropagation()
 			false
-		
-		makePoint:(x,y)->
-			h = @getRandom(0,10)
-			if arguments.length <= 1
-				y = x.y
-				x = x.x
-
-			if h is 5 
-				v = new Two.Anchor x, y, x*2, y*2, x*1.5, y*1.5,  Two.Commands.curve
-			else
-				v = new Two.Anchor x, y
-			# v.position = new Two.Anchor().copy v
-			v
 	
 	helpers
 

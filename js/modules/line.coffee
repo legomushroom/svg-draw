@@ -1,9 +1,8 @@
 define 'line', ['helpers'], (helpers)->
 	class Line
 		constructor:(@o={})->
-			@SVG = @o.SVG
 			@id = helpers.genHash()
-			@points = []
+			@points = @o.points or []
 			@addDomElement()
 			@
 
@@ -16,9 +15,9 @@ define 'line', ['helpers'], (helpers)->
 				fill: 					'none'
 				'marker-mid': 	'url(#marker-mid)'
 
-			@line = @SVG.createElement 'path', attr
+			@line = App.SVG.createElement 'path', attr
 			@serialize()
-			@SVG.lineToDom @id, @line
+			App.SVG.lineToDom @id, @line
 
 		serialize:->
 			str = ''
@@ -26,5 +25,9 @@ define 'line', ['helpers'], (helpers)->
 				str += "M#{point.x},#{point.y} " if i is 0
 				str += if !point.type? then "L #{point.x}, #{point.y}" else str += "a1,1 0 0,1 #{App.gs},0"
 
-			@SVG.setAttribute.call @line, 'd', str
+			App.SVG.setAttribute.call @line, 'd', str
 			@
+
+		remove:-> @removeFromDom(); return @
+
+		removeFromDom:-> App.SVG.canvas.removeChild @line

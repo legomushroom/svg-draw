@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('path', ['two', 'jquery', 'helpers', 'ProtoClass'], function(Two, $, helpers, ProtoClass) {
+  define('path', ['jquery', 'helpers', 'ProtoClass', 'line'], function($, helpers, ProtoClass, Line) {
     var Path;
 
     Path = (function(_super) {
@@ -29,48 +29,33 @@
       };
 
       Path.prototype.render = function() {
-        var i, path, point, xy, _i, _len, _results;
+        var i, path, point, points, xy, _i, _len;
 
         path = App.grid.getGapPolyfill({
           from: this.startIJ,
           to: this.endIJ
         });
-        this.addLine((path[0][0] * App.gs) + (App.gs / 2), (path[0][1] * App.gs) + (App.gs / 2));
-        _results = [];
+        points = [];
         for (i = _i = 0, _len = path.length; _i < _len; i = ++_i) {
           point = path[i];
-          if (i === 0) {
-            continue;
-          }
           xy = App.grid.fromIJ({
             i: point[0],
             j: point[1]
           });
-          _results.push(this.line.vertices.push(helpers.makePoint(xy.x, xy.y)));
+          points.push(helpers.makePoint(xy.x, xy.y));
         }
-        return _results;
+        return this.addLine(points);
       };
 
-      Path.prototype.addLine = function(x, y) {
-        var vert, _i, _len, _ref, _ref1,
-          _this = this;
+      Path.prototype.addLine = function(points) {
+        var _ref;
 
         if ((_ref = this.line) != null) {
           _ref.remove();
         }
-        this.line = App.two.makeLine(x, y, x, y);
-        this.line.noFill().stroke = this.o.strokeColor || "#00DFFC";
-        this.line.linewidth = this.o.strokeWidth || 2;
-        _ref1 = this.line.vertices;
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          vert = _ref1[_i];
-          vert.addSelf(this.line.translation);
-        }
-        this.line.translation.clear();
-        return setTimeout((function() {
-          _this.$dom = $("#two-" + _this.line.id);
-          return _this.addMarkers();
-        }), 25);
+        return this.line = new Line({
+          points: points
+        });
       };
 
       Path.prototype.removeIfEmpty = function() {
@@ -78,11 +63,7 @@
       };
 
       Path.prototype.isEmpty = function() {
-        return this.line.vertices.length <= 2;
-      };
-
-      Path.prototype.addMarkers = function() {
-        return this.$dom.attr('marker-mid', "url('#marker-mid')");
+        return this.line.points.length <= 2;
       };
 
       return Path;

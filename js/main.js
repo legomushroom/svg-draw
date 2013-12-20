@@ -6,7 +6,6 @@
       underscore: 'lib/lodash.underscore',
       hammer: 'lib/hammer',
       tween: 'lib/tween.min',
-      two: 'lib/two',
       md5: 'lib/md5',
       'path-finder': 'lib/pathfinding-browser',
       path: 'modules/path',
@@ -22,7 +21,7 @@
     }
   });
 
-  define('main', ['helpers', 'hammer', 'jquery', 'two', 'svg', 'path', 'block', 'grid', 'path-finder'], function(helpers, hammer, $, Two, SVG, Path, Block, Grid, PathFinder) {
+  define('main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', 'path-finder'], function(helpers, hammer, $, SVG, Path, Block, Grid, PathFinder) {
     var App;
 
     App = (function() {
