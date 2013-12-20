@@ -3,7 +3,6 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 	class Block extends ProtoClass
 		type:  			'block'
 		
-
 		constructor:(@o={})->
 			@id = helpers.genHash()
 			@isValid= 		false
@@ -15,18 +14,12 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				coords 	= App.grid.normalizeCoords App.grid.getNearestCell @o.coords or {x: 0, y: 0}
 				@set 'startIJ', coords
 
-			@createPorts()
+			@createPort()
 			@onChange = @render
 
 			@
 
-		createPorts:->
-			@ports = {}
-			portRoles = ['top', 'bottom', 'left', 'right']
-			for role, i in portRoles
-				@ports[role] = new Port 
-					role: 	portRoles[i]
-					parent: @
+		createPort:-> @port = new Port parent: @
 
 		render:->
 			@calcDimentions()
@@ -46,13 +39,13 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 		calcDimentions:->
 			@w = @endIJ.i - @startIJ.i
 			@h = @endIJ.j - @startIJ.j
-			@refreshPorts()
+			@refreshPort()
 
 		listenEvents:->
 			hammer(@$el[0]).on 'touch', (e)=>
 				coords = helpers.getEventCoords e
 				if App.currTool is 'path'
-					App.isBlockToPath = @getNearestPort(coords).addConnection()
+					App.isBlockToPath = @port.addConnection()
 
 			hammer(@$el[0]).on 'drag', (e)=>
 				coords = helpers.getEventCoords e
@@ -64,7 +57,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				coords = helpers.getEventCoords e
 				if App.currTool is 'path'
 					if App.currPath and App.currBlock
-						App.currBlock.getNearestPort(coords).addConnection App.currPath
+						App.currBlock.port.addConnection App.currPath
 						App.isBlockToPath = null
 
 				else 
@@ -104,21 +97,6 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				'endIJ': 		{i: @buffEndIJ.i + coords.i, j: @buffEndIJ.j + coords.j }
 				'isValid':  @isSuiteSize()
 
-		getNearestPort:(coords)->
-			ij = App.grid.normalizeCoords coords
-			min = 
-				ij:
-					i: 9999999999
-					j: 9999999999
-				port: null
-
-			for portName, port of @ports
-				i = Math.abs( port.ij.i - ij.i ); j = Math.abs( port.ij.j - ij.j )
-				if min.ij.i > i or min.ij.j > j
-					min.ij 		= {i: i, j: j}
-					min.port 	= port
-
-			if min.port is null then @ports['bottom'] else min.port
 
 		setSizeDelta:(deltas)->
 			@set 
@@ -141,9 +119,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 			@isDragMode = false
 			
 
-		refreshPorts:->
-			for portName, port of @ports
-				port.setIJ()
+		refreshPort:-> @port.setIJ()
 
 		setToGrid:->
 			# for i in [@startIJ.i...@endIJ.i]

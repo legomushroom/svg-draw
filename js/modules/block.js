@@ -33,25 +33,15 @@
           }));
           this.set('startIJ', coords);
         }
-        this.createPorts();
+        this.createPort();
         this.onChange = this.render;
         this;
       }
 
-      Block.prototype.createPorts = function() {
-        var i, portRoles, role, _i, _len, _results;
-
-        this.ports = {};
-        portRoles = ['top', 'bottom', 'left', 'right'];
-        _results = [];
-        for (i = _i = 0, _len = portRoles.length; _i < _len; i = ++_i) {
-          role = portRoles[i];
-          _results.push(this.ports[role] = new Port({
-            role: portRoles[i],
-            parent: this
-          }));
-        }
-        return _results;
+      Block.prototype.createPort = function() {
+        return this.port = new Port({
+          parent: this
+        });
       };
 
       Block.prototype.render = function() {
@@ -73,7 +63,7 @@
       Block.prototype.calcDimentions = function() {
         this.w = this.endIJ.i - this.startIJ.i;
         this.h = this.endIJ.j - this.startIJ.j;
-        return this.refreshPorts();
+        return this.refreshPort();
       };
 
       Block.prototype.listenEvents = function() {
@@ -84,7 +74,7 @@
 
           coords = helpers.getEventCoords(e);
           if (App.currTool === 'path') {
-            return App.isBlockToPath = _this.getNearestPort(coords).addConnection();
+            return App.isBlockToPath = _this.port.addConnection();
           }
         });
         hammer(this.$el[0]).on('drag', function(e) {
@@ -105,7 +95,7 @@
           coords = helpers.getEventCoords(e);
           if (App.currTool === 'path') {
             if (App.currPath && App.currBlock) {
-              App.currBlock.getNearestPort(coords).addConnection(App.currPath);
+              App.currBlock.port.addConnection(App.currPath);
               return App.isBlockToPath = null;
             }
           } else {
@@ -159,37 +149,6 @@
         });
       };
 
-      Block.prototype.getNearestPort = function(coords) {
-        var i, ij, j, min, port, portName, _ref;
-
-        ij = App.grid.normalizeCoords(coords);
-        min = {
-          ij: {
-            i: 9999999999,
-            j: 9999999999
-          },
-          port: null
-        };
-        _ref = this.ports;
-        for (portName in _ref) {
-          port = _ref[portName];
-          i = Math.abs(port.ij.i - ij.i);
-          j = Math.abs(port.ij.j - ij.j);
-          if (min.ij.i > i || min.ij.j > j) {
-            min.ij = {
-              i: i,
-              j: j
-            };
-            min.port = port;
-          }
-        }
-        if (min.port === null) {
-          return this.ports['bottom'];
-        } else {
-          return min.port;
-        }
-      };
-
       Block.prototype.setSizeDelta = function(deltas) {
         return this.set({
           'endIJ': {
@@ -225,16 +184,8 @@
         return this.isDragMode = false;
       };
 
-      Block.prototype.refreshPorts = function() {
-        var port, portName, _ref, _results;
-
-        _ref = this.ports;
-        _results = [];
-        for (portName in _ref) {
-          port = _ref[portName];
-          _results.push(port.setIJ());
-        }
-        return _results;
+      Block.prototype.refreshPort = function() {
+        return this.port.setIJ();
       };
 
       Block.prototype.setToGrid = function() {

@@ -49,7 +49,7 @@
       };
 
       Grid.prototype.normalizeCoords = function(coords) {
-        if (coords.x) {
+        if (coords.x != null) {
           return this.toIJ(coords);
         } else {
           return coords;

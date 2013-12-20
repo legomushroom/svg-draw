@@ -24,14 +24,15 @@ html {
   background-size: 8em 8em, 8em 8em, 1em 1em, 1em 1em;
   background-position: -0.125em -0.125em, -0.125em -0.125em, -0.0625em -0.0625em, -0.0625em -0.0625em;
 }
-.place-preview-e,
-.block-e {
+.place-preview-e {
   position: absolute;
   border: 0.0625em solid rgba(0,0,0,0.2);
   background-color: rgba(0,0,0,0.1);
 }
 .block-e {
-  border-color: rgba(0,223,252,0.95);
+  position: absolute;
+  border-color: #00dffc;
+  background-color: #00dffc;
 }
 .block-e.is-connect-path {
   box-shadow: 0 0 1em #00dffc;

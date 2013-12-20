@@ -23,71 +23,51 @@
       }
 
       Port.prototype.onChange = function() {
-        var i, path, _i, _len, _ref;
+        var connection, i, _i, _len, _ref;
 
         _ref = this.connections;
         for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-          path = _ref[i];
-          path.set("" + path.direction + "IJ", this.ij);
+          connection = _ref[i];
+          connection.path.set("" + connection.direction + "IJ", this.ij);
         }
         return App.grid.refreshGrid();
       };
 
       Port.prototype.addConnection = function(path) {
-        if (!path) {
+        var direction;
+
+        direction = '';
+        if (path == null) {
           path = new Path;
           path.connectedTo = this.parent;
           path.set({
             'startIJ': this.ij,
-            'endIJ': this.ij,
-            'direction': 'start'
+            'endIJ': this.ij
           });
+          direction = 'start';
         } else {
           path.set({
-            'endIJ': this.ij,
-            'direction': 'end'
+            'endIJ': this.ij
           });
+          direction = 'end';
         }
-        this.connections.push(path);
+        this.connections.push({
+          direction: direction,
+          path: path,
+          id: App.helpers.genHash()
+        });
         return path;
       };
 
-      Port.prototype.setIJ = function(role) {
+      Port.prototype.setIJ = function() {
         var i, j;
 
-        switch (role || this.role) {
-          case 'top':
-            i = this.parent.startIJ.i + ~~(this.parent.w / 2);
-            j = this.parent.startIJ.j - 1;
-            this.set('ij', {
-              i: i,
-              j: j
-            });
-            break;
-          case 'bottom':
-            i = this.parent.startIJ.i + ~~(this.parent.w / 2);
-            j = this.parent.startIJ.j + this.parent.h;
-            this.set('ij', {
-              i: i,
-              j: j
-            });
-            break;
-          case 'left':
-            i = this.parent.startIJ.i - 1;
-            j = this.parent.startIJ.j + ~~(this.parent.h / 2);
-            this.set('ij', {
-              i: i,
-              j: j
-            });
-            break;
-          case 'right':
-            i = this.parent.startIJ.i + this.parent.w;
-            j = this.parent.startIJ.j + ~~(this.parent.h / 2);
-            this.set('ij', {
-              i: i,
-              j: j
-            });
-        }
+        i = this.parent.startIJ.i + ~~(this.parent.w / 2);
+        j = this.parent.startIJ.j + ~~(this.parent.h / 2);
+        this.set('ij', {
+          i: i,
+          j: j
+        });
         return this;
       };
 
