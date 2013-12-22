@@ -12,16 +12,11 @@
       block: 'modules/block',
       port: 'modules/port',
       line: 'modules/line',
-      ProtoClass: 'modules/ProtoClass',
-      backbone: 'lib/backbone'
+      ProtoClass: 'modules/ProtoClass'
     },
     shim: {
       "two": {
         exports: "Two"
-      },
-      backbone: {
-        exports: 'Backbone',
-        deps: ['jquery', 'underscore']
       }
     }
   });

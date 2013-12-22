@@ -1,11 +1,18 @@
 define 'helpers', ['md5'], (md5)->
 
-	helpers = 
+	helpers =
 		arrayRemove:(from, to) ->
 			# Array Remove - By John Resig (MIT Licensed)
 		  rest = @slice((to or from) + 1 or @length)
 		  @length = (if from < 0 then @length + from else from)
 		  @push.apply this, rest
+
+		cloneObj:(obj) ->
+			return obj  if null is obj or "object" isnt typeof obj
+			copy = obj.constructor()
+			for attr of obj
+				copy[attr] = obj[attr]  if obj.hasOwnProperty(attr)
+			copy
 		
 
 		getEventCoords:(e)-> { x: e.gesture.center.pageX, y: e.gesture.center.pageY }

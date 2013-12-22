@@ -12,6 +12,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 
 
 		onChange:-> 
+			@oldIntersects = helpers.cloneObj @intersects
 			@render()
 
 		render:(isRepaintIntersects=true)->
@@ -19,7 +20,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 			@recalcPath()
 
 			@detectCollisions()
-			# isRepaintIntersects and @repaintIntersects()
+			isRepaintIntersects and @repaintIntersects()
 			@makeLine()
 			App.grid.refreshGrid()
 
@@ -45,7 +46,6 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 				path.render isRepaintIntersects
 
 		detectCollisions:()->
-			console.log @intersects
 			@intersects = {}
 			for point in @points
 				myDirection = @directionAt point

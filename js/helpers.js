@@ -11,6 +11,20 @@
         this.length = (from < 0 ? this.length + from : from);
         return this.push.apply(this, rest);
       },
+      cloneObj: function(obj) {
+        var attr, copy;
+
+        if (null === obj || "object" !== typeof obj) {
+          return obj;
+        }
+        copy = obj.constructor();
+        for (attr in obj) {
+          if (obj.hasOwnProperty(attr)) {
+            copy[attr] = obj[attr];
+          }
+        }
+        return copy;
+      },
       getEventCoords: function(e) {
         return {
           x: e.gesture.center.pageX,

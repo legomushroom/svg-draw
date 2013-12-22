@@ -25,6 +25,7 @@
       }
 
       Path.prototype.onChange = function() {
+        this.oldIntersects = helpers.cloneObj(this.intersects);
         return this.render();
       };
 
@@ -35,6 +36,7 @@
         this.removeFromGrid();
         this.recalcPath();
         this.detectCollisions();
+        isRepaintIntersects && this.repaintIntersects();
         this.makeLine();
         return App.grid.refreshGrid();
       };
@@ -93,7 +95,6 @@
         var holder, myDirection, name, node, point, _i, _len, _ref, _results,
           _this = this;
 
-        console.log(this.intersects);
         this.intersects = {};
         _ref = this.points;
         _results = [];
