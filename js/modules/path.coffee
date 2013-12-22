@@ -11,10 +11,19 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 					endIJ: 		App.grid.toIJ @o.coords
 
 
-		onChange:-> @render()
+		onChange:-> 
+			@render()
 
 		render:(isRepaintIntersects=true)->
 			@removeFromGrid()
+			@recalcPath()
+
+			@detectCollisions()
+			# isRepaintIntersects and @repaintIntersects()
+			@makeLine()
+			App.grid.refreshGrid()
+
+		recalcPath:->
 			path = App.grid.getGapPolyfill 
 								from: @startIJ
 								to: 	@endIJ
@@ -30,17 +39,13 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 				point = { x: xy.x, y: xy.y, curve: null, i: i }
 				@points.push point
 
-			@detectCollisions()
-			isRepaintIntersects and @repaintIntersects()
-			@makeLine()
-			App.grid.refreshGrid()
-
-		repaintIntersects:->
+		repaintIntersects:(isRepaintIntersects=false)->
 			for name, path of @intersects
 				continue if path.id is @id
-				path.render(false)
+				path.render isRepaintIntersects
 
 		detectCollisions:()->
+			console.log @intersects
 			@intersects = {}
 			for point in @points
 				myDirection = @directionAt point

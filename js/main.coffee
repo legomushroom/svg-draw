@@ -11,8 +11,15 @@ require.config
 		port: 				'modules/port'
 		line: 				'modules/line'
 		ProtoClass: 	'modules/ProtoClass'
+		backbone: 		'lib/backbone'
 
-	shim: { "two": { exports: "Two" } }
+	shim: 
+		"two": { exports: "Two" }
+
+		backbone:
+			exports: 'Backbone'
+			deps: 	['jquery','underscore']
+
 
 define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', 'path-finder'], (helpers, hammer, $, SVG, Path, Block, Grid, PathFinder )->
 	class App

@@ -9,7 +9,7 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			@
 
 		onChange:->
-			for connection,i in @connections 
+			for connection,i in @connections
 				connection.path.set "#{connection.direction}IJ", @ij
 
 			App.grid.refreshGrid()

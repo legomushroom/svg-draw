@@ -29,17 +29,25 @@
       };
 
       Path.prototype.render = function(isRepaintIntersects) {
-        var i, ij, node, path, point, xy, _i, _len, _ref;
-
         if (isRepaintIntersects == null) {
           isRepaintIntersects = true;
         }
         this.removeFromGrid();
+        this.recalcPath();
+        this.detectCollisions();
+        this.makeLine();
+        return App.grid.refreshGrid();
+      };
+
+      Path.prototype.recalcPath = function() {
+        var i, ij, node, path, point, xy, _i, _len, _ref, _results;
+
         path = App.grid.getGapPolyfill({
           from: this.startIJ,
           to: this.endIJ
         });
         this.points = [];
+        _results = [];
         for (i = _i = 0, _len = path.length; _i < _len; i = ++_i) {
           point = path[i];
           ij = {
@@ -58,17 +66,17 @@
             curve: null,
             i: i
           };
-          this.points.push(point);
+          _results.push(this.points.push(point));
         }
-        this.detectCollisions();
-        isRepaintIntersects && this.repaintIntersects();
-        this.makeLine();
-        return App.grid.refreshGrid();
+        return _results;
       };
 
-      Path.prototype.repaintIntersects = function() {
+      Path.prototype.repaintIntersects = function(isRepaintIntersects) {
         var name, path, _ref, _results;
 
+        if (isRepaintIntersects == null) {
+          isRepaintIntersects = false;
+        }
         _ref = this.intersects;
         _results = [];
         for (name in _ref) {
@@ -76,7 +84,7 @@
           if (path.id === this.id) {
             continue;
           }
-          _results.push(path.render(false));
+          _results.push(path.render(isRepaintIntersects));
         }
         return _results;
       };
@@ -85,6 +93,7 @@
         var holder, myDirection, name, node, point, _i, _len, _ref, _results,
           _this = this;
 
+        console.log(this.intersects);
         this.intersects = {};
         _ref = this.points;
         _results = [];
