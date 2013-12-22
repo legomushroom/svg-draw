@@ -2,7 +2,8 @@ define 'line', ['helpers'], (helpers)->
 	class Line
 		constructor:(@o={})->
 			@id = helpers.genHash()
-			@points = @o.points or []
+			@path 	= @o.path
+			@points = @path.points
 			@addDomElement()
 			@
 
@@ -28,16 +29,18 @@ define 'line', ['helpers'], (helpers)->
 					if !point.curve? 
 						str += "L #{point.x}, #{point.y} " 
 					else
-						xShift = 0
-						yShift = 0
-						xRadius = 0
-						yRadius = 0
+						xShift = yShift = xRadius = yRadius = 0
 						if point.curve is 'vertical'
 							yShift = App.gs/2
 							yRadius = App.gs
+							yShift = if @path.yPolar is 'minus' then yShift-App.gs else yShift
 						else if point.curve is 'horizontal'
 							xShift = App.gs/2
 							xRadius = App.gs
+							xShift = if @path.xPolar is 'minus' then xShift-App.gs else xShift
+
+						xRadius = if @path.xPolar is 'minus' then -xRadius else xRadius
+						yRadius = if @path.yPolar is 'minus' then -yRadius else yRadius
 
 						str += "L #{point.x - xShift}, #{point.y - yShift} "
 						str += "a1,1 0 0,1 #{xRadius},#{yRadius} "

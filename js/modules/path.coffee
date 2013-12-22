@@ -18,9 +18,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 		render:(isRepaintIntersects=true)->
 			@removeFromGrid()
 			@recalcPath()
-
-			@detectCollisions()
-			isRepaintIntersects and @repaintIntersects()
+			@repaintIntersects @oldIntersects
+			isRepaintIntersects and @detectCollisions()
 			@makeLine()
 			App.grid.refreshGrid()
 
@@ -39,11 +38,20 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 
 				point = { x: xy.x, y: xy.y, curve: null, i: i }
 				@points.push point
+			@calcPolar()
+			@
 
-		repaintIntersects:(isRepaintIntersects=false)->
-			for name, path of @intersects
+		calcPolar:->
+			firstPoint  = @points[0]
+			lastPoint 	= @points[@points.length-1]
+			@xPolar = if firstPoint.x < lastPoint.x then 'plus' else 'minus'
+			@yPolar = if firstPoint.y < lastPoint.y then 'plus' else 'minus'
+
+		repaintIntersects:(intersects)->
+			for name, path of intersects
 				continue if path.id is @id
-				path.render isRepaintIntersects
+				path.render false
+			@oldIntersects = {}
 
 		detectCollisions:()->
 			@intersects = {}
@@ -67,7 +75,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 			else direction = 'corner'
 			direction
 
-		makeLine:()-> if !@line? then @line = new Line points: @points else @line.resetPoints @points
+
+		makeLine:()-> if !@line? then @line = new Line path: @ else @line.resetPoints @points
 
 		removeFromGrid:->
 			return if !@points?

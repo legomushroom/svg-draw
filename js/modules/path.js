@@ -35,21 +35,20 @@
         }
         this.removeFromGrid();
         this.recalcPath();
-        this.detectCollisions();
-        isRepaintIntersects && this.repaintIntersects();
+        this.repaintIntersects(this.oldIntersects);
+        isRepaintIntersects && this.detectCollisions();
         this.makeLine();
         return App.grid.refreshGrid();
       };
 
       Path.prototype.recalcPath = function() {
-        var i, ij, node, path, point, xy, _i, _len, _ref, _results;
+        var i, ij, node, path, point, xy, _i, _len, _ref;
 
         path = App.grid.getGapPolyfill({
           from: this.startIJ,
           to: this.endIJ
         });
         this.points = [];
-        _results = [];
         for (i = _i = 0, _len = path.length; _i < _len; i = ++_i) {
           point = path[i];
           ij = {
@@ -68,27 +67,32 @@
             curve: null,
             i: i
           };
-          _results.push(this.points.push(point));
+          this.points.push(point);
         }
-        return _results;
+        this.calcPolar();
+        return this;
       };
 
-      Path.prototype.repaintIntersects = function(isRepaintIntersects) {
-        var name, path, _ref, _results;
+      Path.prototype.calcPolar = function() {
+        var firstPoint, lastPoint;
 
-        if (isRepaintIntersects == null) {
-          isRepaintIntersects = false;
-        }
-        _ref = this.intersects;
-        _results = [];
-        for (name in _ref) {
-          path = _ref[name];
+        firstPoint = this.points[0];
+        lastPoint = this.points[this.points.length - 1];
+        this.xPolar = firstPoint.x < lastPoint.x ? 'plus' : 'minus';
+        return this.yPolar = firstPoint.y < lastPoint.y ? 'plus' : 'minus';
+      };
+
+      Path.prototype.repaintIntersects = function(intersects) {
+        var name, path;
+
+        for (name in intersects) {
+          path = intersects[name];
           if (path.id === this.id) {
             continue;
           }
-          _results.push(path.render(isRepaintIntersects));
+          path.render(false);
         }
-        return _results;
+        return this.oldIntersects = {};
       };
 
       Path.prototype.detectCollisions = function() {
@@ -153,7 +157,7 @@
       Path.prototype.makeLine = function() {
         if (this.line == null) {
           return this.line = new Line({
-            points: this.points
+            path: this
           });
         } else {
           return this.line.resetPoints(this.points);

@@ -7,7 +7,8 @@
       function Line(o) {
         this.o = o != null ? o : {};
         this.id = helpers.genHash();
-        this.points = this.o.points || [];
+        this.path = this.o.path;
+        this.points = this.path.points;
         this.addDomElement();
         this;
       }
@@ -41,17 +42,18 @@
             if (point.curve == null) {
               str += "L " + point.x + ", " + point.y + " ";
             } else {
-              xShift = 0;
-              yShift = 0;
-              xRadius = 0;
-              yRadius = 0;
+              xShift = yShift = xRadius = yRadius = 0;
               if (point.curve === 'vertical') {
                 yShift = App.gs / 2;
                 yRadius = App.gs;
+                yShift = this.path.yPolar === 'minus' ? yShift - App.gs : yShift;
               } else if (point.curve === 'horizontal') {
                 xShift = App.gs / 2;
                 xRadius = App.gs;
+                xShift = this.path.xPolar === 'minus' ? xShift - App.gs : xShift;
               }
+              xRadius = this.path.xPolar === 'minus' ? -xRadius : xRadius;
+              yRadius = this.path.yPolar === 'minus' ? -yRadius : yRadius;
               str += "L " + (point.x - xShift) + ", " + (point.y - yShift) + " ";
               str += "a1,1 0 0,1 " + xRadius + "," + yRadius + " ";
             }
