@@ -13,7 +13,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 
 		onChange:-> @render()
 
-		render:->
+		render:(isRepaintIntersects=true)->
 			@removeFromGrid()
 			path = App.grid.getGapPolyfill 
 								from: @startIJ
@@ -30,21 +30,28 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 				point = { x: xy.x, y: xy.y, curve: null, i: i }
 				@points.push point
 
-			@detectCollisions @points
-			@addLine @points
+			@detectCollisions()
+			isRepaintIntersects and @repaintIntersects()
+			@makeLine()
 			App.grid.refreshGrid()
 
-		detectCollisions:(points)->
-			for point in points
+		repaintIntersects:->
+			for name, path of @intersects
+				continue if path.id is @id
+				path.render(false)
+
+		detectCollisions:()->
+			@intersects = {}
+			for point in @points
 				myDirection = @directionAt point
 				node = App.grid.at point
 				if _.size(node.holders) > 1
-					for holder in _.where(node.holders, type: 'path')
+					_.chain(node.holders).where(type: 'path').each (holder)=>
+						@intersects[holder.id] = holder
+
+					for name, holder of @intersects
 						continue if holder.id is @id
 						point.curve = "#{myDirection}" if myDirection isnt holder.directionAt point
-
-						# console.log "myDirection: #{myDirection}"
-						# console.log "collision direction: #{}"
 
 		directionAt:(xy)->
 			point = _.where(@points, {x: xy.x, y: xy.y})[0]
@@ -55,7 +62,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 			else direction = 'corner'
 			direction
 
-		addLine:(points)-> if !@line? then @line = new Line points: @points else @line.resetPoints @points
+		makeLine:()-> if !@line? then @line = new Line points: @points else @line.resetPoints @points
 
 		removeFromGrid:->
 			return if !@points?

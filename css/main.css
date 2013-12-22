@@ -20,6 +20,8 @@ html {
   margin: 0 auto;
   overflow-y: auto;
   background-color: #343838;
+}
+.main-l #svg-canvas {
   background-image: linear-gradient(#005f6b 0.125em, transparent 0.125em), linear-gradient(90deg, #005f6b 0.125em, transparent 0.125em), linear-gradient(#005f6b 0.0625em, transparent 0.0625em), linear-gradient(90deg, #005f6b 0.0625em, transparent 0.0625em);
   background-size: 8em 8em, 8em 8em, 1em 1em, 1em 1em;
   background-position: -0.125em -0.125em, -0.125em -0.125em, -0.0625em -0.0625em, -0.0625em -0.0625em;

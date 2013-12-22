@@ -28,9 +28,12 @@
         return this.render();
       };
 
-      Path.prototype.render = function() {
+      Path.prototype.render = function(isRepaintIntersects) {
         var i, ij, node, path, point, xy, _i, _len, _ref;
 
+        if (isRepaintIntersects == null) {
+          isRepaintIntersects = true;
+        }
         this.removeFromGrid();
         path = App.grid.getGapPolyfill({
           from: this.startIJ,
@@ -57,29 +60,51 @@
           };
           this.points.push(point);
         }
-        this.detectCollisions(this.points);
-        this.addLine(this.points);
+        this.detectCollisions();
+        isRepaintIntersects && this.repaintIntersects();
+        this.makeLine();
         return App.grid.refreshGrid();
       };
 
-      Path.prototype.detectCollisions = function(points) {
-        var holder, myDirection, node, point, _i, _len, _results;
+      Path.prototype.repaintIntersects = function() {
+        var name, path, _ref, _results;
 
+        _ref = this.intersects;
         _results = [];
-        for (_i = 0, _len = points.length; _i < _len; _i++) {
-          point = points[_i];
+        for (name in _ref) {
+          path = _ref[name];
+          if (path.id === this.id) {
+            continue;
+          }
+          _results.push(path.render(false));
+        }
+        return _results;
+      };
+
+      Path.prototype.detectCollisions = function() {
+        var holder, myDirection, name, node, point, _i, _len, _ref, _results,
+          _this = this;
+
+        this.intersects = {};
+        _ref = this.points;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          point = _ref[_i];
           myDirection = this.directionAt(point);
           node = App.grid.at(point);
           if (_.size(node.holders) > 1) {
+            _.chain(node.holders).where({
+              type: 'path'
+            }).each(function(holder) {
+              return _this.intersects[holder.id] = holder;
+            });
             _results.push((function() {
-              var _j, _len1, _ref, _results1;
+              var _ref1, _results1;
 
-              _ref = _.where(node.holders, {
-                type: 'path'
-              });
+              _ref1 = this.intersects;
               _results1 = [];
-              for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-                holder = _ref[_j];
+              for (name in _ref1) {
+                holder = _ref1[name];
                 if (holder.id === this.id) {
                   continue;
                 }
@@ -115,7 +140,7 @@
         return direction;
       };
 
-      Path.prototype.addLine = function(points) {
+      Path.prototype.makeLine = function() {
         if (this.line == null) {
           return this.line = new Line({
             points: this.points

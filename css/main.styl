@@ -19,10 +19,12 @@ body, html
 	margin 0 auto
 	overflow-y auto
 	background-color #343838
-	lineColor = #005F6B
-	background-image: linear-gradient(lineColor 2*ex, transparent 2*ex),linear-gradient(90deg, lineColor 2*ex, transparent 2*ex),linear-gradient(lineColor ex, transparent ex),linear-gradient(90deg, lineColor ex, transparent ex);
-	background-size:8em 8em, 8em 8em, 1em 1em, 1em 1em;
-	background-position: -2*ex -2*ex, -2*ex -2*ex, -1*ex -1*ex, -1*ex -1*ex
+	
+	#svg-canvas
+		lineColor = #005F6B
+		background-image: linear-gradient(lineColor 2*ex, transparent 2*ex),linear-gradient(90deg, lineColor 2*ex, transparent 2*ex),linear-gradient(lineColor ex, transparent ex),linear-gradient(90deg, lineColor ex, transparent ex);
+		background-size:8em 8em, 8em 8em, 1em 1em, 1em 1em;
+		background-position: -2*ex -2*ex, -2*ex -2*ex, -1*ex -1*ex, -1*ex -1*ex
 
 .place-preview-e
 	position: absolute
