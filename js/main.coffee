@@ -25,17 +25,19 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 			@$main = $('#js-main')
 			@$tools = $('#js-tools')
 
-			@SVG = new SVG $el: @$main
-
-			# @$svgCanvas = $ @two.renderer.domElement
 			@helpers = helpers
 			@gs = 16
-			@grid 		= new Grid
+			@grid 	= new Grid
 			@paths 	= []
 			@blocks = []
 
+			@SVG = new SVG 
+				$el: @$main
+				grid: @grid
+
+
 			@debug = 
-				isGrid: true
+				isGrid: false
 
 			@currTool = 'block'
 			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'

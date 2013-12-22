@@ -34,16 +34,17 @@
       App.prototype.initVars = function() {
         this.$main = $('#js-main');
         this.$tools = $('#js-tools');
-        this.SVG = new SVG({
-          $el: this.$main
-        });
         this.helpers = helpers;
         this.gs = 16;
         this.grid = new Grid;
         this.paths = [];
         this.blocks = [];
+        this.SVG = new SVG({
+          $el: this.$main,
+          grid: this.grid
+        });
         this.debug = {
-          isGrid: true
+          isGrid: false
         };
         this.currTool = 'block';
         this.$tools.find("[data-role=\"" + this.currTool + "\"]").addClass('is-check');

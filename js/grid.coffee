@@ -1,4 +1,4 @@
-define 'grid', ['path-finder'], (PathFinder)->
+define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 	class Grid
 		constructor:(@o={})->
 			@w = @o.width  or 100
@@ -35,11 +35,10 @@ define 'grid', ['path-finder'], (PathFinder)->
 				node.walkable = true
 				node.holder = null
 
-		atIJ:(ij)->
-			@grid.getNodeAt(ij.i, ij.j)
+		atIJ:(ij)-> @grid.getNodeAt(ij.i, ij.j)
+		at:(xy)-> ij = @normalizeCoords(xy);@grid.getNodeAt(ij.i, ij.j)
 
-		normalizeCoords:(coords)->
-			if coords.x? then @toIJ coords else coords
+		normalizeCoords:(coords)-> if coords.x? then @toIJ coords else coords
 
 		getNearestCell:(coords)->
 			x = App.gs * ~~(coords.x / App.gs)
@@ -84,37 +83,35 @@ define 'grid', ['path-finder'], (PathFinder)->
 
 			@grid.isWalkableAt ij.i, ij.j
 
-		ifBlockCell:(coords)->
-			if coords.x
-				ij = @toIJ(coords)
-			else ij = coords
+		# ifBlockCell:(coords)->
+		# 	if coords.x
+		# 		ij = @toIJ(coords)
+		# 	else ij = coords
 
-			node = @grid.getNodeAt(ij.i, ij.j)
-			return if node.holder?.type is 'block' then node.holder else false
+		# 	node = @grid.getNodeAt(ij.i, ij.j)
+		# 	return if node.holder?.type is 'block' then node.holder else false
 
-
-
-		# holdCellXY:(coords, obj)->
-		# 	ij = @toIJ(coords)
-		# 	@holdCell ij, obj
 
 		# DEBUG SECTION
 		refreshGrid:->
-
 			return if !App.debug.isGrid 
 			@clearGrid()
 			for j in [0...@h]
 				for i in [0...@w]
-					if (@grid.getNodeAt i, j).walkable is false
-						rect = App.two.makeRectangle (i*App.gs)+(App.gs/2), (j*App.gs)+(App.gs/2), App.gs, App.gs
-						rect.fill = 'rgba(255,255,255,.15)'
-						rect.noStroke()
+					if _.size((@grid.getNodeAt i, j).holders)
+						attrs = 
+							x: "#{i}em"
+							y: "#{j}em"
+							width: 	"1em"
+							height: "1em"
+							fill: 'rgba(255,255,255,.15)'
+						rect = App.SVG.createElement 'rect', attrs
+						App.SVG.lineToDom null, rect
 						@debugGrid.push rect
 
 		clearGrid:->
 			for rect in @debugGrid
-				rect.remove()
-
+				App.SVG.removeElem rect
 			@debugGrid.length = 0
 
 

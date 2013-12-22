@@ -12,6 +12,7 @@
 
       function SVG(o) {
         this.o = o != null ? o : {};
+        this.grid = this.o.grid || App.grid;
         this.createCanvas(this.o.$el);
         this;
       }
@@ -25,8 +26,8 @@
           'xmln:xlink': this.xlink,
           id: 'svg-canvas',
           style: 'left:0;top:0;right:0;bottom:0;position:absolute;',
-          width: '1440',
-          height: '900'
+          width: "" + this.grid.w + "em",
+          height: "" + this.grid.h + "em"
         };
         this.canvas = this.createElement('svg', attrs);
         return $el[0].appendChild(this.canvas);
@@ -77,6 +78,11 @@
 
       SVG.prototype.lineToDom = function(id, elem) {
         this.canvas.appendChild(elem);
+        return this;
+      };
+
+      SVG.prototype.removeElem = function(elem) {
+        this.canvas.removeChild(elem);
         return this;
       };
 

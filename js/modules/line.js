@@ -29,7 +29,7 @@
       };
 
       Line.prototype.serialize = function() {
-        var i, point, str, _i, _len, _ref;
+        var i, point, str, xRadius, xShift, yRadius, yShift, _i, _len, _ref;
 
         str = '';
         _ref = this.points;
@@ -37,10 +37,33 @@
           point = _ref[i];
           if (i === 0) {
             str += "M" + point.x + "," + point.y + " ";
+          } else {
+            if (point.curve == null) {
+              str += "L " + point.x + ", " + point.y + " ";
+            } else {
+              xShift = 0;
+              yShift = 0;
+              xRadius = 0;
+              yRadius = 0;
+              if (point.curve === 'vertical') {
+                yShift = App.gs / 2;
+                yRadius = App.gs;
+              } else if (point.curve === 'horizontal') {
+                xShift = App.gs / 2;
+                xRadius = App.gs;
+              }
+              str += "L " + (point.x - xShift) + ", " + (point.y - yShift) + " ";
+              str += "a1,1 0 0,1 " + xRadius + "," + yRadius + " ";
+            }
           }
-          str += point.type == null ? "L " + point.x + ", " + point.y : str += "a1,1 0 0,1 " + App.gs + ",0";
         }
         App.SVG.setAttribute.call(this.line, 'd', str);
+        return this;
+      };
+
+      Line.prototype.resetPoints = function(points) {
+        this.points = points;
+        this.serialize();
         return this;
       };
 

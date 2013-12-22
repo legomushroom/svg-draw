@@ -5,6 +5,7 @@ define 'svg', ['line', 'helpers'], (Line, helpers)->
 		ns: 'http://www.w3.org/2000/svg'
 		xlink: 'http://www.w3.org/1999/xlink'
 		constructor:(@o={})->
+			@grid = @o.grid or App.grid
 			@createCanvas(@o.$el)
 			@
 
@@ -15,8 +16,8 @@ define 'svg', ['line', 'helpers'], (Line, helpers)->
 				'xmln:xlink': 		@xlink
 				id: 							'svg-canvas'
 				style: 						'left:0;top:0;right:0;bottom:0;position:absolute;'
-				width: 						'1440'
-				height: 					'900'
+				width: 						"#{@grid.w}em"
+				height: 					"#{@grid.h}em"
 			
 			@canvas = @createElement 'svg', attrs
 			$el[0].appendChild @canvas
@@ -43,6 +44,10 @@ define 'svg', ['line', 'helpers'], (Line, helpers)->
 
 		lineToDom:(id, elem)->
 			@canvas.appendChild elem
+			@
+
+		removeElem:(elem)->
+			@canvas.removeChild elem
 			@
 
 	SVG

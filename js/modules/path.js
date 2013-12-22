@@ -29,33 +29,116 @@
       };
 
       Path.prototype.render = function() {
-        var i, path, point, points, xy, _i, _len;
+        var i, ij, node, path, point, xy, _i, _len, _ref;
 
+        this.removeFromGrid();
         path = App.grid.getGapPolyfill({
           from: this.startIJ,
           to: this.endIJ
         });
-        points = [];
+        this.points = [];
         for (i = _i = 0, _len = path.length; _i < _len; i = ++_i) {
           point = path[i];
-          xy = App.grid.fromIJ({
+          ij = {
             i: point[0],
             j: point[1]
-          });
-          points.push(helpers.makePoint(xy.x, xy.y));
+          };
+          xy = App.grid.fromIJ(ij);
+          node = App.grid.atIJ(ij);
+          if ((_ref = node.holders) == null) {
+            node.holders = {};
+          }
+          node.holders[this.id] = this;
+          point = {
+            x: xy.x,
+            y: xy.y,
+            curve: null,
+            i: i
+          };
+          this.points.push(point);
         }
-        return this.addLine(points);
+        this.detectCollisions(this.points);
+        this.addLine(this.points);
+        return App.grid.refreshGrid();
+      };
+
+      Path.prototype.detectCollisions = function(points) {
+        var holder, myDirection, node, point, _i, _len, _results;
+
+        _results = [];
+        for (_i = 0, _len = points.length; _i < _len; _i++) {
+          point = points[_i];
+          myDirection = this.directionAt(point);
+          node = App.grid.at(point);
+          if (_.size(node.holders) > 1) {
+            _results.push((function() {
+              var _j, _len1, _ref, _results1;
+
+              _ref = _.where(node.holders, {
+                type: 'path'
+              });
+              _results1 = [];
+              for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                holder = _ref[_j];
+                if (holder.id === this.id) {
+                  continue;
+                }
+                if (myDirection !== holder.directionAt(point)) {
+                  _results1.push(point.curve = "" + myDirection);
+                } else {
+                  _results1.push(void 0);
+                }
+              }
+              return _results1;
+            }).call(this));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+
+      Path.prototype.directionAt = function(xy) {
+        var direction, point, _ref, _ref1, _ref2, _ref3;
+
+        point = _.where(this.points, {
+          x: xy.x,
+          y: xy.y
+        })[0];
+        if (((_ref = this.points[point.i - 1]) != null ? _ref.x : void 0) === point.x && ((_ref1 = this.points[point.i + 1]) != null ? _ref1.x : void 0) === point.x) {
+          direction = 'vertical';
+        } else if (((_ref2 = this.points[point.i - 1]) != null ? _ref2.y : void 0) === point.y && ((_ref3 = this.points[point.i + 1]) != null ? _ref3.y : void 0) === point.y) {
+          direction = 'horizontal';
+        } else {
+          direction = 'corner';
+        }
+        return direction;
       };
 
       Path.prototype.addLine = function(points) {
-        var _ref;
-
-        if ((_ref = this.line) != null) {
-          _ref.remove();
+        if (this.line == null) {
+          return this.line = new Line({
+            points: this.points
+          });
+        } else {
+          return this.line.resetPoints(this.points);
         }
-        return this.line = new Line({
-          points: points
-        });
+      };
+
+      Path.prototype.removeFromGrid = function() {
+        var node, point, _i, _len, _ref, _results;
+
+        if (this.points == null) {
+          return;
+        }
+        _ref = this.points;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          point = _ref[_i];
+          node = App.grid.at(point);
+          _results.push(delete node.holders[this.id]);
+        }
+        return _results;
       };
 
       Path.prototype.removeIfEmpty = function() {

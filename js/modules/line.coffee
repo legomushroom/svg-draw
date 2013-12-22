@@ -22,11 +22,30 @@ define 'line', ['helpers'], (helpers)->
 		serialize:->
 			str = ''
 			for point, i in @points
-				str += "M#{point.x},#{point.y} " if i is 0
-				str += if !point.type? then "L #{point.x}, #{point.y}" else str += "a1,1 0 0,1 #{App.gs},0"
+				if i is 0 
+					str += "M#{point.x},#{point.y} "
+				else
+					if !point.curve? 
+						str += "L #{point.x}, #{point.y} " 
+					else
+						xShift = 0
+						yShift = 0
+						xRadius = 0
+						yRadius = 0
+						if point.curve is 'vertical'
+							yShift = App.gs/2
+							yRadius = App.gs
+						else if point.curve is 'horizontal'
+							xShift = App.gs/2
+							xRadius = App.gs
+
+						str += "L #{point.x - xShift}, #{point.y - yShift} "
+						str += "a1,1 0 0,1 #{xRadius},#{yRadius} "
 
 			App.SVG.setAttribute.call @line, 'd', str
 			@
+
+		resetPoints:(points)-> @points = points; @serialize(); @
 
 		remove:-> @removeFromDom(); return @
 
