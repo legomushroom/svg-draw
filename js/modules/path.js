@@ -184,7 +184,11 @@
       };
 
       Path.prototype.removeIfEmpty = function() {
-        return this.isEmpty() && this.line.remove();
+        if (this.isEmpty()) {
+          this.line.remove();
+          this.removeFromGrid();
+        }
+        return App.grid.refreshGrid();
       };
 
       Path.prototype.isEmpty = function() {

@@ -56,6 +56,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				helpers.stopEvent e
 
 			hammer(@$el[0]).on 'drag', (e)=>
+				if App.blockDrag then return true
 				coords = helpers.getEventCoords e
 				if App.currTool is 'block'
 					@moveTo {x: e.gesture.deltaX, y:  e.gesture.deltaY}
@@ -98,7 +99,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 			if !@isMoveTo
 				@buffStartIJ 	= helpers.cloneObj @startIJ
 				@buffEndIJ 		= helpers.cloneObj @endIJ
-				@isMoveTo 		-= true
+				@isMoveTo 		= true
 
 			top  		= (@buffStartIJ.j + coords.j)
 			bottom 	= (@buffEndIJ.j + coords.j)
@@ -128,6 +129,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				'isValid':  @isSuiteSize()
 
 		isSuiteSize:->
+			@isValidPosition = true
 			for i in [@startIJ.i...@endIJ.i]
 				for j in [@startIJ.j...@endIJ.j]
 					node = App.grid.grid.getNodeAt i, j
@@ -150,7 +152,6 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 
 			@isDragMode = false
 			@setToGrid()
-
 
 		refreshPort:-> @port.setIJ()
 

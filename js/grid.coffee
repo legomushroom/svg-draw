@@ -18,11 +18,10 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 		holdCell:(ij, obj)->
 			ij = if ij.x then @toIJ ij else ij
 			node = @grid.getNodeAt(ij.i, ij.j)
-
 			
-			# if !node.walkable and (node.holder.id isnt obj.id)
-			# 	console.error 'Hold cell error - current cell is already taken'
-			# 	return false
+			if node.block? and (node.block.id isnt obj.id)
+				console.error 'Hold cell error - current cell is already taken'
+				return false
 
 			node.block = obj
 			true

@@ -44,7 +44,7 @@
           grid: this.grid
         });
         this.debug = {
-          isGrid: true
+          isGrid: false
         };
         this.currTool = 'block';
         this.$tools.find("[data-role=\"" + this.currTool + "\"]").addClass('is-check');
@@ -82,7 +82,8 @@
       };
 
       App.prototype.releaseBlock = function(e) {
-        return this.currBlock.addFinilize();
+        this.currBlock.addFinilize();
+        return this.blockDrag = false;
       };
 
       App.prototype.touchBlock = function(e) {
@@ -100,6 +101,7 @@
       App.prototype.dragBlock = function(e) {
         var coords, _ref;
 
+        this.blockDrag = true;
         coords = helpers.getEventCoords(e);
         return (_ref = this.currBlock) != null ? _ref.setSizeDelta(this.grid.normalizeCoords({
           x: e.gesture.deltaX,

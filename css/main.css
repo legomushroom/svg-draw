@@ -21,6 +21,7 @@ html {
   background-color: #343838;
 }
 .main-l #svg-canvas {
+  background-color: #343838;
   background-image: linear-gradient(#005f6b 0.125em, transparent 0.125em), linear-gradient(90deg, #005f6b 0.125em, transparent 0.125em), linear-gradient(#005f6b 0.0625em, transparent 0.0625em), linear-gradient(90deg, #005f6b 0.0625em, transparent 0.0625em);
   background-size: 8em 8em, 8em 8em, 1em 1em, 1em 1em;
   background-position: -0.125em -0.125em, -0.125em -0.125em, -0.0625em -0.0625em, -0.0625em -0.0625em;
@@ -33,14 +34,15 @@ html {
 .block-e {
   position: absolute;
   border: 0.0625em solid #00dffc;
-  background-color: rgba(0,223,252,0.01);
+  background-color: #00dffc;
 }
 .block-e.is-connect-path {
   box-shadow: 0 0 1em #00dffc;
   cursor: se-resize;
 }
 .block-e.is-invalid {
-  border-color: #f00;
+  border-color: #ff0009;
+  background-color: #ff0009;
 }
 .block-e.is-drag {
   cursor: move;

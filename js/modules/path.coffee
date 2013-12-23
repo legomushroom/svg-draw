@@ -85,8 +85,13 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 				node = App.grid.at(point)
 				delete node.holders[@id]
 
-		removeIfEmpty:-> @isEmpty() and @line.remove()
+		removeIfEmpty:-> 
+			if @isEmpty()
+				@line.remove()
+				@removeFromGrid()
+			App.grid.refreshGrid()
 
-		isEmpty:-> @line.points.length <= 2
+		isEmpty:-> 
+			@line.points.length <= 2
 
 	Path

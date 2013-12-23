@@ -88,6 +88,9 @@
         hammer(this.$el[0]).on('drag', function(e) {
           var coords;
 
+          if (App.blockDrag) {
+            return true;
+          }
           coords = helpers.getEventCoords(e);
           if (App.currTool === 'block') {
             _this.moveTo({
@@ -144,7 +147,7 @@
         if (!this.isMoveTo) {
           this.buffStartIJ = helpers.cloneObj(this.startIJ);
           this.buffEndIJ = helpers.cloneObj(this.endIJ);
-          this.isMoveTo -= true;
+          this.isMoveTo = true;
         }
         top = this.buffStartIJ.j + coords.j;
         bottom = this.buffEndIJ.j + coords.j;
@@ -186,6 +189,7 @@
       Block.prototype.isSuiteSize = function() {
         var i, j, node, _i, _j, _ref, _ref1, _ref2, _ref3;
 
+        this.isValidPosition = true;
         for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
           for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
             node = App.grid.grid.getNodeAt(i, j);

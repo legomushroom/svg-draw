@@ -44,7 +44,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 
 
 			@debug = 
-				isGrid: true
+				isGrid: false
 
 			@currTool = 'block'
 			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'
@@ -74,7 +74,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 					when 'block'
 						@releaseBlock(e)
 
-		releaseBlock:(e)-> @currBlock.addFinilize()
+		releaseBlock:(e)-> @currBlock.addFinilize(); @blockDrag = false
 
 		touchBlock:(e)->
 			coords = helpers.getEventCoords(e)
@@ -82,6 +82,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 			@currBlock = new Block coords: coords
 
 		dragBlock:(e)->
+			@blockDrag = true
 			coords = helpers.getEventCoords(e)
 			@currBlock?.setSizeDelta @grid.normalizeCoords {x: e.gesture.deltaX, y: e.gesture.deltaY}
 

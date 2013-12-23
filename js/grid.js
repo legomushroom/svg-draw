@@ -25,6 +25,10 @@
 
         ij = ij.x ? this.toIJ(ij) : ij;
         node = this.grid.getNodeAt(ij.i, ij.j);
+        if ((node.block != null) && (node.block.id !== obj.id)) {
+          console.error('Hold cell error - current cell is already taken');
+          return false;
+        }
         node.block = obj;
         return true;
       };
