@@ -20,21 +20,19 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 			node = @grid.getNodeAt(ij.i, ij.j)
 
 			
-			if !node.walkable and (node.holder.id isnt obj.id)
-				console.error 'Hold cell error - current cell is already taken'
-				return false
+			# if !node.walkable and (node.holder.id isnt obj.id)
+			# 	console.error 'Hold cell error - current cell is already taken'
+			# 	return false
 
-			node.walkable = false
-			node.holder = obj
+			node.block = obj
 			true
 
 		releaseCell:(ij, obj)->
-			ij = if ij.x then @toIJ ij else ij
+			ij = if ij.x? then @toIJ ij else ij
 			
 			node = @grid.getNodeAt(ij.i, ij.j)
-			if node.holder?.id is obj.id
-				node.walkable = true
-				node.holder = null
+			if node.block?.id is obj.id
+				node.block = null
 
 		atIJ:(ij)-> @grid.getNodeAt(ij.i, ij.j)
 		at:(xy)-> ij = @normalizeCoords(xy);@grid.getNodeAt(ij.i, ij.j)
@@ -99,7 +97,7 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 			@clearGrid()
 			for j in [0...@h]
 				for i in [0...@w]
-					if _.size((@grid.getNodeAt i, j).holders)
+					if _.size((@grid.getNodeAt i, j).holders) or (@grid.getNodeAt i, j).block?
 						attrs = 
 							x: "#{i}em"
 							y: "#{j}em"

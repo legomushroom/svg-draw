@@ -26,12 +26,17 @@
           j: 0
         };
         this.isDragMode = true;
+        this.isValidPosition = true;
+        this.isValidSize = false;
         if (this.o.coords) {
           coords = App.grid.normalizeCoords(App.grid.getNearestCell(this.o.coords || {
             x: 0,
             y: 0
           }));
-          this.set('startIJ', coords);
+          this.set({
+            'startIJ': coords,
+            'endIJ': coords
+          });
         }
         this.createPort();
         this.render();
@@ -47,6 +52,7 @@
 
       Block.prototype.render = function() {
         this.calcDimentions();
+        this.removeOldSelfFromGrid();
         if (this.$el == null) {
           this.$el = $('<div>').addClass('block-e').append($('<div>'));
           App.$main.append(this.$el);
@@ -136,8 +142,8 @@
 
         coords = App.grid.normalizeCoords(coords);
         if (!this.isMoveTo) {
-          this.buffStartIJ = this.startIJ;
-          this.buffEndIJ = this.endIJ;
+          this.buffStartIJ = helpers.cloneObj(this.startIJ);
+          this.buffEndIJ = helpers.cloneObj(this.endIJ);
           this.isMoveTo -= true;
         }
         top = this.buffStartIJ.j + coords.j;
@@ -178,17 +184,34 @@
       };
 
       Block.prototype.isSuiteSize = function() {
+        var i, j, node, _i, _j, _ref, _ref1, _ref2, _ref3;
+
+        for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+            node = App.grid.grid.getNodeAt(i, j);
+            if ((node.block != null) && (node.block.id !== this.id)) {
+              return this.isValidPosition = false;
+            }
+          }
+        }
         this.calcDimentions();
-        return this.w > 0 && this.h > 0;
+        return this.isValidSize = this.w > 0 && this.h > 0;
       };
 
       Block.prototype.addFinilize = function() {
         this.isMoveTo = false;
-        if (!this.isValid) {
+        if (!this.isValid && !this.isValidSize) {
           this.removeSelf();
           return false;
+        } else if (!this.isValidPosition) {
+          this.set({
+            'startIJ': helpers.cloneObj(this.buffStartIJ),
+            'endIJ': helpers.cloneObj(this.buffEndIJ),
+            'isValid': true
+          }, this.isValidPosition = true);
         }
-        return this.isDragMode = false;
+        this.isDragMode = false;
+        return this.setToGrid();
       };
 
       Block.prototype.refreshPort = function() {
@@ -196,6 +219,19 @@
       };
 
       Block.prototype.setToGrid = function() {
+        var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
+
+        for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+            if (!App.grid.holdCell({
+              i: i,
+              j: j
+            }, this)) {
+              this.set('isValid', false);
+              return false;
+            }
+          }
+        }
         App.grid.refreshGrid();
         return true;
       };
@@ -206,6 +242,16 @@
       };
 
       Block.prototype.removeSelfFromGrid = function() {
+        var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
+
+        for (i = _i = _ref = this.startIJ.i, _ref1 = this.endIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.startIJ.j, _ref3 = this.endIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+            App.grid.releaseCell({
+              i: i,
+              j: j
+            }, this);
+          }
+        }
         return App.grid.refreshGrid();
       };
 
@@ -214,6 +260,19 @@
       };
 
       Block.prototype.removeOldSelfFromGrid = function() {
+        var i, j, _i, _j, _ref, _ref1, _ref2, _ref3;
+
+        if (this.buffStartIJ == null) {
+          return;
+        }
+        for (i = _i = _ref = this.buffStartIJ.i, _ref1 = this.buffEndIJ.i; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+          for (j = _j = _ref2 = this.buffStartIJ.j, _ref3 = this.buffEndIJ.j; _ref2 <= _ref3 ? _j < _ref3 : _j > _ref3; j = _ref2 <= _ref3 ? ++_j : --_j) {
+            App.grid.releaseCell({
+              i: i,
+              j: j
+            }, this);
+          }
+        }
         return App.grid.refreshGrid();
       };
 

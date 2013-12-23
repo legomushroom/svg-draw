@@ -9,10 +9,14 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 			@startIJ= 		{i:0, j:0}
 			@endIJ= 		  {i:0, j:0}
 			@isDragMode= 	true
+			@isValidPosition = true
+			@isValidSize = false
 			
 			if @o.coords
 				coords 	= App.grid.normalizeCoords App.grid.getNearestCell @o.coords or {x: 0, y: 0}
-				@set 'startIJ', coords
+				@set 
+					'startIJ': coords
+					'endIJ': coords
 
 			@createPort()
 			@render()
@@ -24,6 +28,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 
 		render:->
 			@calcDimentions()
+			@removeOldSelfFromGrid()
 			if !@$el?
 				@$el = $('<div>').addClass('block-e').append($('<div>')); App.$main.append @$el
 				@listenEvents()
@@ -91,8 +96,8 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 			coords = App.grid.normalizeCoords coords
 			
 			if !@isMoveTo
-				@buffStartIJ 	= @startIJ
-				@buffEndIJ 		= @endIJ
+				@buffStartIJ 	= helpers.cloneObj @startIJ
+				@buffEndIJ 		= helpers.cloneObj @endIJ
 				@isMoveTo 		-= true
 
 			top  		= (@buffStartIJ.j + coords.j)
@@ -123,27 +128,37 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				'isValid':  @isSuiteSize()
 
 		isSuiteSize:->
-			# for i in [@startIJ.i...@endIJ.i]
-			# 	for j in [@startIJ.j...@endIJ.j]
-			# 		node = App.grid.grid.getNodeAt i, j
-			# 		return false if !node.walkable and (node.holder.id isnt @id)
+			for i in [@startIJ.i...@endIJ.i]
+				for j in [@startIJ.j...@endIJ.j]
+					node = App.grid.grid.getNodeAt i, j
+					if node.block? and (node.block.id isnt @id)
+						return @isValidPosition = false
 
 			@calcDimentions()
-			@w > 0 and @h > 0
+			@isValidSize = @w > 0 and @h > 0
 
 		addFinilize:->
 			@isMoveTo = false
-			if !@isValid then @removeSelf(); return false
+			if !@isValid and !@isValidSize
+				@removeSelf(); return false
+			else if !@isValidPosition
+				@set
+					'startIJ': 	helpers.cloneObj @buffStartIJ
+					'endIJ': 		helpers.cloneObj @buffEndIJ
+					'isValid':  true
+					@isValidPosition = true
+
 			@isDragMode = false
-			
+			@setToGrid()
+
 
 		refreshPort:-> @port.setIJ()
 
 		setToGrid:->
-			# for i in [@startIJ.i...@endIJ.i]
-			# 	for j in [@startIJ.j...@endIJ.j]
-			# 		if !App.grid.holdCell {i:i, j:j}, @
-			# 			@set('isValid', false); return false
+			for i in [@startIJ.i...@endIJ.i]
+				for j in [@startIJ.j...@endIJ.j]
+					if !App.grid.holdCell {i:i, j:j}, @
+						@set('isValid', false); return false
 
 			App.grid.refreshGrid()
 			true
@@ -151,17 +166,18 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 		######### REMOVE SECTION
 		removeSelf:-> @removeSelfFromGrid(); @removeSelfFromDom();
 		removeSelfFromGrid:->
-			# for i in [@startIJ.i...@endIJ.i]
-			# 	for j in [@startIJ.j...@endIJ.j]
-			# 		App.grid.releaseCell {i:i, j:j}, @
+			for i in [@startIJ.i...@endIJ.i]
+				for j in [@startIJ.j...@endIJ.j]
+					App.grid.releaseCell {i:i, j:j}, @
 			App.grid.refreshGrid()
 
 		removeSelfFromDom:-> @$el.remove()
 
 		removeOldSelfFromGrid:->
-			# for i in [@buffStartIJ.i...@buffEndIJ.i]
-			# 	for j in [@buffStartIJ.j...@buffEndIJ.j]
-			# 		App.grid.releaseCell {i:i, j:j}, @
+			return if !@buffStartIJ?
+			for i in [@buffStartIJ.i...@buffEndIJ.i]
+				for j in [@buffStartIJ.j...@buffEndIJ.j]
+					App.grid.releaseCell {i:i, j:j}, @
 			App.grid.refreshGrid()
 
 

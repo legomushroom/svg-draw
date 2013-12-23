@@ -25,23 +25,17 @@
 
         ij = ij.x ? this.toIJ(ij) : ij;
         node = this.grid.getNodeAt(ij.i, ij.j);
-        if (!node.walkable && (node.holder.id !== obj.id)) {
-          console.error('Hold cell error - current cell is already taken');
-          return false;
-        }
-        node.walkable = false;
-        node.holder = obj;
+        node.block = obj;
         return true;
       };
 
       Grid.prototype.releaseCell = function(ij, obj) {
         var node, _ref;
 
-        ij = ij.x ? this.toIJ(ij) : ij;
+        ij = ij.x != null ? this.toIJ(ij) : ij;
         node = this.grid.getNodeAt(ij.i, ij.j);
-        if (((_ref = node.holder) != null ? _ref.id : void 0) === obj.id) {
-          node.walkable = true;
-          return node.holder = null;
+        if (((_ref = node.block) != null ? _ref.id : void 0) === obj.id) {
+          return node.block = null;
         }
       };
 
@@ -141,7 +135,7 @@
 
             _results1 = [];
             for (i = _j = 0, _ref1 = this.w; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
-              if (_.size((this.grid.getNodeAt(i, j)).holders)) {
+              if (_.size((this.grid.getNodeAt(i, j)).holders) || ((this.grid.getNodeAt(i, j)).block != null)) {
                 attrs = {
                   x: "" + i + "em",
                   y: "" + j + "em",
