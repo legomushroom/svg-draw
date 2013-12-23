@@ -3,6 +3,7 @@
   define('grid', ['path-finder', 'underscore'], function(PathFinder, _) {
     var Grid;
 
+    window._ = _;
     Grid = (function() {
       function Grid(o) {
         this.o = o != null ? o : {};

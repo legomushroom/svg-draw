@@ -15,9 +15,9 @@ define 'svg', ['line', 'helpers'], (Line, helpers)->
 				xmlns: 						@ns
 				'xmln:xlink': 		@xlink
 				id: 							'svg-canvas'
-				style: 						'left:0;top:0;right:0;bottom:0;position:absolute;'
 				width: 						"#{@grid.w}em"
 				height: 					"#{@grid.h}em"
+				# style: 						'left:0;top:0;right:0;bottom:0;position:absolute;'
 			
 			@canvas = @createElement 'svg', attrs
 			$el[0].appendChild @canvas

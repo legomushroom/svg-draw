@@ -1,4 +1,5 @@
 define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
+	window._ = _
 	class Grid
 		constructor:(@o={})->
 			@w = @o.width  or 100

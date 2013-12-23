@@ -15,11 +15,11 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 			@oldIntersects = helpers.cloneObj @intersects
 			@render()
 
-		render:(isRepaintIntersects=true)->
+		render:(isRepaintIntersects=false)->
 			@removeFromGrid()
 			@recalcPath()
 			@repaintIntersects @oldIntersects
-			isRepaintIntersects and @detectCollisions()
+			@detectCollisions()
 			@makeLine()
 			App.grid.refreshGrid()
 
@@ -49,8 +49,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 
 		repaintIntersects:(intersects)->
 			for name, path of intersects
-				continue if path.id is @id
-				path.render false
+				continue if path.id is @id 
+				path.render [path.id]
 			@oldIntersects = {}
 
 		detectCollisions:()->
@@ -64,10 +64,11 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 
 					for name, holder of @intersects
 						continue if holder.id is @id
-						point.curve = "#{myDirection}" if myDirection isnt holder.directionAt point
+						point.curve = "#{myDirection}" if myDirection isnt holder.directionAt(point) and holder.directionAt(point) isnt 'corner' and myDirection isnt 'corner'
 
 		directionAt:(xy)->
 			point = _.where(@points, {x: xy.x, y: xy.y})[0]
+			if !point then return 'corner'
 			if @points[point.i-1]?.x is point.x and @points[point.i+1]?.x is point.x
 				direction = 'vertical'
 			else if @points[point.i-1]?.y is point.y and @points[point.i+1]?.y is point.y

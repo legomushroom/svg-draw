@@ -31,12 +31,12 @@
 
       Path.prototype.render = function(isRepaintIntersects) {
         if (isRepaintIntersects == null) {
-          isRepaintIntersects = true;
+          isRepaintIntersects = false;
         }
         this.removeFromGrid();
         this.recalcPath();
         this.repaintIntersects(this.oldIntersects);
-        isRepaintIntersects && this.detectCollisions();
+        this.detectCollisions();
         this.makeLine();
         return App.grid.refreshGrid();
       };
@@ -90,7 +90,7 @@
           if (path.id === this.id) {
             continue;
           }
-          path.render(false);
+          path.render([path.id]);
         }
         return this.oldIntersects = {};
       };
@@ -122,7 +122,7 @@
                 if (holder.id === this.id) {
                   continue;
                 }
-                if (myDirection !== holder.directionAt(point)) {
+                if (myDirection !== holder.directionAt(point) && holder.directionAt(point) !== 'corner' && myDirection !== 'corner') {
                   _results1.push(point.curve = "" + myDirection);
                 } else {
                   _results1.push(void 0);
@@ -144,6 +144,9 @@
           x: xy.x,
           y: xy.y
         })[0];
+        if (!point) {
+          return 'corner';
+        }
         if (((_ref = this.points[point.i - 1]) != null ? _ref.x : void 0) === point.x && ((_ref1 = this.points[point.i + 1]) != null ? _ref1.x : void 0) === point.x) {
           direction = 'vertical';
         } else if (((_ref2 = this.points[point.i - 1]) != null ? _ref2.y : void 0) === point.y && ((_ref3 = this.points[point.i + 1]) != null ? _ref3.y : void 0) === point.y) {
