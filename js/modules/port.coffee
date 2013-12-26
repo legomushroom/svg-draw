@@ -1,16 +1,15 @@
 define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 	class Port extends ProtoClass
-		
-		constructor:(@o={})->
-			@o.parent and (@parent = @o.parent)
-			@o.role 	and (@role = @o.role)
-			@connections ?= []
-			@setIJ @o.role
+		initialize:(@o={})->
+			@o.parent and (@set 'parent', @o.parent)
+			@set 'connections', []
+			@setIJ()
+			@on 'change', _.bind @onChange, @
 			@
 
 		onChange:->
-			for connection,i in @connections
-				connection.path.set "#{connection.direction}IJ", @ij
+			for connection,i in @get 'connections'
+				connection.path.set "#{connection.direction}IJ", @get 'ij'
 
 			App.grid.refreshGrid()
 
@@ -18,26 +17,30 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			direction = ''
 			if !path?
 				path = new Path
-				path.connectedTo = @parent
 				path.set 
-					'startIJ': @ij
-					'endIJ': 	 @ij
+					'connectedTo': 	@get 'parent'
+					'startIJ': 			@get 'ij'
+					'endIJ': 	 			@get 'ij'
 				direction = 'start'
 			else 
 				point = path.currentAddPoint or 'endIJ'
 				direction = if point is 'startIJ' then 'start' else 'end'
-				path.set point: @ij
-
-			@connections.push {
+				path.set point, @get 'ij'
+			connections = @get('connections')
+			connections.push {
 													direction: direction
 													path: path
 													id: App.helpers.genHash()
 												}
+
+				@set 'connections', connections
 			path
 
 		setIJ:->
-			i = @parent.startIJ.i + ~~(@parent.w/2)
-			j = @parent.startIJ.j + ~~(@parent.h/2)
+			parent = @get 'parent'
+			parentStartIJ = parent.get 'startIJ'
+			i = parentStartIJ.i + ~~(parent.get('w')/2)
+			j = parentStartIJ.j + ~~(parent.get('h')/2)
 			@set 'ij', {i: i, j:j }
 			@
 

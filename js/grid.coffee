@@ -1,5 +1,5 @@
 define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
-	window._ = _
+
 	class Grid
 		constructor:(@o={})->
 			@w = @o.width  or 100
@@ -87,7 +87,7 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 			node = @grid.getNodeAt coords.i, coords.j
 			holders = node.holders
 			path = holders[Object.keys(holders)[0]] if holders
-			if path and path.startIJ.i is coords.i and path.startIJ.j is coords.j
+			if path and path.get('startIJ').i is coords.i and path.get('startIJ').j is coords.j
 				path.currentAddPoint = 'startIJ'
 			return path
 

@@ -1,15 +1,16 @@
-define 'line', ['helpers'], (helpers)->
-	class Line
-		constructor:(@o={})->
-			@id = helpers.genHash()
-			@path 	= @o.path
-			@points = @path.points
+define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
+	class Line extends ProtoClass
+		initialize:(@o={})->
+			@set 'id', helpers.genHash()
+			path = @o.path
+			@set 'path', @o.path
+			@set 'points', path.get 'points'
 			@addDomElement()
 			@
 
 		addDomElement:->
 			attr = 
-				id: 						@id
+				id: 						@get 'id'
 				d: 							''
 				stroke: 				'#00DFFC'
 				'stroke-width': 2
@@ -18,11 +19,11 @@ define 'line', ['helpers'], (helpers)->
 
 			@line = App.SVG.createElement 'path', attr
 			@serialize()
-			App.SVG.lineToDom @id, @line
+			App.SVG.lineToDom @get('id'), @line
 
 		serialize:->
 			str = ''
-			for point, i in @points
+			for point, i in @get('points')
 				if i is 0 
 					str += "M#{point.x},#{point.y} "
 				else
@@ -48,8 +49,9 @@ define 'line', ['helpers'], (helpers)->
 			App.SVG.setAttribute.call @line, 'd', str
 			@
 
-		resetPoints:(points)-> @points = points; @serialize(); @
+		resetPoints:(points)-> @set 'points', points; @serialize(); @
 
 		remove:-> @removeFromDom(); return @
 
 		removeFromDom:-> App.SVG.canvas.removeChild @line
+

@@ -3,7 +3,6 @@
   define('grid', ['path-finder', 'underscore'], function(PathFinder, _) {
     var Grid;
 
-    window._ = _;
     Grid = (function() {
       function Grid(o) {
         this.o = o != null ? o : {};
@@ -134,7 +133,7 @@
         if (holders) {
           path = holders[Object.keys(holders)[0]];
         }
-        if (path && path.startIJ.i === coords.i && path.startIJ.j === coords.j) {
+        if (path && path.get('startIJ').i === coords.i && path.get('startIJ').j === coords.j) {
           path.currentAddPoint = 'startIJ';
         }
         return path;
