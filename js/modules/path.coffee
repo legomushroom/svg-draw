@@ -1,16 +1,18 @@
-define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoClass, Line)->
+define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, helpers, ProtoClass, Line, _)->
 	class Path extends ProtoClass
 		type: 'path'
 
-		constructor:(@o={})->
+		initialize:(@o={})->
 			@set 'id', helpers.genHash()
+
 
 			if @o.coords
 				@set 
 					'startIJ': 	App.grid.toIJ @o.coords
 					'endIJ': 		App.grid.toIJ @o.coords
 
-			@on 'change', 'onChange'
+			@on 'change', _.bind @onChange, @
+
 
 		onChange:-> 
 			@set 'oldIntersects', helpers.cloneObj @get 'intersects'
@@ -27,25 +29,28 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 								from: @get 'startIJ'
 								to: 	@get 'endIJ'
 
-			@set 'points', []
+
+			points = []
 			for point, i in path 
 				ij = {i: point[0], j: point[1]}; xy = App.grid.fromIJ ij
 				node = App.grid.atIJ ij
 				node.holders ?= {}
 
-				node.holders[@id] = @
+				node.holders[@get 'id'] = @
 
 				point = { x: xy.x, y: xy.y, curve: null, i: i }
-				@set 'points', @get('points').push point
+				points.push(point)
+			
+			@attributes.points = points
 			@calcPolar()
 			@
 
 		calcPolar:->
-			points = @points
+			points = @get 'points'
 			firstPoint  = points[0]
 			lastPoint 	= points[points.length-1]
-			@set 'xPolar', if firstPoint.x < lastPoint.x then 'plus' else 'minus'
-			@set 'yPolar', if firstPoint.y < lastPoint.y then 'plus' else 'minus'
+			@attributes.xPolar = if firstPoint.x < lastPoint.x then 'plus' else 'minus'
+			@attributes.yPolar = if firstPoint.y < lastPoint.y then 'plus' else 'minus'
 
 		repaintIntersects:(intersects)->
 			for name, path of intersects
@@ -78,7 +83,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 			direction
 
 
-		makeLine:()-> if !@line? then @line = new Line path: @ else @line.resetPoints @points
+		makeLine:()-> 
+			if !@line? then @line = new Line path: @ else @line.resetPoints @get 'points'
 
 		removeFromGrid:->
 			points = @get 'points'
@@ -89,11 +95,13 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 
 		removeIfEmpty:-> 
 			if @isEmpty()
+				console.log('is empty')
 				@line.remove()
 				@removeFromGrid()
 			App.grid.refreshGrid()
 
 		isEmpty:-> 
-			@line.get('points').length <= 2
+			console.log(@)
+			@line?.get('points').length <= 2
 
 	Path

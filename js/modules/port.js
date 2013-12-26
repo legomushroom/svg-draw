@@ -34,7 +34,7 @@
       };
 
       Port.prototype.addConnection = function(path) {
-        var direction, point;
+        var connections, direction, point;
 
         direction = '';
         if (path == null) {
@@ -51,12 +51,15 @@
           path.set({
             point: this.ij
           });
+          connections = this.get('connections');
+          connections.push({
+            direction: direction,
+            path: path,
+            id: App.helpers.genHash()
+          });
+          this.set('connections', connections);
         }
-        this.set('connections', this.get('connections').push({
-          direction: direction,
-          path: path,
-          id: App.helpers.genHash()
-        }));
+        console.log('add');
         return path;
       };
 

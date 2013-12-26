@@ -3,15 +3,20 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('path', ['jquery', 'helpers', 'ProtoClass', 'line'], function($, helpers, ProtoClass, Line) {
-    var Path;
+  define('path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], function($, helpers, ProtoClass, Line, _) {
+    var Path, _ref;
 
     Path = (function(_super) {
       __extends(Path, _super);
 
+      function Path() {
+        _ref = Path.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
       Path.prototype.type = 'path';
 
-      function Path(o) {
+      Path.prototype.initialize = function(o) {
         this.o = o != null ? o : {};
         this.set('id', helpers.genHash());
         if (this.o.coords) {
@@ -20,8 +25,8 @@
             'endIJ': App.grid.toIJ(this.o.coords)
           });
         }
-        this.on('change', 'onChange');
-      }
+        return this.on('change', _.bind(this.onChange, this));
+      };
 
       Path.prototype.onChange = function() {
         this.set('oldIntersects', helpers.cloneObj(this.get('intersects')));
@@ -39,13 +44,13 @@
       };
 
       Path.prototype.recalcPath = function() {
-        var i, ij, node, path, point, xy, _i, _len, _ref;
+        var i, ij, node, path, point, points, xy, _i, _len, _ref1;
 
         path = App.grid.getGapPolyfill({
           from: this.get('startIJ'),
           to: this.get('endIJ')
         });
-        this.set('points', []);
+        points = [];
         for (i = _i = 0, _len = path.length; _i < _len; i = ++_i) {
           point = path[i];
           ij = {
@@ -54,18 +59,19 @@
           };
           xy = App.grid.fromIJ(ij);
           node = App.grid.atIJ(ij);
-          if ((_ref = node.holders) == null) {
+          if ((_ref1 = node.holders) == null) {
             node.holders = {};
           }
-          node.holders[this.id] = this;
+          node.holders[this.get('id')] = this;
           point = {
             x: xy.x,
             y: xy.y,
             curve: null,
             i: i
           };
-          this.set('points', this.get('points').push(point));
+          points.push(point);
         }
+        this.attributes.points = points;
         this.calcPolar();
         return this;
       };
@@ -73,11 +79,11 @@
       Path.prototype.calcPolar = function() {
         var firstPoint, lastPoint, points;
 
-        points = this.points;
+        points = this.get('points');
         firstPoint = points[0];
         lastPoint = points[points.length - 1];
-        this.set('xPolar', firstPoint.x < lastPoint.x ? 'plus' : 'minus');
-        return this.set('yPolar', firstPoint.y < lastPoint.y ? 'plus' : 'minus');
+        this.attributes.xPolar = firstPoint.x < lastPoint.x ? 'plus' : 'minus';
+        return this.attributes.yPolar = firstPoint.y < lastPoint.y ? 'plus' : 'minus';
       };
 
       Path.prototype.repaintIntersects = function(intersects) {
@@ -94,14 +100,14 @@
       };
 
       Path.prototype.detectCollisions = function() {
-        var myDirection, name, node, path, point, _i, _len, _ref, _results,
+        var myDirection, name, node, path, point, _i, _len, _ref1, _results,
           _this = this;
 
         this.set('intersects', {});
-        _ref = this.get('points');
+        _ref1 = this.get('points');
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          point = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          point = _ref1[_i];
           myDirection = this.directionAt(point);
           node = App.grid.at(point);
           if (_.size(node.holders) > 1) {
@@ -111,12 +117,12 @@
               return _this.set('intersects', (_this.get('intersects')[holder.id] = holder));
             });
             _results.push((function() {
-              var _ref1, _results1;
+              var _ref2, _results1;
 
-              _ref1 = this.get('intersects');
+              _ref2 = this.get('intersects');
               _results1 = [];
-              for (name in _ref1) {
-                path = _ref1[name];
+              for (name in _ref2) {
+                path = _ref2[name];
                 if (path.get('id' === this.get('id'))) {
                   continue;
                 }
@@ -136,7 +142,7 @@
       };
 
       Path.prototype.directionAt = function(xy) {
-        var direction, point, points, _ref, _ref1, _ref2, _ref3;
+        var direction, point, points, _ref1, _ref2, _ref3, _ref4;
 
         points = this.get('points');
         point = _.where(points, {
@@ -146,9 +152,9 @@
         if (!point) {
           return 'corner';
         }
-        if (((_ref = points[point.i - 1]) != null ? _ref.x : void 0) === point.x && ((_ref1 = points[point.i + 1]) != null ? _ref1.x : void 0) === point.x) {
+        if (((_ref1 = points[point.i - 1]) != null ? _ref1.x : void 0) === point.x && ((_ref2 = points[point.i + 1]) != null ? _ref2.x : void 0) === point.x) {
           direction = 'vertical';
-        } else if (((_ref2 = points[point.i - 1]) != null ? _ref2.y : void 0) === point.y && ((_ref3 = points[point.i + 1]) != null ? _ref3.y : void 0) === point.y) {
+        } else if (((_ref3 = points[point.i - 1]) != null ? _ref3.y : void 0) === point.y && ((_ref4 = points[point.i + 1]) != null ? _ref4.y : void 0) === point.y) {
           direction = 'horizontal';
         } else {
           direction = 'corner';
@@ -162,7 +168,7 @@
             path: this
           });
         } else {
-          return this.line.resetPoints(this.points);
+          return this.line.resetPoints(this.get('points'));
         }
       };
 
@@ -184,6 +190,7 @@
 
       Path.prototype.removeIfEmpty = function() {
         if (this.isEmpty()) {
+          console.log('is empty');
           this.line.remove();
           this.removeFromGrid();
         }
@@ -191,7 +198,10 @@
       };
 
       Path.prototype.isEmpty = function() {
-        return this.line.get('points').length <= 2;
+        var _ref1;
+
+        console.log(this);
+        return ((_ref1 = this.line) != null ? _ref1.get('points').length : void 0) <= 2;
       };
 
       return Path;

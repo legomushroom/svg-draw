@@ -23,6 +23,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			@createPort()
 			@render()
 			@on 'change', _.bind @render, @
+			
 
 			@
 

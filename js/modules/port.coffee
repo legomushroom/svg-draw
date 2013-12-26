@@ -25,12 +25,16 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 				point = path.currentAddPoint or 'endIJ'
 				direction = if point is 'startIJ' then 'start' else 'end'
 				path.set point: @ij
-
-			@set 'connections', @get('connections').push {
+				connections = @get('connections')
+				connections.push {
 													direction: direction
 													path: path
 													id: App.helpers.genHash()
 												}
+
+				@set 'connections', connections
+
+			console.log('add')
 			path
 
 		setIJ:->
