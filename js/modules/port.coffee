@@ -15,7 +15,6 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			App.grid.refreshGrid()
 
 		addConnection:(path)->
-			debugger
 			direction = ''
 			if !path?
 				path = new Path
@@ -34,7 +33,6 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 													path: path
 													id: App.helpers.genHash()
 												}
-
 			path
 
 		setIJ:->

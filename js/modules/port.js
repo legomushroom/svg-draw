@@ -34,7 +34,6 @@
       };
 
       Port.prototype.addConnection = function(path) {
-        debugger;
         var direction, point;
 
         direction = '';
