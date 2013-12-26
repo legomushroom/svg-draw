@@ -81,6 +81,19 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 
 			@grid.isWalkableAt ij.i, ij.j
 
+		isPathEndCell:(coords)->
+			coords = @normalizeCoords coords
+
+			node = @grid.getNodeAt coords.i, coords.j
+			holders = node.holders
+			path = holders[Object.keys(holders)[0]] if holders
+			if path and path.startIJ.i is coords.i and path.startIJ.j is coords.j
+				path.currentAddPoint = 'startIJ'
+			return path
+
+
+
+
 		# ifBlockCell:(coords)->
 		# 	if coords.x
 		# 		ij = @toIJ(coords)

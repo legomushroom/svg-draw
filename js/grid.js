@@ -125,6 +125,21 @@
         return this.grid.isWalkableAt(ij.i, ij.j);
       };
 
+      Grid.prototype.isPathEndCell = function(coords) {
+        var holders, node, path;
+
+        coords = this.normalizeCoords(coords);
+        node = this.grid.getNodeAt(coords.i, coords.j);
+        holders = node.holders;
+        if (holders) {
+          path = holders[Object.keys(holders)[0]];
+        }
+        if (path && path.startIJ.i === coords.i && path.startIJ.j === coords.j) {
+          path.currentAddPoint = 'startIJ';
+        }
+        return path;
+      };
+
       Grid.prototype.refreshGrid = function() {
         var attrs, i, j, rect, _i, _ref, _results;
 

@@ -46,7 +46,7 @@
         this.debug = {
           isGrid: false
         };
-        this.currTool = 'block';
+        this.currTool = ['path', 'block'][0];
         this.$tools.find("[data-role=\"" + this.currTool + "\"]").addClass('is-check');
         return this;
       };
@@ -110,20 +110,27 @@
       };
 
       App.prototype.touchPath = function(e) {
-        var coords;
+        var coords, pathEndCell;
 
         coords = helpers.getEventCoords(e);
-        if (!this.grid.isFreeCell(coords)) {
-          this.currPath = null;
+        pathEndCell = this.grid.isPathEndCell(coords);
+        if (pathEndCell) {
+          this.currPath = pathEndCell;
+          console.log(this.currPath);
           return;
         }
-        return this.addCurrentPath(coords);
+        if (!this.grid.isFreeCell(coords)) {
+          this.currPath = null;
+        } else {
+          return this.addCurrentPath(coords);
+        }
       };
 
       App.prototype.releasePath = function(e) {
-        var _ref;
-
-        return (_ref = this.currPath) != null ? _ref.removeIfEmpty() : void 0;
+        if (this.currPath) {
+          this.currPath.currentAddPoint = null;
+          return this.currPath.removeIfEmpty();
+        }
       };
 
       App.prototype.dragPath = function(e) {
@@ -135,7 +142,7 @@
             this.currPath = this.isBlockToPath;
             return this.isBlockToPath = false;
           } else {
-            return (_ref = this.currPath) != null ? _ref.set('endIJ', this.grid.toIJ(coords)) : void 0;
+            return (_ref = this.currPath) != null ? _ref.set(this.currPath.currentAddPoint || 'endIJ', this.grid.toIJ(coords)) : void 0;
           }
         }
       };

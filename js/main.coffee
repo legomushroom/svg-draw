@@ -46,7 +46,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 			@debug = 
 				isGrid: false
 
-			@currTool = 'block'
+			@currTool = ['path', 'block'][0]
 			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'
 
 			@
@@ -89,20 +89,29 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 
 		touchPath:(e)->
 			coords = helpers.getEventCoords(e)
-			if not @grid.isFreeCell coords
-				@currPath = null
+			
+			pathEndCell = @grid.isPathEndCell(coords)
+			if pathEndCell
+				@currPath = pathEndCell
+				console.log(@currPath)
 				return
 
-			@addCurrentPath(coords)
+			if not @grid.isFreeCell coords
+				@currPath = null; return
+			else @addCurrentPath(coords)
 
-		releasePath:(e)-> @currPath?.removeIfEmpty()
+		releasePath:(e)-> 
+			if @currPath
+				@currPath.currentAddPoint = null
+				@currPath.removeIfEmpty();
 
 		dragPath:(e)->
 			coords = helpers.getEventCoords(e)
 			if @grid.isFreeCell coords
 				if @isBlockToPath
 					@currPath = @isBlockToPath; @isBlockToPath = false
-				else @currPath?.set 'endIJ', @grid.toIJ coords
+				else 
+					@currPath?.set @currPath.currentAddPoint or 'endIJ', @grid.toIJ coords
 
 		listenToTools:->
 			it = @; 

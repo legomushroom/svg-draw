@@ -35,8 +35,6 @@
         }
         this.removeFromGrid();
         this.recalcPath();
-        this.repaintIntersects(this.oldIntersects);
-        this.detectCollisions();
         this.makeLine();
         return App.grid.refreshGrid();
       };

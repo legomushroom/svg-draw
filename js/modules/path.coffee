@@ -18,8 +18,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 		render:(isRepaintIntersects=false)->
 			@removeFromGrid()
 			@recalcPath()
-			@repaintIntersects @oldIntersects
-			@detectCollisions()
+			# @repaintIntersects @oldIntersects
+			# @detectCollisions()
 			@makeLine()
 			App.grid.refreshGrid()
 
