@@ -1,17 +1,19 @@
-define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, ProtoClass, hammer, Path, Port)->
+define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'port'], (B, _, helpers, ProtoClass, hammer, Path, Port)->
 
 	class Block extends ProtoClass
 		type:  			'block'
+		defaults:
+			isValid: 					false
+			startIJ: 					{i:0, j:0}
+			endIJ: 						{i:0, j:0}
+			isDragMode:				true
+			isValidPosition: 	true
+			isValidSize: 			false
+
 		
-		constructor:(@o={})->
-			@id = helpers.genHash()
-			@isValid= 		false
-			@startIJ= 		{i:0, j:0}
-			@endIJ= 		  {i:0, j:0}
-			@isDragMode= 	true
-			@isValidPosition = true
-			@isValidSize = false
-			
+		initialize:(@o={})->
+			@set 
+				'id': helpers.genHash()
 			if @o.coords
 				coords 	= App.grid.normalizeCoords App.grid.getNearestCell @o.coords or {x: 0, y: 0}
 				@set 
@@ -20,7 +22,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 
 			@createPort()
 			@render()
-			@onChange = @render
+			@on 'change', _.bind @render, @
 
 			@
 
@@ -33,18 +35,22 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				@$el = $('<div>').addClass('block-e').append($('<div>')); App.$main.append @$el
 				@listenEvents()
 
+			startIJ = @get 'startIJ'
 			@$el.css(
-				'width': 	@w*App.gs
-				'height': @h*App.gs
-				'top':    @startIJ.j*App.gs
-				'left':   @startIJ.i*App.gs)
-				.toggleClass('is-invalid', !@isValid or (	@w*App.gs < App.gs ) or (@h*App.gs < App.gs ) )
-
+				'width': 	@get('w')*App.gs
+				'height': @get('h')*App.gs
+				'top':    startIJ.j*App.gs
+				'left':   startIJ.i*App.gs)
+				.toggleClass('is-invalid', !@get('isValid') or (	@get('w')*App.gs < App.gs ) or (@get('h')*App.gs < App.gs ) )
 			@
 
 		calcDimentions:->
-			@w = @endIJ.i - @startIJ.i
-			@h = @endIJ.j - @startIJ.j
+			startIJ = @get('startIJ')
+			endIJ 	= @get('endIJ')
+			@set 	
+						'w': endIJ.i - startIJ.i
+						'h': endIJ.j - startIJ.j
+
 			@refreshPort()
 
 		listenEvents:->
@@ -98,8 +104,8 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 			coords = App.grid.normalizeCoords coords
 			
 			if !@isMoveTo
-				@buffStartIJ 	= helpers.cloneObj @startIJ
-				@buffEndIJ 		= helpers.cloneObj @endIJ
+				@buffStartIJ 	= helpers.cloneObj @get('startIJ')
+				@buffEndIJ 		= helpers.cloneObj @get('endIJ')
 				@isMoveTo 		= true
 
 			top  		= (@buffStartIJ.j + coords.j)
@@ -111,12 +117,12 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 			if top < 0
 				shift = top
 				top = 0
-				bottom = top + @h
+				bottom = top + @get 'h'
 
 			if left < 0 
 				shift = left
 				left = 0 
-				right = left + @w
+				right = left + @get 'w'
 
 			@set
 				'startIJ': 	{i: left, 	j: top }
@@ -125,31 +131,37 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 
 
 		setSizeDelta:(deltas)->
+			startIJ = @get('startIJ')
 			@set 
-				'endIJ': 		{i: @startIJ.i+deltas.i, j: @startIJ.j+deltas.j}
+				'endIJ': 		{i: startIJ.i+deltas.i, j: startIJ.j+deltas.j}
 				'isValid':  @isSuiteSize()
 
 		isSuiteSize:->
+			startIJ = @get('startIJ')
+			endIJ 	= @get('endIJ')
 			@isValidPosition = true
-			for i in [@startIJ.i...@endIJ.i]
-				for j in [@startIJ.j...@endIJ.j]
+			for i in [startIJ.i...endIJ.i]
+				for j in [startIJ.j...endIJ.j]
 					node = App.grid.grid.getNodeAt i, j
-					if node.block? and (node.block.id isnt @id)
-						return @isValidPosition = false
+					if node.block? and (node.block.get('id') isnt @get('id'))
+						@set 'isValidPosition', false
+						return false
 
 			@calcDimentions()
-			@isValidSize = @w > 0 and @h > 0
+			isValidSize = @get('w') > 0 and @get('h') > 0
+			@set 'isValidSize', isValidSize
+			isValidSize
 
 		addFinilize:->
 			@isMoveTo = false
-			if !@isValid and !@isValidSize
+			if !@get('isValid') and !@get('isValidSize')
 				@removeSelf(); return false
-			else if !@isValidPosition
+			else if !@get 'isValidPosition'
 				@set
 					'startIJ': 	helpers.cloneObj @buffStartIJ
 					'endIJ': 		helpers.cloneObj @buffEndIJ
 					'isValid':  true
-					@isValidPosition = true
+					@set 'isValidPosition', true
 
 			@isDragMode = false
 			@setToGrid()
@@ -157,8 +169,10 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 		refreshPort:-> @port.setIJ()
 
 		setToGrid:->
-			for i in [@startIJ.i...@endIJ.i]
-				for j in [@startIJ.j...@endIJ.j]
+			startIJ = @get 'startIJ'
+			endIJ 	= @get 'endIJ'
+			for i in [startIJ.i...endIJ.i]
+				for j in [startIJ.j...endIJ.j]
 					if !App.grid.holdCell {i:i, j:j}, @
 						@set('isValid', false); return false
 
@@ -168,8 +182,10 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 		######### REMOVE SECTION
 		removeSelf:-> @removeSelfFromGrid(); @removeSelfFromDom();
 		removeSelfFromGrid:->
-			for i in [@startIJ.i...@endIJ.i]
-				for j in [@startIJ.j...@endIJ.j]
+			startIJ = @get('startIJ')
+			endIJ 	= @get('endIJ')
+			for i in [startIJ.i...endIJ.i]
+				for j in [startIJ.j...endIJ.j]
 					App.grid.releaseCell {i:i, j:j}, @
 			App.grid.refreshGrid()
 

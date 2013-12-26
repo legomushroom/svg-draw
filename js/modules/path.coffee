@@ -1,18 +1,19 @@
 define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoClass, Line)->
 	class Path extends ProtoClass
 		type: 'path'
-		isHoldCell: false
+
 		constructor:(@o={})->
-			@id = helpers.genHash()
+			@set 'id', helpers.genHash()
 
 			if @o.coords
 				@set 
-					startIJ: 	App.grid.toIJ @o.coords
-					endIJ: 		App.grid.toIJ @o.coords
+					'startIJ': 	App.grid.toIJ @o.coords
+					'endIJ': 		App.grid.toIJ @o.coords
 
+			@on 'change', 'onChange'
 
 		onChange:-> 
-			@oldIntersects = helpers.cloneObj @intersects
+			@set 'oldIntersects', helpers.cloneObj @get 'intersects'
 			@render()
 
 		render:(isRepaintIntersects=false)->
@@ -23,10 +24,10 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 
 		recalcPath:->
 			path = App.grid.getGapPolyfill 
-								from: @startIJ
-								to: 	@endIJ
+								from: @get 'startIJ'
+								to: 	@get 'endIJ'
 
-			@points = []
+			@set 'points', []
 			for point, i in path 
 				ij = {i: point[0], j: point[1]}; xy = App.grid.fromIJ ij
 				node = App.grid.atIJ ij
@@ -35,41 +36,43 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 				node.holders[@id] = @
 
 				point = { x: xy.x, y: xy.y, curve: null, i: i }
-				@points.push point
+				@set 'points', @get('points').push point
 			@calcPolar()
 			@
 
 		calcPolar:->
-			firstPoint  = @points[0]
-			lastPoint 	= @points[@points.length-1]
-			@xPolar = if firstPoint.x < lastPoint.x then 'plus' else 'minus'
-			@yPolar = if firstPoint.y < lastPoint.y then 'plus' else 'minus'
+			points = @points
+			firstPoint  = points[0]
+			lastPoint 	= points[points.length-1]
+			@set 'xPolar', if firstPoint.x < lastPoint.x then 'plus' else 'minus'
+			@set 'yPolar', if firstPoint.y < lastPoint.y then 'plus' else 'minus'
 
 		repaintIntersects:(intersects)->
 			for name, path of intersects
 				continue if path.id is @id 
 				path.render [path.id]
-			@oldIntersects = {}
+			@set 'oldIntersects', {}
 
 		detectCollisions:()->
-			@intersects = {}
-			for point in @points
+			@set 'intersects', {}
+			for point in @get 'points'
 				myDirection = @directionAt point
 				node = App.grid.at point
 				if _.size(node.holders) > 1
 					_.chain(node.holders).where(type: 'path').each (holder)=>
-						@intersects[holder.id] = holder
+						@set 'intersects', (@get('intersects')[holder.id] = holder)
 
-					for name, holder of @intersects
-						continue if holder.id is @id
-						point.curve = "#{myDirection}" if myDirection isnt holder.directionAt(point) and holder.directionAt(point) isnt 'corner' and myDirection isnt 'corner'
+					for name, path of @get 'intersects'
+						continue if path.get 'id' is @get 'id'
+						point.curve = "#{myDirection}" if myDirection isnt path.directionAt(point) and path.directionAt(point) isnt 'corner' and myDirection isnt 'corner'
 
 		directionAt:(xy)->
-			point = _.where(@points, {x: xy.x, y: xy.y})[0]
+			points = @get 'points'
+			point = _.where(points, {x: xy.x, y: xy.y})[0]
 			if !point then return 'corner'
-			if @points[point.i-1]?.x is point.x and @points[point.i+1]?.x is point.x
+			if points[point.i-1]?.x is point.x and points[point.i+1]?.x is point.x
 				direction = 'vertical'
-			else if @points[point.i-1]?.y is point.y and @points[point.i+1]?.y is point.y
+			else if points[point.i-1]?.y is point.y and points[point.i+1]?.y is point.y
 				direction = 'horizontal'
 			else direction = 'corner'
 			direction
@@ -78,10 +81,11 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 		makeLine:()-> if !@line? then @line = new Line path: @ else @line.resetPoints @points
 
 		removeFromGrid:->
-			return if !@points?
-			for point in @points
+			points = @get 'points'
+			return if !points?
+			for point in points
 				node = App.grid.at(point)
-				delete node.holders[@id]
+				delete node.holders[@get 'id']
 
 		removeIfEmpty:-> 
 			if @isEmpty()
@@ -90,6 +94,6 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line'], ($, helpers, ProtoCl
 			App.grid.refreshGrid()
 
 		isEmpty:-> 
-			@line.points.length <= 2
+			@line.get('points').length <= 2
 
 	Path

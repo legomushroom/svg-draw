@@ -12,11 +12,16 @@
       block: 'modules/block',
       port: 'modules/port',
       line: 'modules/line',
-      ProtoClass: 'modules/ProtoClass'
+      ProtoClass: 'modules/ProtoClass',
+      backbone: 'lib/backbone'
     },
     shim: {
       "two": {
         exports: "Two"
+      },
+      backbone: {
+        exports: 'Backbone',
+        deps: ['jquery', 'underscore']
       }
     }
   });
@@ -46,7 +51,7 @@
         this.debug = {
           isGrid: false
         };
-        this.currTool = ['path', 'block'][0];
+        this.currTool = ['path', 'block'][1];
         this.$tools.find("[data-role=\"" + this.currTool + "\"]").addClass('is-check');
         return this;
       };

@@ -11,21 +11,20 @@
 
       Path.prototype.type = 'path';
 
-      Path.prototype.isHoldCell = false;
-
       function Path(o) {
         this.o = o != null ? o : {};
-        this.id = helpers.genHash();
+        this.set('id', helpers.genHash());
         if (this.o.coords) {
           this.set({
-            startIJ: App.grid.toIJ(this.o.coords),
-            endIJ: App.grid.toIJ(this.o.coords)
+            'startIJ': App.grid.toIJ(this.o.coords),
+            'endIJ': App.grid.toIJ(this.o.coords)
           });
         }
+        this.on('change', 'onChange');
       }
 
       Path.prototype.onChange = function() {
-        this.oldIntersects = helpers.cloneObj(this.intersects);
+        this.set('oldIntersects', helpers.cloneObj(this.get('intersects')));
         return this.render();
       };
 
@@ -43,10 +42,10 @@
         var i, ij, node, path, point, xy, _i, _len, _ref;
 
         path = App.grid.getGapPolyfill({
-          from: this.startIJ,
-          to: this.endIJ
+          from: this.get('startIJ'),
+          to: this.get('endIJ')
         });
-        this.points = [];
+        this.set('points', []);
         for (i = _i = 0, _len = path.length; _i < _len; i = ++_i) {
           point = path[i];
           ij = {
@@ -65,19 +64,20 @@
             curve: null,
             i: i
           };
-          this.points.push(point);
+          this.set('points', this.get('points').push(point));
         }
         this.calcPolar();
         return this;
       };
 
       Path.prototype.calcPolar = function() {
-        var firstPoint, lastPoint;
+        var firstPoint, lastPoint, points;
 
-        firstPoint = this.points[0];
-        lastPoint = this.points[this.points.length - 1];
-        this.xPolar = firstPoint.x < lastPoint.x ? 'plus' : 'minus';
-        return this.yPolar = firstPoint.y < lastPoint.y ? 'plus' : 'minus';
+        points = this.points;
+        firstPoint = points[0];
+        lastPoint = points[points.length - 1];
+        this.set('xPolar', firstPoint.x < lastPoint.x ? 'plus' : 'minus');
+        return this.set('yPolar', firstPoint.y < lastPoint.y ? 'plus' : 'minus');
       };
 
       Path.prototype.repaintIntersects = function(intersects) {
@@ -90,15 +90,15 @@
           }
           path.render([path.id]);
         }
-        return this.oldIntersects = {};
+        return this.set('oldIntersects', {});
       };
 
       Path.prototype.detectCollisions = function() {
-        var holder, myDirection, name, node, point, _i, _len, _ref, _results,
+        var myDirection, name, node, path, point, _i, _len, _ref, _results,
           _this = this;
 
-        this.intersects = {};
-        _ref = this.points;
+        this.set('intersects', {});
+        _ref = this.get('points');
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           point = _ref[_i];
@@ -108,19 +108,19 @@
             _.chain(node.holders).where({
               type: 'path'
             }).each(function(holder) {
-              return _this.intersects[holder.id] = holder;
+              return _this.set('intersects', (_this.get('intersects')[holder.id] = holder));
             });
             _results.push((function() {
               var _ref1, _results1;
 
-              _ref1 = this.intersects;
+              _ref1 = this.get('intersects');
               _results1 = [];
               for (name in _ref1) {
-                holder = _ref1[name];
-                if (holder.id === this.id) {
+                path = _ref1[name];
+                if (path.get('id' === this.get('id'))) {
                   continue;
                 }
-                if (myDirection !== holder.directionAt(point) && holder.directionAt(point) !== 'corner' && myDirection !== 'corner') {
+                if (myDirection !== path.directionAt(point) && path.directionAt(point) !== 'corner' && myDirection !== 'corner') {
                   _results1.push(point.curve = "" + myDirection);
                 } else {
                   _results1.push(void 0);
@@ -136,18 +136,19 @@
       };
 
       Path.prototype.directionAt = function(xy) {
-        var direction, point, _ref, _ref1, _ref2, _ref3;
+        var direction, point, points, _ref, _ref1, _ref2, _ref3;
 
-        point = _.where(this.points, {
+        points = this.get('points');
+        point = _.where(points, {
           x: xy.x,
           y: xy.y
         })[0];
         if (!point) {
           return 'corner';
         }
-        if (((_ref = this.points[point.i - 1]) != null ? _ref.x : void 0) === point.x && ((_ref1 = this.points[point.i + 1]) != null ? _ref1.x : void 0) === point.x) {
+        if (((_ref = points[point.i - 1]) != null ? _ref.x : void 0) === point.x && ((_ref1 = points[point.i + 1]) != null ? _ref1.x : void 0) === point.x) {
           direction = 'vertical';
-        } else if (((_ref2 = this.points[point.i - 1]) != null ? _ref2.y : void 0) === point.y && ((_ref3 = this.points[point.i + 1]) != null ? _ref3.y : void 0) === point.y) {
+        } else if (((_ref2 = points[point.i - 1]) != null ? _ref2.y : void 0) === point.y && ((_ref3 = points[point.i + 1]) != null ? _ref3.y : void 0) === point.y) {
           direction = 'horizontal';
         } else {
           direction = 'corner';
@@ -166,17 +167,17 @@
       };
 
       Path.prototype.removeFromGrid = function() {
-        var node, point, _i, _len, _ref, _results;
+        var node, point, points, _i, _len, _results;
 
-        if (this.points == null) {
+        points = this.get('points');
+        if (points == null) {
           return;
         }
-        _ref = this.points;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          point = _ref[_i];
+        for (_i = 0, _len = points.length; _i < _len; _i++) {
+          point = points[_i];
           node = App.grid.at(point);
-          _results.push(delete node.holders[this.id]);
+          _results.push(delete node.holders[this.get('id')]);
         }
         return _results;
       };
@@ -190,7 +191,7 @@
       };
 
       Path.prototype.isEmpty = function() {
-        return this.line.points.length <= 2;
+        return this.line.get('points').length <= 2;
       };
 
       return Path;
