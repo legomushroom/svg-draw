@@ -30,6 +30,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 								to: 	@get 'endIJ'
 
 
+
+
 			points = []
 			for point, i in path 
 				ij = {i: point[0], j: point[1]}; xy = App.grid.fromIJ ij
@@ -95,13 +97,11 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 
 		removeIfEmpty:-> 
 			if @isEmpty()
-				console.log('is empty')
 				@line.remove()
 				@removeFromGrid()
 			App.grid.refreshGrid()
 
 		isEmpty:-> 
-			console.log(@)
 			@line?.get('points').length <= 2
 
 	Path

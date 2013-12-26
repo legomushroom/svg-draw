@@ -19,6 +19,7 @@
         this.o.parent && (this.set('parent', this.o.parent));
         this.set('connections', []);
         this.setIJ();
+        this.on('change', _.bind(this.onChange, this));
         return this;
       };
 
@@ -39,27 +40,24 @@
         direction = '';
         if (path == null) {
           path = new Path;
-          path.set('connectedTo', this.get('parent'));
           path.set({
-            'startIJ': this.ij,
-            'endIJ': this.ij
+            'connectedTo': this.get('parent'),
+            'startIJ': this.get('ij'),
+            'endIJ': this.get('ij')
           });
           direction = 'start';
         } else {
           point = path.currentAddPoint || 'endIJ';
           direction = point === 'startIJ' ? 'start' : 'end';
-          path.set({
-            point: this.ij
-          });
-          connections = this.get('connections');
-          connections.push({
-            direction: direction,
-            path: path,
-            id: App.helpers.genHash()
-          });
-          this.set('connections', connections);
+          path.set(point, this.get('ij'));
         }
-        console.log('add');
+        connections = this.get('connections');
+        connections.push({
+          direction: direction,
+          path: path,
+          id: App.helpers.genHash()
+        });
+        this.set('connections', connections);
         return path;
       };
 

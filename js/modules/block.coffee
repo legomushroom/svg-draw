@@ -23,7 +23,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			@createPort()
 			@render()
 			@on 'change', _.bind @render, @
-			
+
 
 			@
 
@@ -59,7 +59,6 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				coords = helpers.getEventCoords e
 				if App.currTool is 'path'
 					App.isBlockToPath = @port.addConnection()
-
 				helpers.stopEvent e
 
 			hammer(@$el[0]).on 'drag', (e)=>
@@ -74,8 +73,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				coords = helpers.getEventCoords e
 				if App.currTool is 'path'
 					if App.currPath and App.currBlock
-						App.currPath.currentAddPoint = null
 						App.currBlock.port.addConnection App.currPath
+						App.currPath.currentAddPoint = null
 						App.isBlockToPath = null
 
 				else 
@@ -159,10 +158,10 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				@removeSelf(); return false
 			else if !@get 'isValidPosition'
 				@set
-					'startIJ': 	helpers.cloneObj @buffStartIJ
-					'endIJ': 		helpers.cloneObj @buffEndIJ
-					'isValid':  true
-					@set 'isValidPosition', true
+					'startIJ': 					helpers.cloneObj @buffStartIJ
+					'endIJ': 						helpers.cloneObj @buffEndIJ
+					'isValid':  				true
+					'isValidPosition': 	true
 
 			@isDragMode = false
 			@setToGrid()

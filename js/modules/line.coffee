@@ -3,7 +3,6 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 		initialize:(@o={})->
 			@set 'id', helpers.genHash()
 			path = @o.path
-			console.log(path.get 'points')
 			@set 'path', @o.path
 			@set 'points', path.get 'points'
 			@addDomElement()

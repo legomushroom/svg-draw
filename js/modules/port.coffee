@@ -4,6 +4,7 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			@o.parent and (@set 'parent', @o.parent)
 			@set 'connections', []
 			@setIJ()
+			@on 'change', _.bind @onChange, @
 			@
 
 		onChange:->
@@ -16,25 +17,23 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			direction = ''
 			if !path?
 				path = new Path
-				path.set 'connectedTo', @get 'parent'
 				path.set 
-					'startIJ': @ij
-					'endIJ': 	 @ij
+					'connectedTo': 	@get 'parent'
+					'startIJ': 			@get 'ij'
+					'endIJ': 	 			@get 'ij'
 				direction = 'start'
 			else 
 				point = path.currentAddPoint or 'endIJ'
 				direction = if point is 'startIJ' then 'start' else 'end'
-				path.set point: @ij
-				connections = @get('connections')
-				connections.push {
+				path.set point, @get 'ij'
+			connections = @get('connections')
+			connections.push {
 													direction: direction
 													path: path
 													id: App.helpers.genHash()
 												}
 
 				@set 'connections', connections
-
-			console.log('add')
 			path
 
 		setIJ:->

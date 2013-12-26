@@ -125,8 +125,8 @@
           coords = helpers.getEventCoords(e);
           if (App.currTool === 'path') {
             if (App.currPath && App.currBlock) {
-              App.currPath.currentAddPoint = null;
               App.currBlock.port.addConnection(App.currPath);
+              App.currPath.currentAddPoint = null;
               App.isBlockToPath = null;
             }
           } else {
@@ -239,8 +239,9 @@
           this.set({
             'startIJ': helpers.cloneObj(this.buffStartIJ),
             'endIJ': helpers.cloneObj(this.buffEndIJ),
-            'isValid': true
-          }, this.set('isValidPosition', true));
+            'isValid': true,
+            'isValidPosition': true
+          });
         }
         this.isDragMode = false;
         return this.setToGrid();

@@ -190,7 +190,6 @@
 
       Path.prototype.removeIfEmpty = function() {
         if (this.isEmpty()) {
-          console.log('is empty');
           this.line.remove();
           this.removeFromGrid();
         }
@@ -200,7 +199,6 @@
       Path.prototype.isEmpty = function() {
         var _ref1;
 
-        console.log(this);
         return ((_ref1 = this.line) != null ? _ref1.get('points').length : void 0) <= 2;
       };
 

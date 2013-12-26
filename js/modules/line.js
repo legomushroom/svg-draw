@@ -20,7 +20,6 @@
         this.o = o != null ? o : {};
         this.set('id', helpers.genHash());
         path = this.o.path;
-        console.log(path.get('points'));
         this.set('path', this.o.path);
         this.set('points', path.get('points'));
         this.addDomElement();
