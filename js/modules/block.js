@@ -106,6 +106,7 @@
           coords = helpers.getEventCoords(e);
           if (App.currTool === 'path') {
             if (App.currPath && App.currBlock) {
+              App.currPath.currentAddPoint = null;
               App.currBlock.port.addConnection(App.currPath);
               App.isBlockToPath = null;
             }

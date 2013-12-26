@@ -15,6 +15,7 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			App.grid.refreshGrid()
 
 		addConnection:(path)->
+			debugger
 			direction = ''
 			if !path?
 				path = new Path
@@ -24,8 +25,9 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 					'endIJ': 	 @ij
 				direction = 'start'
 			else 
-				path.set 'endIJ': @ij
-				direction = 'end'
+				point = path.currentAddPoint or 'endIJ'
+				direction = if point is 'startIJ' then 'start' else 'end'
+				path.set point: @ij
 
 			@connections.push {
 													direction: direction

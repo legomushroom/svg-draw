@@ -91,10 +91,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 			coords = helpers.getEventCoords(e)
 			
 			pathEndCell = @grid.isPathEndCell(coords)
-			if pathEndCell
-				@currPath = pathEndCell
-				console.log(@currPath)
-				return
+			if pathEndCell then @currPath = pathEndCell; return
 
 			if not @grid.isFreeCell coords
 				@currPath = null; return
@@ -111,7 +108,8 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 				if @isBlockToPath
 					@currPath = @isBlockToPath; @isBlockToPath = false
 				else 
-					@currPath?.set @currPath.currentAddPoint or 'endIJ', @grid.toIJ coords
+					point = @currPath.currentAddPoint or 'endIJ'
+					@currPath?.set point, @grid.toIJ coords
 
 		listenToTools:->
 			it = @; 

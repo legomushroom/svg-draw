@@ -34,7 +34,8 @@
       };
 
       Port.prototype.addConnection = function(path) {
-        var direction;
+        debugger;
+        var direction, point;
 
         direction = '';
         if (path == null) {
@@ -46,10 +47,11 @@
           });
           direction = 'start';
         } else {
+          point = path.currentAddPoint || 'endIJ';
+          direction = point === 'startIJ' ? 'start' : 'end';
           path.set({
-            'endIJ': this.ij
+            point: this.ij
           });
-          direction = 'end';
         }
         this.connections.push({
           direction: direction,

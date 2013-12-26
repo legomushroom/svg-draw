@@ -67,6 +67,7 @@ define 'block', ['helpers', 'ProtoClass', 'hammer', 'path', 'port'], (helpers, P
 				coords = helpers.getEventCoords e
 				if App.currTool is 'path'
 					if App.currPath and App.currBlock
+						App.currPath.currentAddPoint = null
 						App.currBlock.port.addConnection App.currPath
 						App.isBlockToPath = null
 

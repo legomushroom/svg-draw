@@ -116,7 +116,6 @@
         pathEndCell = this.grid.isPathEndCell(coords);
         if (pathEndCell) {
           this.currPath = pathEndCell;
-          console.log(this.currPath);
           return;
         }
         if (!this.grid.isFreeCell(coords)) {
@@ -134,7 +133,7 @@
       };
 
       App.prototype.dragPath = function(e) {
-        var coords, _ref;
+        var coords, point, _ref;
 
         coords = helpers.getEventCoords(e);
         if (this.grid.isFreeCell(coords)) {
@@ -142,7 +141,8 @@
             this.currPath = this.isBlockToPath;
             return this.isBlockToPath = false;
           } else {
-            return (_ref = this.currPath) != null ? _ref.set(this.currPath.currentAddPoint || 'endIJ', this.grid.toIJ(coords)) : void 0;
+            point = this.currPath.currentAddPoint || 'endIJ';
+            return (_ref = this.currPath) != null ? _ref.set(point, this.grid.toIJ(coords)) : void 0;
           }
         }
       };
