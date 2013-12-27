@@ -49,10 +49,17 @@
         } else {
           point = path.currentAddPoint || 'endIJ';
           direction = point === 'startIJ' ? 'start' : 'end';
-          path.set(point, this.get('ij'));
-          path.set({
-            'connectedEnd': this.get('parent')
-          });
+          if (point === 'startIJ') {
+            path.set({
+              'startIJ': this.get('ij'),
+              'connectedEnd': this.get('parent')
+            });
+          } else {
+            path.set({
+              'endIJ': this.get('ij'),
+              'connectedEnd': this.get('parent')
+            });
+          }
         }
         connections = this.get('connections');
         connections.push({

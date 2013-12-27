@@ -43,68 +43,77 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 			glimps = @makeGlimps()
 			@points = []
 
-			if glimps 
-				startIJ = @get('startIJ')
-				endIJ = @get('endIJ')
-				dir = glimps.direction
-				startBlock 	= glimps.startBlock
-				endBlock 		= glimps.endBlock
+			startIJ = @get('startIJ')
+			endIJ = @get('endIJ')
+			dir = glimps.direction
+			@direction = dir
+			startBlock 	= glimps.startBlock
+			endBlock 		= glimps.endBlock
 
-				startW = Math.ceil(startBlock.get('w')/2)
-				startH = Math.ceil(startBlock.get('h')/2)
+			startBlockEndIJ 	= startBlock.get('endIJ')
+			startBlockStartIJ = startBlock.get('startIJ')
 
-				endW = Math.ceil(endBlock.get('w')/2)
-				endH = Math.ceil(endBlock.get('h')/2)
+			endBlockEndIJ 	= if endBlock then endBlock.get('endIJ') 		else @get('endIJ')
+			endBlockStartIJ = if endBlock then  endBlock.get('startIJ') else @get('startIJ')
 
-				# normalize start/end points
-				if dir is 'i'
-					if startIJ.i < endIJ.i
-						startIJ = {i: startIJ.i+startW,j: startIJ.j}
-						endIJ 	= {i: endIJ.i-endW,j: endIJ.j}
-					else 
-						startIJ = {i: startIJ.i-startW,j: startIJ.j}
-						endIJ 	= {i: endIJ.i+endW,j: endIJ.j}
+			startW = Math.ceil(startBlock.get('w')/2)
+			startH = Math.ceil(startBlock.get('h')/2)
+
+			endW = if endBlock then Math.ceil(endBlock.get('w')/2) else 0
+			endH = if endBlock then Math.ceil(endBlock.get('h')/2) else 0
+
+			# normalize start/end points to block size
+			if dir is 'i'
+				if startIJ.i < endIJ.i
+					startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
+					endIJ 	= {i: endBlockStartIJ.i,j: endIJ.j}
 				else 
-					if startIJ.j < endIJ.j
-						startIJ = {i: startIJ.i,j: startIJ.j+startH}
-						endIJ 	= {i: endIJ.i,j: endIJ.j-endH}
-					else 
-						startIJ = {i: startIJ.i,j: startIJ.j-startH}
-						endIJ 	= {i: endIJ.i,j: endIJ.j+endH}
-						
-					
+					startIJ = {i: startBlockStartIJ.i,j: startIJ.j}
+					endIJ 	= {i: endBlockEndIJ.i,j: endIJ.j}
+			else 
+				if startIJ.j < endIJ.j
+					startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
+					endIJ 	= {i: endIJ.i, j: endBlockStartIJ.j}
+				else 
+					startIJ = {i: startIJ.i, j: startBlockStartIJ.j}
+					endIJ 	= {i: endIJ.i, j: endBlockEndIJ.j}
 
-				for i in [startIJ[dir]..Math.ceil(glimps.base)]
-					if dir is 'i'
-						ij = {i: i, j: startIJ.j}
-					else
-						ij = {i: startIJ.i, j: i}
-
-					@pushPoint ij, i
-
-				for i in [Math.ceil(glimps.base)..endIJ[dir]]
-					if dir is 'i'
-						ij = {i: i, j: endIJ.j}
-					else 
-						ij = {i: endIJ.i, j: i}
-					@pushPoint ij, i
-
-			else
-				path = App.grid.getGapPolyfill 
-									from: @get 'startIJ'
-									to: 	@get 'endIJ'
-
-
-				for point, i in path 
-					ij = {i: point[0], j: point[1]}; xy = App.grid.fromIJ ij
-					node = App.grid.atIJ ij
-					node.holders ?= {}
-
-					node.holders[@get 'id'] = @
-
-					point = { x: xy.x, y: xy.y, curve: null, i: i }
-					@points.push(point)
 			
+
+			# # normalize start/end points to block size
+			# if dir is 'i'
+			# 	if startIJ.i < endIJ.i
+			# 		startIJ = {i: startIJ.i+startW,j: startIJ.j}
+			# 		endIJ 	= {i: endIJ.i-endW,j: endIJ.j}
+			# 	else 
+			# 		startIJ = {i: startIJ.i-startW,j: startIJ.j}
+			# 		endIJ 	= {i: endIJ.i+endW,j: endIJ.j}
+			# else 
+			# 	if startIJ.j < endIJ.j
+			# 		startIJ = {i: startIJ.i,j: startIJ.j+startH}
+			# 		endIJ 	= {i: endIJ.i,j: endIJ.j-endH}
+			# 	else 
+			# 		startIJ = {i: startIJ.i,j: startIJ.j-startH}
+			# 		endIJ 	= {i: endIJ.i,j: endIJ.j+endH}
+
+
+			# the first path console
+			for i in [startIJ[dir]..Math.ceil(glimps.base)]
+				if dir is 'i'
+					ij = {i: i, j: startIJ.j}
+				else
+					ij = {i: startIJ.i, j: i}
+
+				@pushPoint ij, i
+
+			# the end path console
+			for i in [Math.ceil(glimps.base)..endIJ[dir]]
+				if dir is 'i'
+					ij = {i: i, j: endIJ.j}
+				else 
+					ij = {i: endIJ.i, j: i}
+				@pushPoint ij, i
+
 			@set 'points', @points
 			@calcPolar()
 			helpers.timeOut 'path recalc'
@@ -115,22 +124,25 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 			endIJ 		= @get 'endIJ'
 			startBlock = @get('connectedStart')
 			endBlock 	 = @get('connectedEnd')
-			if not endBlock then return false
+
+			endBlockW = if not endBlock then 0 else endBlock.get('w')/2
+			endBlockH = if not endBlock then 0 else endBlock.get('h')/2
+
 			if startIJ.i < endIJ.i
 				end = (startIJ.i + startBlock.get('w')/2)
-				xDifference =  (endIJ.i - endBlock.get('w')/2) - end
+				xDifference =  (endIJ.i - endBlockW) - end
 				xBase = end + (xDifference/2)
 			else
-				start = (endIJ.i + endBlock.get('w')/2)
+				start = (endIJ.i + endBlockW)
 				xDifference = (startIJ.i - startBlock.get('w')/2) - start
 				xBase = start + (xDifference/2)
 
 			if startIJ.j < endIJ.j
 				end = (startIJ.j + startBlock.get('h')/2)
-				yDifference =  (endIJ.j - endBlock.get('h')/2) - end
+				yDifference =  (endIJ.j - endBlockH) - end
 				yBase = end + (yDifference/2)
 			else
-				start = (endIJ.j + endBlock.get('h')/2)
+				start = (endIJ.j + endBlockH)
 				yDifference = (startIJ.j - startBlock.get('h')/2) - start
 				yBase = start + (yDifference/2)
 

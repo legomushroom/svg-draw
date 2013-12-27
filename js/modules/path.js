@@ -64,115 +64,93 @@
       };
 
       Path.prototype.recalcPath = function() {
-        var dir, endBlock, endH, endIJ, endW, glimps, i, ij, node, path, point, startBlock, startH, startIJ, startW, xy, _i, _j, _k, _len, _ref1, _ref2, _ref3, _ref4, _ref5;
+        var dir, endBlock, endBlockEndIJ, endBlockStartIJ, endH, endIJ, endW, glimps, i, ij, startBlock, startBlockEndIJ, startBlockStartIJ, startH, startIJ, startW, _i, _j, _ref1, _ref2, _ref3, _ref4;
 
         helpers.timeIn('path recalc');
         glimps = this.makeGlimps();
         this.points = [];
-        if (glimps) {
-          startIJ = this.get('startIJ');
-          endIJ = this.get('endIJ');
-          dir = glimps.direction;
-          startBlock = glimps.startBlock;
-          endBlock = glimps.endBlock;
-          startW = Math.ceil(startBlock.get('w') / 2);
-          startH = Math.ceil(startBlock.get('h') / 2);
-          endW = Math.ceil(endBlock.get('w') / 2);
-          endH = Math.ceil(endBlock.get('h') / 2);
-          if (dir === 'i') {
-            if (startIJ.i < endIJ.i) {
-              startIJ = {
-                i: startIJ.i + startW,
-                j: startIJ.j
-              };
-              endIJ = {
-                i: endIJ.i - endW,
-                j: endIJ.j
-              };
-            } else {
-              startIJ = {
-                i: startIJ.i - startW,
-                j: startIJ.j
-              };
-              endIJ = {
-                i: endIJ.i + endW,
-                j: endIJ.j
-              };
-            }
+        startIJ = this.get('startIJ');
+        endIJ = this.get('endIJ');
+        dir = glimps.direction;
+        this.direction = dir;
+        startBlock = glimps.startBlock;
+        endBlock = glimps.endBlock;
+        startBlockEndIJ = startBlock.get('endIJ');
+        startBlockStartIJ = startBlock.get('startIJ');
+        endBlockEndIJ = endBlock ? endBlock.get('endIJ') : this.get('endIJ');
+        endBlockStartIJ = endBlock ? endBlock.get('startIJ') : this.get('startIJ');
+        startW = Math.ceil(startBlock.get('w') / 2);
+        startH = Math.ceil(startBlock.get('h') / 2);
+        endW = endBlock ? Math.ceil(endBlock.get('w') / 2) : 0;
+        endH = endBlock ? Math.ceil(endBlock.get('h') / 2) : 0;
+        if (dir === 'i') {
+          if (startIJ.i < endIJ.i) {
+            startIJ = {
+              i: startBlockEndIJ.i,
+              j: startIJ.j
+            };
+            endIJ = {
+              i: endBlockStartIJ.i,
+              j: endIJ.j
+            };
           } else {
-            if (startIJ.j < endIJ.j) {
-              startIJ = {
-                i: startIJ.i,
-                j: startIJ.j + startH
-              };
-              endIJ = {
-                i: endIJ.i,
-                j: endIJ.j - endH
-              };
-            } else {
-              startIJ = {
-                i: startIJ.i,
-                j: startIJ.j - startH
-              };
-              endIJ = {
-                i: endIJ.i,
-                j: endIJ.j + endH
-              };
-            }
-          }
-          for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
-            if (dir === 'i') {
-              ij = {
-                i: i,
-                j: startIJ.j
-              };
-            } else {
-              ij = {
-                i: startIJ.i,
-                j: i
-              };
-            }
-            this.pushPoint(ij, i);
-          }
-          for (i = _j = _ref3 = Math.ceil(glimps.base), _ref4 = endIJ[dir]; _ref3 <= _ref4 ? _j <= _ref4 : _j >= _ref4; i = _ref3 <= _ref4 ? ++_j : --_j) {
-            if (dir === 'i') {
-              ij = {
-                i: i,
-                j: endIJ.j
-              };
-            } else {
-              ij = {
-                i: endIJ.i,
-                j: i
-              };
-            }
-            this.pushPoint(ij, i);
+            startIJ = {
+              i: startBlockStartIJ.i,
+              j: startIJ.j
+            };
+            endIJ = {
+              i: endBlockEndIJ.i,
+              j: endIJ.j
+            };
           }
         } else {
-          path = App.grid.getGapPolyfill({
-            from: this.get('startIJ'),
-            to: this.get('endIJ')
-          });
-          for (i = _k = 0, _len = path.length; _k < _len; i = ++_k) {
-            point = path[i];
-            ij = {
-              i: point[0],
-              j: point[1]
+          if (startIJ.j < endIJ.j) {
+            startIJ = {
+              i: startIJ.i,
+              j: startBlockEndIJ.j
             };
-            xy = App.grid.fromIJ(ij);
-            node = App.grid.atIJ(ij);
-            if ((_ref5 = node.holders) == null) {
-              node.holders = {};
-            }
-            node.holders[this.get('id')] = this;
-            point = {
-              x: xy.x,
-              y: xy.y,
-              curve: null,
-              i: i
+            endIJ = {
+              i: endIJ.i,
+              j: endBlockStartIJ.j
             };
-            this.points.push(point);
+          } else {
+            startIJ = {
+              i: startIJ.i,
+              j: startBlockStartIJ.j
+            };
+            endIJ = {
+              i: endIJ.i,
+              j: endBlockEndIJ.j
+            };
           }
+        }
+        for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
+          if (dir === 'i') {
+            ij = {
+              i: i,
+              j: startIJ.j
+            };
+          } else {
+            ij = {
+              i: startIJ.i,
+              j: i
+            };
+          }
+          this.pushPoint(ij, i);
+        }
+        for (i = _j = _ref3 = Math.ceil(glimps.base), _ref4 = endIJ[dir]; _ref3 <= _ref4 ? _j <= _ref4 : _j >= _ref4; i = _ref3 <= _ref4 ? ++_j : --_j) {
+          if (dir === 'i') {
+            ij = {
+              i: i,
+              j: endIJ.j
+            };
+          } else {
+            ij = {
+              i: endIJ.i,
+              j: i
+            };
+          }
+          this.pushPoint(ij, i);
         }
         this.set('points', this.points);
         this.calcPolar();
@@ -181,30 +159,29 @@
       };
 
       Path.prototype.makeGlimps = function() {
-        var baseDirection, end, endBlock, endIJ, returnValue, start, startBlock, startIJ, xBase, xDifference, yBase, yDifference;
+        var baseDirection, end, endBlock, endBlockH, endBlockW, endIJ, returnValue, start, startBlock, startIJ, xBase, xDifference, yBase, yDifference;
 
         startIJ = this.get('startIJ');
         endIJ = this.get('endIJ');
         startBlock = this.get('connectedStart');
         endBlock = this.get('connectedEnd');
-        if (!endBlock) {
-          return false;
-        }
+        endBlockW = !endBlock ? 0 : endBlock.get('w') / 2;
+        endBlockH = !endBlock ? 0 : endBlock.get('h') / 2;
         if (startIJ.i < endIJ.i) {
           end = startIJ.i + startBlock.get('w') / 2;
-          xDifference = (endIJ.i - endBlock.get('w') / 2) - end;
+          xDifference = (endIJ.i - endBlockW) - end;
           xBase = end + (xDifference / 2);
         } else {
-          start = endIJ.i + endBlock.get('w') / 2;
+          start = endIJ.i + endBlockW;
           xDifference = (startIJ.i - startBlock.get('w') / 2) - start;
           xBase = start + (xDifference / 2);
         }
         if (startIJ.j < endIJ.j) {
           end = startIJ.j + startBlock.get('h') / 2;
-          yDifference = (endIJ.j - endBlock.get('h') / 2) - end;
+          yDifference = (endIJ.j - endBlockH) - end;
           yBase = end + (yDifference / 2);
         } else {
-          start = endIJ.j + endBlock.get('h') / 2;
+          start = endIJ.j + endBlockH;
           yDifference = (startIJ.j - startBlock.get('h') / 2) - start;
           yBase = start + (yDifference / 2);
         }

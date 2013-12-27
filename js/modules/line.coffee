@@ -26,6 +26,10 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 		serialize:->
 			str = ''
 			for point, i in @get('points')
+				if i is 0 or i is @get('points').length-1
+					if @get('path').direction is 'i' then point.x -= (App.gs/2)
+					if @get('path').direction is 'j' then point.y -= (App.gs/2)
+
 				if i is 0 
 					str += "M#{point.x},#{point.y} "
 				else
