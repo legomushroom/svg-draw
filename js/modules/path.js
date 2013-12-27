@@ -40,75 +40,168 @@
         }
         this.removeFromGrid();
         this.recalcPath();
-        this.makeLine();
+        this.makeSvgPath();
         return App.grid.refreshGrid();
       };
 
       Path.prototype.recalcPath = function() {
-        var i, ij, node, path, point, points, xy, _i, _len, _ref1;
+        var endIJ, glimps, i, ij, node, path, point, points, startIJ, xy, _i, _j, _k, _l, _len, _m, _ref1, _ref10, _ref11, _ref12, _ref13, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
 
         helpers.timeIn('path recalc');
-        this.makeGlimps();
-        path = App.grid.getGapPolyfill({
-          from: this.get('startIJ'),
-          to: this.get('endIJ')
-        });
+        glimps = this.makeGlimps();
         points = [];
-        for (i = _i = 0, _len = path.length; _i < _len; i = ++_i) {
-          point = path[i];
-          ij = {
-            i: point[0],
-            j: point[1]
-          };
-          xy = App.grid.fromIJ(ij);
-          node = App.grid.atIJ(ij);
-          if ((_ref1 = node.holders) == null) {
-            node.holders = {};
+        if (glimps) {
+          switch (glimps.direction) {
+            case 'x':
+              startIJ = this.get('startIJ');
+              for (i = _i = _ref1 = startIJ.i, _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
+                ij = {
+                  i: i,
+                  j: startIJ.j
+                };
+                xy = App.grid.fromIJ(ij);
+                node = App.grid.atIJ(ij);
+                if ((_ref3 = node.holders) == null) {
+                  node.holders = {};
+                }
+                node.holders[this.get('id')] = this;
+                point = {
+                  x: xy.x,
+                  y: xy.y,
+                  curve: null,
+                  i: i
+                };
+                points.push(point);
+              }
+              endIJ = this.get('endIJ');
+              for (i = _j = _ref4 = Math.ceil(glimps.base), _ref5 = endIJ.i; _ref4 <= _ref5 ? _j <= _ref5 : _j >= _ref5; i = _ref4 <= _ref5 ? ++_j : --_j) {
+                ij = {
+                  i: i,
+                  j: endIJ.j
+                };
+                xy = App.grid.fromIJ(ij);
+                node = App.grid.atIJ(ij);
+                if ((_ref6 = node.holders) == null) {
+                  node.holders = {};
+                }
+                node.holders[this.get('id')] = this;
+                point = {
+                  x: xy.x,
+                  y: xy.y,
+                  curve: null,
+                  i: i
+                };
+                points.push(point);
+              }
+              break;
+            case 'y':
+              console.log(Math.ceil(glimps.base));
+              startIJ = this.get('startIJ');
+              for (i = _k = _ref7 = startIJ.j, _ref8 = Math.ceil(glimps.base); _ref7 <= _ref8 ? _k <= _ref8 : _k >= _ref8; i = _ref7 <= _ref8 ? ++_k : --_k) {
+                ij = {
+                  i: startIJ.i,
+                  j: i
+                };
+                xy = App.grid.fromIJ(ij);
+                node = App.grid.atIJ(ij);
+                if ((_ref9 = node.holders) == null) {
+                  node.holders = {};
+                }
+                node.holders[this.get('id')] = this;
+                point = {
+                  x: xy.x,
+                  y: xy.y,
+                  curve: null,
+                  i: i
+                };
+                points.push(point);
+              }
+              endIJ = this.get('endIJ');
+              for (i = _l = _ref10 = Math.ceil(glimps.base), _ref11 = endIJ.j; _ref10 <= _ref11 ? _l <= _ref11 : _l >= _ref11; i = _ref10 <= _ref11 ? ++_l : --_l) {
+                ij = {
+                  i: endIJ.i,
+                  j: i
+                };
+                xy = App.grid.fromIJ(ij);
+                node = App.grid.atIJ(ij);
+                if ((_ref12 = node.holders) == null) {
+                  node.holders = {};
+                }
+                node.holders[this.get('id')] = this;
+                point = {
+                  x: xy.x,
+                  y: xy.y,
+                  curve: null,
+                  i: i
+                };
+                points.push(point);
+              }
           }
-          node.holders[this.get('id')] = this;
-          point = {
-            x: xy.x,
-            y: xy.y,
-            curve: null,
-            i: i
-          };
-          points.push(point);
+        } else {
+          path = App.grid.getGapPolyfill({
+            from: this.get('startIJ'),
+            to: this.get('endIJ')
+          });
+          for (i = _m = 0, _len = path.length; _m < _len; i = ++_m) {
+            point = path[i];
+            ij = {
+              i: point[0],
+              j: point[1]
+            };
+            xy = App.grid.fromIJ(ij);
+            node = App.grid.atIJ(ij);
+            if ((_ref13 = node.holders) == null) {
+              node.holders = {};
+            }
+            node.holders[this.get('id')] = this;
+            point = {
+              x: xy.x,
+              y: xy.y,
+              curve: null,
+              i: i
+            };
+            points.push(point);
+          }
         }
-        this.attributes.points = points;
+        this.set('points', points);
         this.calcPolar();
         helpers.timeOut('path recalc');
         return this;
       };
 
       Path.prototype.makeGlimps = function() {
-        var baseDirection, endBlock, endIJ, startBlock, startIJ, xDifference, yDifference;
+        var baseDirection, end, endBlock, endIJ, returnValue, start, startBlock, startIJ, xBase, xDifference, yBase, yDifference;
 
-        this.glimps = [];
         startIJ = this.get('startIJ');
         endIJ = this.get('endIJ');
         startBlock = this.get('connectedStart');
         endBlock = this.get('connectedEnd');
         if (!endBlock) {
-          return;
+          return false;
         }
         if (startIJ.i < endIJ.i) {
-          xDifference = (endIJ.i - endBlock.get('w') / 2) - (startIJ.i + startBlock.get('w') / 2);
+          end = startIJ.i + startBlock.get('w') / 2;
+          xDifference = (endIJ.i - endBlock.get('w') / 2) - end;
+          xBase = end + (xDifference / 2);
         } else {
-          xDifference = (startIJ.i - startBlock.get('w') / 2) - (endIJ.i + endBlock.get('w') / 2);
+          start = endIJ.i + endBlock.get('w') / 2;
+          xDifference = (startIJ.i - startBlock.get('w') / 2) - start;
+          xBase = start + (xDifference / 2);
         }
         if (startIJ.j < endIJ.j) {
-          yDifference = (endIJ.j - endBlock.get('h') / 2) - (startIJ.j + startBlock.get('h') / 2);
+          end = startIJ.j + startBlock.get('h') / 2;
+          yDifference = (endIJ.j - endBlock.get('h') / 2) - end;
+          yBase = end + (yDifference / 2);
         } else {
-          yDifference = (startIJ.j - startBlock.get('h') / 2) - (endIJ.j + endBlock.get('h') / 2);
+          start = endIJ.j + endBlock.get('h') / 2;
+          yDifference = (startIJ.j - startBlock.get('h') / 2) - start;
+          yBase = start + (yDifference / 2);
         }
-        baseDirection = xDifference > yDifference ? 'x' : 'y';
-        console.log(yDifference);
-        switch (baseDirection) {
-          case 'x':
-            return console.log('x');
-          case 'y':
-            return console.log('y');
-        }
+        baseDirection = xDifference >= yDifference ? 'x' : 'y';
+        return returnValue = {
+          direction: baseDirection,
+          base: baseDirection === 'x' ? xBase : yBase
+        };
       };
 
       Path.prototype.calcPolar = function() {
@@ -117,8 +210,8 @@
         points = this.get('points');
         firstPoint = points[0];
         lastPoint = points[points.length - 1];
-        this.attributes.xPolar = firstPoint.x < lastPoint.x ? 'plus' : 'minus';
-        return this.attributes.yPolar = firstPoint.y < lastPoint.y ? 'plus' : 'minus';
+        this.set('xPolar', firstPoint.x < lastPoint.x ? 'plus' : 'minus');
+        return this.set('yPolar', firstPoint.y < lastPoint.y ? 'plus' : 'minus');
       };
 
       Path.prototype.repaintIntersects = function(intersects) {
@@ -197,7 +290,7 @@
         return direction;
       };
 
-      Path.prototype.makeLine = function() {
+      Path.prototype.makeSvgPath = function() {
         if (this.line == null) {
           return this.line = new Line({
             path: this

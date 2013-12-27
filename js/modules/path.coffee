@@ -23,66 +23,119 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 		render:(isRepaintIntersects=false)->
 			@removeFromGrid()
 			@recalcPath()
-			@makeLine()
+			@makeSvgPath()
 			App.grid.refreshGrid()
 
 		recalcPath:->
 			helpers.timeIn 'path recalc'
-			@makeGlimps()
-			path = App.grid.getGapPolyfill 
-								from: @get 'startIJ'
-								to: 	@get 'endIJ'
-
-
+			glimps = @makeGlimps()
 			points = []
-			for point, i in path 
-				ij = {i: point[0], j: point[1]}; xy = App.grid.fromIJ ij
-				node = App.grid.atIJ ij
-				node.holders ?= {}
 
-				node.holders[@get 'id'] = @
+			if glimps 
+				switch glimps.direction
+					when 'x'
+						startIJ = @get('startIJ')
+						for i in [startIJ.i..Math.ceil(glimps.base)]
+							ij = {i: i, j: startIJ.j}; xy = App.grid.fromIJ ij
+							node = App.grid.atIJ ij
+							node.holders ?= {}
 
-				point = { x: xy.x, y: xy.y, curve: null, i: i }
-				points.push(point)
+							node.holders[@get 'id'] = @
+
+							point = { x: xy.x, y: xy.y, curve: null, i: i }
+							points.push(point)
+
+						endIJ = @get('endIJ')
+						for i in [Math.ceil(glimps.base)..endIJ.i]
+							ij = {i: i, j: endIJ.j}; xy = App.grid.fromIJ ij
+							node = App.grid.atIJ ij
+							node.holders ?= {}
+
+							node.holders[@get 'id'] = @
+
+							point = { x: xy.x, y: xy.y, curve: null, i: i }
+							points.push(point)
+
+					when 'y'
+						console.log(Math.ceil(glimps.base))
+						startIJ = @get('startIJ')
+						for i in [startIJ.j..Math.ceil(glimps.base)]
+							ij = {i: startIJ.i, j: i}; xy = App.grid.fromIJ ij
+							node = App.grid.atIJ ij
+							node.holders ?= {}
+
+							node.holders[@get 'id'] = @
+
+							point = { x: xy.x, y: xy.y, curve: null, i: i }
+							points.push(point)
+
+						endIJ = @get('endIJ')
+						for i in [Math.ceil(glimps.base)..endIJ.j]
+							ij = {i: endIJ.i, j: i}; xy = App.grid.fromIJ ij
+							node = App.grid.atIJ ij
+							node.holders ?= {}
+
+							node.holders[@get 'id'] = @
+
+							point = { x: xy.x, y: xy.y, curve: null, i: i }
+							points.push(point)
+
+			else
+				path = App.grid.getGapPolyfill 
+									from: @get 'startIJ'
+									to: 	@get 'endIJ'
+
+
+				for point, i in path 
+					ij = {i: point[0], j: point[1]}; xy = App.grid.fromIJ ij
+					node = App.grid.atIJ ij
+					node.holders ?= {}
+
+					node.holders[@get 'id'] = @
+
+					point = { x: xy.x, y: xy.y, curve: null, i: i }
+					points.push(point)
 			
-			@attributes.points = points
+			@set 'points', points
 			@calcPolar()
 			helpers.timeOut 'path recalc'
 			@
 
 		makeGlimps:->
-			@glimps = []
 			startIJ 	= @get 'startIJ'
 			endIJ 		= @get 'endIJ'
 			startBlock = @get('connectedStart')
 			endBlock 	 = @get('connectedEnd')
-			if not endBlock then return
+			if not endBlock then return false
 			if startIJ.i < endIJ.i
-				xDifference =  (endIJ.i - endBlock.get('w')/2) - (startIJ.i + startBlock.get('w')/2)
+				end = (startIJ.i + startBlock.get('w')/2)
+				xDifference =  (endIJ.i - endBlock.get('w')/2) - end
+				xBase = end + (xDifference/2)
 			else
-				xDifference = (startIJ.i - startBlock.get('w')/2) - (endIJ.i + endBlock.get('w')/2)
+				start = (endIJ.i + endBlock.get('w')/2)
+				xDifference = (startIJ.i - startBlock.get('w')/2) - start
+				xBase = start + (xDifference/2)
 
 			if startIJ.j < endIJ.j
-				yDifference =  (endIJ.j - endBlock.get('h')/2) - (startIJ.j + startBlock.get('h')/2)
+				end = (startIJ.j + startBlock.get('h')/2)
+				yDifference =  (endIJ.j - endBlock.get('h')/2) - end
+				yBase = end + (yDifference/2)
 			else
-				yDifference = (startIJ.j - startBlock.get('h')/2) - (endIJ.j + endBlock.get('h')/2)
+				start = (endIJ.j + endBlock.get('h')/2)
+				yDifference = (startIJ.j - startBlock.get('h')/2) - start
+				yBase = start + (yDifference/2)
 
-			baseDirection = if (xDifference > yDifference) then 'x' else 'y'
-			console.log yDifference
-			switch baseDirection
-				when 'x'
-					console.log('x')
-				when 'y'
-					console.log('y')
-
-
+			baseDirection = if (xDifference >= yDifference) then 'x' else 'y'
+			return returnValue =
+								direction: baseDirection
+								base: if baseDirection is 'x' then xBase else yBase
 
 		calcPolar:->
 			points = @get 'points'
 			firstPoint  = points[0]
 			lastPoint 	= points[points.length-1]
-			@attributes.xPolar = if firstPoint.x < lastPoint.x then 'plus' else 'minus'
-			@attributes.yPolar = if firstPoint.y < lastPoint.y then 'plus' else 'minus'
+			@set 'xPolar', if firstPoint.x < lastPoint.x then 'plus' else 'minus'
+			@set 'yPolar', if firstPoint.y < lastPoint.y then 'plus' else 'minus'
 
 		repaintIntersects:(intersects)->
 			for name, path of intersects
@@ -115,7 +168,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 			direction
 
 
-		makeLine:()-> 
+		makeSvgPath:()-> 
 			if !@line? then @line = new Line path: @ else @line.resetPoints @get 'points'
 
 		removeFromGrid:->
