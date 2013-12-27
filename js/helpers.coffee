@@ -17,9 +17,9 @@ define 'helpers', ['md5'], (md5)->
 
 		getEventCoords:(e)-> { x: e.gesture.center.pageX, y: e.gesture.center.pageY }
 		
-		timeIn:(name)->  console.time name
+		timeIn:(name)->  App.debug.time and console.time name
 		
-		timeOut:(name)-> console.timeEnd name
+		timeOut:(name)-> App.debug.time and console.timeEnd name
 		
 		genHash:-> md5 (new Date) + (new Date).getMilliseconds() + Math.random(9999999999999) + Math.random(9999999999999) + Math.random(9999999999999)
 

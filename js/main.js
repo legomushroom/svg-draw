@@ -49,7 +49,8 @@
           grid: this.grid
         });
         this.debug = {
-          isGrid: false
+          isGrid: false,
+          time: false
         };
         this.currTool = ['path', 'block'][0];
         this.$tools.find("[data-role=\"" + this.currTool + "\"]").addClass('is-check');

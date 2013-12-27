@@ -18,14 +18,17 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			if !path?
 				path = new Path
 				path.set 
-					'connectedTo': 	@get 'parent'
-					'startIJ': 			@get 'ij'
-					'endIJ': 	 			@get 'ij'
+					'connectedStart': 	@get 'parent'
+					'startIJ': 					@get 'ij'
+					'endIJ': 	 					@get 'ij'
 				direction = 'start'
 			else 
 				point = path.currentAddPoint or 'endIJ'
 				direction = if point is 'startIJ' then 'start' else 'end'
 				path.set point, @get 'ij'
+				path.set 
+					'connectedEnd': 	@get 'parent'
+
 			connections = @get('connections')
 			connections.push {
 													direction: direction

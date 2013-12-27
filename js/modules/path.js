@@ -25,7 +25,8 @@
             'endIJ': App.grid.toIJ(this.o.coords)
           });
         }
-        return this.on('change', _.bind(this.onChange, this));
+        this.on('change:startIJ', _.bind(this.onChange, this));
+        return this.on('change:endIJ', _.bind(this.onChange, this));
       };
 
       Path.prototype.onChange = function() {
@@ -46,6 +47,8 @@
       Path.prototype.recalcPath = function() {
         var i, ij, node, path, point, points, xy, _i, _len, _ref1;
 
+        helpers.timeIn('path recalc');
+        this.makeGlimps();
         path = App.grid.getGapPolyfill({
           from: this.get('startIJ'),
           to: this.get('endIJ')
@@ -73,7 +76,39 @@
         }
         this.attributes.points = points;
         this.calcPolar();
+        helpers.timeOut('path recalc');
         return this;
+      };
+
+      Path.prototype.makeGlimps = function() {
+        var baseDirection, endBlock, endIJ, startBlock, startIJ, xDifference, yDifference;
+
+        this.glimps = [];
+        startIJ = this.get('startIJ');
+        endIJ = this.get('endIJ');
+        startBlock = this.get('connectedStart');
+        endBlock = this.get('connectedEnd');
+        if (!endBlock) {
+          return;
+        }
+        if (startIJ.i < endIJ.i) {
+          xDifference = (endIJ.i - endBlock.get('w') / 2) - (startIJ.i + startBlock.get('w') / 2);
+        } else {
+          xDifference = (startIJ.i - startBlock.get('w') / 2) - (endIJ.i + endBlock.get('w') / 2);
+        }
+        if (startIJ.j < endIJ.j) {
+          yDifference = (endIJ.j - endBlock.get('h') / 2) - (startIJ.j + startBlock.get('h') / 2);
+        } else {
+          yDifference = (startIJ.j - startBlock.get('h') / 2) - (endIJ.j + endBlock.get('h') / 2);
+        }
+        baseDirection = xDifference > yDifference ? 'x' : 'y';
+        console.log(yDifference);
+        switch (baseDirection) {
+          case 'x':
+            return console.log('x');
+          case 'y':
+            return console.log('y');
+        }
       };
 
       Path.prototype.calcPolar = function() {

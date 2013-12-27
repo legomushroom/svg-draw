@@ -11,12 +11,14 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 					'startIJ': 	App.grid.toIJ @o.coords
 					'endIJ': 		App.grid.toIJ @o.coords
 
-			@on 'change', _.bind @onChange, @
+			@on 'change:startIJ', _.bind @onChange, @
+			@on 'change:endIJ', _.bind @onChange, @
 
 
 		onChange:-> 
 			@set 'oldIntersects', helpers.cloneObj @get 'intersects'
 			@render()
+
 
 		render:(isRepaintIntersects=false)->
 			@removeFromGrid()
@@ -25,11 +27,11 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 			App.grid.refreshGrid()
 
 		recalcPath:->
+			helpers.timeIn 'path recalc'
+			@makeGlimps()
 			path = App.grid.getGapPolyfill 
 								from: @get 'startIJ'
 								to: 	@get 'endIJ'
-
-
 
 
 			points = []
@@ -45,7 +47,35 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 			
 			@attributes.points = points
 			@calcPolar()
+			helpers.timeOut 'path recalc'
 			@
+
+		makeGlimps:->
+			@glimps = []
+			startIJ 	= @get 'startIJ'
+			endIJ 		= @get 'endIJ'
+			startBlock = @get('connectedStart')
+			endBlock 	 = @get('connectedEnd')
+			if not endBlock then return
+			if startIJ.i < endIJ.i
+				xDifference =  (endIJ.i - endBlock.get('w')/2) - (startIJ.i + startBlock.get('w')/2)
+			else
+				xDifference = (startIJ.i - startBlock.get('w')/2) - (endIJ.i + endBlock.get('w')/2)
+
+			if startIJ.j < endIJ.j
+				yDifference =  (endIJ.j - endBlock.get('h')/2) - (startIJ.j + startBlock.get('h')/2)
+			else
+				yDifference = (startIJ.j - startBlock.get('h')/2) - (endIJ.j + endBlock.get('h')/2)
+
+			baseDirection = if (xDifference > yDifference) then 'x' else 'y'
+			console.log yDifference
+			switch baseDirection
+				when 'x'
+					console.log('x')
+				when 'y'
+					console.log('y')
+
+
 
 		calcPolar:->
 			points = @get 'points'

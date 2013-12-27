@@ -45,6 +45,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 
 			@debug = 
 				isGrid: false
+				time: 	false
 
 			@currTool = ['path', 'block'][0]
 			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'

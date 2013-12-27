@@ -41,7 +41,7 @@
         if (path == null) {
           path = new Path;
           path.set({
-            'connectedTo': this.get('parent'),
+            'connectedStart': this.get('parent'),
             'startIJ': this.get('ij'),
             'endIJ': this.get('ij')
           });
@@ -50,6 +50,9 @@
           point = path.currentAddPoint || 'endIJ';
           direction = point === 'startIJ' ? 'start' : 'end';
           path.set(point, this.get('ij'));
+          path.set({
+            'connectedEnd': this.get('parent')
+          });
         }
         connections = this.get('connections');
         connections.push({

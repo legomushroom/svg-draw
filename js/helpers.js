@@ -32,10 +32,10 @@
         };
       },
       timeIn: function(name) {
-        return console.time(name);
+        return App.debug.time && console.time(name);
       },
       timeOut: function(name) {
-        return console.timeEnd(name);
+        return App.debug.time && console.timeEnd(name);
       },
       genHash: function() {
         return md5((new Date) + (new Date).getMilliseconds() + Math.random(9999999999999) + Math.random(9999999999999) + Math.random(9999999999999));
