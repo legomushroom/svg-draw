@@ -26,59 +26,57 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 			@makeSvgPath()
 			App.grid.refreshGrid()
 
+		pushPoint:(ij,i)->
+			xy = App.grid.fromIJ ij
+			node = App.grid.atIJ ij
+			node.holders ?= {}
+
+			node.holders[@get 'id'] = @
+
+			point = { x: xy.x, y: xy.y, curve: null, i: i }
+			@points.push(point)
+			@points
+
+
 		recalcPath:->
 			helpers.timeIn 'path recalc'
 			glimps = @makeGlimps()
-			points = []
+			@points = []
 
 			if glimps 
-				switch glimps.direction
-					when 'x'
-						startIJ = @get('startIJ')
-						for i in [startIJ.i..Math.ceil(glimps.base)]
-							ij = {i: i, j: startIJ.j}; xy = App.grid.fromIJ ij
-							node = App.grid.atIJ ij
-							node.holders ?= {}
+				startIJ = @get('startIJ')
+				endIJ = @get('endIJ')
+				dir = glimps.direction
+				startBlock 	= glimps.startBlock
+				endBlock 		= glimps.endBlock
 
-							node.holders[@get 'id'] = @
+				startW = Math.floor(startBlock.get('w')/2)
+				startH = Math.floor(startBlock.get('h')/2)
 
-							point = { x: xy.x, y: xy.y, curve: null, i: i }
-							points.push(point)
+				endW = Math.floor(endBlock.get('w')/2)
+				endH = Math.floor(endBlock.get('h')/2)
 
-						endIJ = @get('endIJ')
-						for i in [Math.ceil(glimps.base)..endIJ.i]
-							ij = {i: i, j: endIJ.j}; xy = App.grid.fromIJ ij
-							node = App.grid.atIJ ij
-							node.holders ?= {}
+				if dir is 'i'
+					startIJ = {i: startIJ.i+startW,j: startIJ.j}
+					endIJ 	= {i: endIJ.i-endW,j: endIJ.j}
+				else 
+					startIJ = {i: startIJ.i,j: startIJ.j-startH}
+					endIJ 	= {i: endIJ.i,j: endIJ.j+endH}
 
-							node.holders[@get 'id'] = @
+				for i in [startIJ[dir]..Math.ceil(glimps.base)]
+					if dir is 'i'
+						ij = {i: i, j: startIJ.j}
+					else
+						ij = {i: startIJ.i, j: i}
 
-							point = { x: xy.x, y: xy.y, curve: null, i: i }
-							points.push(point)
+					@pushPoint ij, i
 
-					when 'y'
-						console.log(Math.ceil(glimps.base))
-						startIJ = @get('startIJ')
-						for i in [startIJ.j..Math.ceil(glimps.base)]
-							ij = {i: startIJ.i, j: i}; xy = App.grid.fromIJ ij
-							node = App.grid.atIJ ij
-							node.holders ?= {}
-
-							node.holders[@get 'id'] = @
-
-							point = { x: xy.x, y: xy.y, curve: null, i: i }
-							points.push(point)
-
-						endIJ = @get('endIJ')
-						for i in [Math.ceil(glimps.base)..endIJ.j]
-							ij = {i: endIJ.i, j: i}; xy = App.grid.fromIJ ij
-							node = App.grid.atIJ ij
-							node.holders ?= {}
-
-							node.holders[@get 'id'] = @
-
-							point = { x: xy.x, y: xy.y, curve: null, i: i }
-							points.push(point)
+				for i in [Math.ceil(glimps.base)..endIJ[dir]]
+					if dir is 'i'
+						ij = {i: i, j: endIJ.j}
+					else 
+						ij = {i: endIJ.i, j: i}
+					@pushPoint ij, i
 
 			else
 				path = App.grid.getGapPolyfill 
@@ -94,9 +92,9 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 					node.holders[@get 'id'] = @
 
 					point = { x: xy.x, y: xy.y, curve: null, i: i }
-					points.push(point)
+					@points.push(point)
 			
-			@set 'points', points
+			@set 'points', @points
 			@calcPolar()
 			helpers.timeOut 'path recalc'
 			@
@@ -125,10 +123,12 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 				yDifference = (startIJ.j - startBlock.get('h')/2) - start
 				yBase = start + (yDifference/2)
 
-			baseDirection = if (xDifference >= yDifference) then 'x' else 'y'
+			baseDirection = if (xDifference >= yDifference) then 'i' else 'j'
 			return returnValue =
 								direction: baseDirection
-								base: if baseDirection is 'x' then xBase else yBase
+								base: if baseDirection is 'i' then xBase else yBase
+								startBlock: startBlock
+								endBlock: 	endBlock
 
 		calcPolar:->
 			points = @get 'points'

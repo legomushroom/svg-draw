@@ -44,105 +44,94 @@
         return App.grid.refreshGrid();
       };
 
+      Path.prototype.pushPoint = function(ij, i) {
+        var node, point, xy, _ref1;
+
+        xy = App.grid.fromIJ(ij);
+        node = App.grid.atIJ(ij);
+        if ((_ref1 = node.holders) == null) {
+          node.holders = {};
+        }
+        node.holders[this.get('id')] = this;
+        point = {
+          x: xy.x,
+          y: xy.y,
+          curve: null,
+          i: i
+        };
+        this.points.push(point);
+        return this.points;
+      };
+
       Path.prototype.recalcPath = function() {
-        var endIJ, glimps, i, ij, node, path, point, points, startIJ, xy, _i, _j, _k, _l, _len, _m, _ref1, _ref10, _ref11, _ref12, _ref13, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+        var dir, endBlock, endH, endIJ, endW, glimps, i, ij, node, path, point, startBlock, startH, startIJ, startW, xy, _i, _j, _k, _len, _ref1, _ref2, _ref3, _ref4, _ref5;
 
         helpers.timeIn('path recalc');
         glimps = this.makeGlimps();
-        points = [];
+        this.points = [];
         if (glimps) {
-          switch (glimps.direction) {
-            case 'x':
-              startIJ = this.get('startIJ');
-              for (i = _i = _ref1 = startIJ.i, _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
-                ij = {
-                  i: i,
-                  j: startIJ.j
-                };
-                xy = App.grid.fromIJ(ij);
-                node = App.grid.atIJ(ij);
-                if ((_ref3 = node.holders) == null) {
-                  node.holders = {};
-                }
-                node.holders[this.get('id')] = this;
-                point = {
-                  x: xy.x,
-                  y: xy.y,
-                  curve: null,
-                  i: i
-                };
-                points.push(point);
-              }
-              endIJ = this.get('endIJ');
-              for (i = _j = _ref4 = Math.ceil(glimps.base), _ref5 = endIJ.i; _ref4 <= _ref5 ? _j <= _ref5 : _j >= _ref5; i = _ref4 <= _ref5 ? ++_j : --_j) {
-                ij = {
-                  i: i,
-                  j: endIJ.j
-                };
-                xy = App.grid.fromIJ(ij);
-                node = App.grid.atIJ(ij);
-                if ((_ref6 = node.holders) == null) {
-                  node.holders = {};
-                }
-                node.holders[this.get('id')] = this;
-                point = {
-                  x: xy.x,
-                  y: xy.y,
-                  curve: null,
-                  i: i
-                };
-                points.push(point);
-              }
-              break;
-            case 'y':
-              console.log(Math.ceil(glimps.base));
-              startIJ = this.get('startIJ');
-              for (i = _k = _ref7 = startIJ.j, _ref8 = Math.ceil(glimps.base); _ref7 <= _ref8 ? _k <= _ref8 : _k >= _ref8; i = _ref7 <= _ref8 ? ++_k : --_k) {
-                ij = {
-                  i: startIJ.i,
-                  j: i
-                };
-                xy = App.grid.fromIJ(ij);
-                node = App.grid.atIJ(ij);
-                if ((_ref9 = node.holders) == null) {
-                  node.holders = {};
-                }
-                node.holders[this.get('id')] = this;
-                point = {
-                  x: xy.x,
-                  y: xy.y,
-                  curve: null,
-                  i: i
-                };
-                points.push(point);
-              }
-              endIJ = this.get('endIJ');
-              for (i = _l = _ref10 = Math.ceil(glimps.base), _ref11 = endIJ.j; _ref10 <= _ref11 ? _l <= _ref11 : _l >= _ref11; i = _ref10 <= _ref11 ? ++_l : --_l) {
-                ij = {
-                  i: endIJ.i,
-                  j: i
-                };
-                xy = App.grid.fromIJ(ij);
-                node = App.grid.atIJ(ij);
-                if ((_ref12 = node.holders) == null) {
-                  node.holders = {};
-                }
-                node.holders[this.get('id')] = this;
-                point = {
-                  x: xy.x,
-                  y: xy.y,
-                  curve: null,
-                  i: i
-                };
-                points.push(point);
-              }
+          startIJ = this.get('startIJ');
+          endIJ = this.get('endIJ');
+          dir = glimps.direction;
+          startBlock = glimps.startBlock;
+          endBlock = glimps.endBlock;
+          startW = Math.floor(startBlock.get('w') / 2);
+          startH = Math.floor(startBlock.get('h') / 2);
+          endW = Math.floor(endBlock.get('w') / 2);
+          endH = Math.floor(endBlock.get('h') / 2);
+          if (dir === 'i') {
+            startIJ = {
+              i: startIJ.i + startW,
+              j: startIJ.j
+            };
+            endIJ = {
+              i: endIJ.i - endW,
+              j: endIJ.j
+            };
+          } else {
+            startIJ = {
+              i: startIJ.i,
+              j: startIJ.j - startH
+            };
+            endIJ = {
+              i: endIJ.i,
+              j: endIJ.j + endH
+            };
+          }
+          for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
+            if (dir === 'i') {
+              ij = {
+                i: i,
+                j: startIJ.j
+              };
+            } else {
+              ij = {
+                i: startIJ.i,
+                j: i
+              };
+            }
+            this.pushPoint(ij, i);
+          }
+          for (i = _j = _ref3 = Math.ceil(glimps.base), _ref4 = endIJ[dir]; _ref3 <= _ref4 ? _j <= _ref4 : _j >= _ref4; i = _ref3 <= _ref4 ? ++_j : --_j) {
+            if (dir === 'i') {
+              ij = {
+                i: i,
+                j: endIJ.j
+              };
+            } else {
+              ij = {
+                i: endIJ.i,
+                j: i
+              };
+            }
+            this.pushPoint(ij, i);
           }
         } else {
           path = App.grid.getGapPolyfill({
             from: this.get('startIJ'),
             to: this.get('endIJ')
           });
-          for (i = _m = 0, _len = path.length; _m < _len; i = ++_m) {
+          for (i = _k = 0, _len = path.length; _k < _len; i = ++_k) {
             point = path[i];
             ij = {
               i: point[0],
@@ -150,7 +139,7 @@
             };
             xy = App.grid.fromIJ(ij);
             node = App.grid.atIJ(ij);
-            if ((_ref13 = node.holders) == null) {
+            if ((_ref5 = node.holders) == null) {
               node.holders = {};
             }
             node.holders[this.get('id')] = this;
@@ -160,10 +149,10 @@
               curve: null,
               i: i
             };
-            points.push(point);
+            this.points.push(point);
           }
         }
-        this.set('points', points);
+        this.set('points', this.points);
         this.calcPolar();
         helpers.timeOut('path recalc');
         return this;
@@ -197,10 +186,12 @@
           yDifference = (startIJ.j - startBlock.get('h') / 2) - start;
           yBase = start + (yDifference / 2);
         }
-        baseDirection = xDifference >= yDifference ? 'x' : 'y';
+        baseDirection = xDifference >= yDifference ? 'i' : 'j';
         return returnValue = {
           direction: baseDirection,
-          base: baseDirection === 'x' ? xBase : yBase
+          base: baseDirection === 'i' ? xBase : yBase,
+          startBlock: startBlock,
+          endBlock: endBlock
         };
       };
 
