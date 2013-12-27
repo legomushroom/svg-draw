@@ -50,18 +50,29 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 				startBlock 	= glimps.startBlock
 				endBlock 		= glimps.endBlock
 
-				startW = Math.floor(startBlock.get('w')/2)
-				startH = Math.floor(startBlock.get('h')/2)
+				startW = Math.ceil(startBlock.get('w')/2)
+				startH = Math.ceil(startBlock.get('h')/2)
 
-				endW = Math.floor(endBlock.get('w')/2)
-				endH = Math.floor(endBlock.get('h')/2)
+				endW = Math.ceil(endBlock.get('w')/2)
+				endH = Math.ceil(endBlock.get('h')/2)
 
+				# normalize start/end points
 				if dir is 'i'
-					startIJ = {i: startIJ.i+startW,j: startIJ.j}
-					endIJ 	= {i: endIJ.i-endW,j: endIJ.j}
+					if startIJ.i < endIJ.i
+						startIJ = {i: startIJ.i+startW,j: startIJ.j}
+						endIJ 	= {i: endIJ.i-endW,j: endIJ.j}
+					else 
+						startIJ = {i: startIJ.i-startW,j: startIJ.j}
+						endIJ 	= {i: endIJ.i+endW,j: endIJ.j}
 				else 
-					startIJ = {i: startIJ.i,j: startIJ.j-startH}
-					endIJ 	= {i: endIJ.i,j: endIJ.j+endH}
+					if startIJ.j < endIJ.j
+						startIJ = {i: startIJ.i,j: startIJ.j+startH}
+						endIJ 	= {i: endIJ.i,j: endIJ.j-endH}
+					else 
+						startIJ = {i: startIJ.i,j: startIJ.j-startH}
+						endIJ 	= {i: endIJ.i,j: endIJ.j+endH}
+						
+					
 
 				for i in [startIJ[dir]..Math.ceil(glimps.base)]
 					if dir is 'i'

@@ -226,7 +226,10 @@
         }
         this.calcDimentions();
         isValidSize = this.get('w') > 0 && this.get('h') > 0;
-        this.set('isValidSize', isValidSize);
+        this.set({
+          'isValidSize': isValidSize,
+          'isValidPosition': true
+        });
         return isValidSize;
       };
 

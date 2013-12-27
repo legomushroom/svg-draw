@@ -149,7 +149,9 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 			@calcDimentions()
 			isValidSize = @get('w') > 0 and @get('h') > 0
-			@set 'isValidSize', isValidSize
+			@set 
+				'isValidSize': 			isValidSize
+				'isValidPosition': 	true
 			isValidSize
 
 		addFinilize:->
