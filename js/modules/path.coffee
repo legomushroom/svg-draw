@@ -12,7 +12,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 					'endIJ': 		App.grid.toIJ @o.coords
 
 			@on 'change:startIJ', _.bind @onChange, @
-			@on 'change:endIJ', _.bind @onChange, @
+			@on 'change:endIJ',		_.bind @onChange, @
 
 
 		onChange:-> 
@@ -50,51 +50,33 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 			startBlock 	= glimps.startBlock
 			endBlock 		= glimps.endBlock
 
-			startBlockEndIJ 	= startBlock.get('endIJ')
-			startBlockStartIJ = startBlock.get('startIJ')
+			startBlockEndIJ 		= if startBlock then startBlock.get('endIJ')   else @get('endIJ')
+			startBlockStartIJ 	= if startBlock then startBlock.get('startIJ') else @get('startIJ')
 
 			endBlockEndIJ 	= if endBlock then endBlock.get('endIJ') 		else @get('endIJ')
-			endBlockStartIJ = if endBlock then  endBlock.get('startIJ') else @get('startIJ')
-
-			startW = Math.ceil(startBlock.get('w')/2)
-			startH = Math.ceil(startBlock.get('h')/2)
-
-			endW = if endBlock then Math.ceil(endBlock.get('w')/2) else 0
-			endH = if endBlock then Math.ceil(endBlock.get('h')/2) else 0
+			endBlockStartIJ = if endBlock then endBlock.get('startIJ')  else @get('startIJ')
 
 			# normalize start/end points to block size
 			if dir is 'i'
 				if startIJ.i < endIJ.i
-					startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
-					endIJ 	= {i: endBlockStartIJ.i,j: endIJ.j}
+					if endBlock and startBlock
+						startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
+						endIJ 	= {i: endBlockStartIJ.i,j: endIJ.j}
+					else if startBlock
+						startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
 				else 
 					startIJ = {i: startBlockStartIJ.i,j: startIJ.j}
 					endIJ 	= {i: endBlockEndIJ.i,j: endIJ.j}
 			else 
 				if startIJ.j < endIJ.j
-					startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
-					endIJ 	= {i: endIJ.i, j: endBlockStartIJ.j}
+					if endBlock and startBlock
+						startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
+						endIJ 	= {i: endIJ.i, j: endBlockStartIJ.j}
+					else if startBlock
+						startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
 				else 
 					startIJ = {i: startIJ.i, j: startBlockStartIJ.j}
 					endIJ 	= {i: endIJ.i, j: endBlockEndIJ.j}
-
-			
-
-			# # normalize start/end points to block size
-			# if dir is 'i'
-			# 	if startIJ.i < endIJ.i
-			# 		startIJ = {i: startIJ.i+startW,j: startIJ.j}
-			# 		endIJ 	= {i: endIJ.i-endW,j: endIJ.j}
-			# 	else 
-			# 		startIJ = {i: startIJ.i-startW,j: startIJ.j}
-			# 		endIJ 	= {i: endIJ.i+endW,j: endIJ.j}
-			# else 
-			# 	if startIJ.j < endIJ.j
-			# 		startIJ = {i: startIJ.i,j: startIJ.j+startH}
-			# 		endIJ 	= {i: endIJ.i,j: endIJ.j-endH}
-			# 	else 
-			# 		startIJ = {i: startIJ.i,j: startIJ.j-startH}
-			# 		endIJ 	= {i: endIJ.i,j: endIJ.j+endH}
 
 
 			# the first path console
@@ -125,25 +107,28 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 			startBlock = @get('connectedStart')
 			endBlock 	 = @get('connectedEnd')
 
+			startBlockW = if not startBlock then 0 else startBlock.get('w')/2
+			startBlockH = if not startBlock then 0 else startBlock.get('h')/2
+
 			endBlockW = if not endBlock then 0 else endBlock.get('w')/2
 			endBlockH = if not endBlock then 0 else endBlock.get('h')/2
 
 			if startIJ.i < endIJ.i
-				end = (startIJ.i + startBlock.get('w')/2)
+				end = (startIJ.i + startBlockW)
 				xDifference =  (endIJ.i - endBlockW) - end
 				xBase = end + (xDifference/2)
 			else
 				start = (endIJ.i + endBlockW)
-				xDifference = (startIJ.i - startBlock.get('w')/2) - start
+				xDifference = (startIJ.i - startBlockW) - start
 				xBase = start + (xDifference/2)
 
 			if startIJ.j < endIJ.j
-				end = (startIJ.j + startBlock.get('h')/2)
+				end = (startIJ.j + startBlockH)
 				yDifference =  (endIJ.j - endBlockH) - end
 				yBase = end + (yDifference/2)
 			else
 				start = (endIJ.j + endBlockH)
-				yDifference = (startIJ.j - startBlock.get('h')/2) - start
+				yDifference = (startIJ.j - startBlockH) - start
 				yBase = start + (yDifference/2)
 
 			baseDirection = if (xDifference >= yDifference) then 'i' else 'j'

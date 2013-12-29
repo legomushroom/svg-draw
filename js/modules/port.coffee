@@ -28,7 +28,7 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 				if point is 'startIJ'
 					path.set 	
 										'startIJ': @get 'ij'
-										'connectedEnd': 	@get 'parent'
+										'connectedStart': 	@get 'parent'
 				else
 					path.set 	
 										'endIJ': @get 'ij'

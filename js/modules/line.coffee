@@ -17,7 +17,7 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 				fill: 					'none'
 				'marker-mid': 		'url(#marker-mid)'
 				'marker-start': 	'url(#marker-start)'
-				'marker-end': 		'url(#marker-start)'
+				'marker-end': 		'url(#marker-end)'
 
 			@line = App.SVG.createElement 'path', attr
 			@serialize()

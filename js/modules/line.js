@@ -37,7 +37,7 @@
           fill: 'none',
           'marker-mid': 'url(#marker-mid)',
           'marker-start': 'url(#marker-start)',
-          'marker-end': 'url(#marker-start)'
+          'marker-end': 'url(#marker-end)'
         };
         this.line = App.SVG.createElement('path', attr);
         this.serialize();

@@ -52,7 +52,7 @@
           if (point === 'startIJ') {
             path.set({
               'startIJ': this.get('ij'),
-              'connectedEnd': this.get('parent')
+              'connectedStart': this.get('parent')
             });
           } else {
             path.set({

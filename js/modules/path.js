@@ -64,7 +64,7 @@
       };
 
       Path.prototype.recalcPath = function() {
-        var dir, endBlock, endBlockEndIJ, endBlockStartIJ, endH, endIJ, endW, glimps, i, ij, startBlock, startBlockEndIJ, startBlockStartIJ, startH, startIJ, startW, _i, _j, _ref1, _ref2, _ref3, _ref4;
+        var dir, endBlock, endBlockEndIJ, endBlockStartIJ, endIJ, glimps, i, ij, startBlock, startBlockEndIJ, startBlockStartIJ, startIJ, _i, _j, _ref1, _ref2, _ref3, _ref4;
 
         helpers.timeIn('path recalc');
         glimps = this.makeGlimps();
@@ -75,24 +75,27 @@
         this.direction = dir;
         startBlock = glimps.startBlock;
         endBlock = glimps.endBlock;
-        startBlockEndIJ = startBlock.get('endIJ');
-        startBlockStartIJ = startBlock.get('startIJ');
+        startBlockEndIJ = startBlock ? startBlock.get('endIJ') : this.get('endIJ');
+        startBlockStartIJ = startBlock ? startBlock.get('startIJ') : this.get('startIJ');
         endBlockEndIJ = endBlock ? endBlock.get('endIJ') : this.get('endIJ');
         endBlockStartIJ = endBlock ? endBlock.get('startIJ') : this.get('startIJ');
-        startW = Math.ceil(startBlock.get('w') / 2);
-        startH = Math.ceil(startBlock.get('h') / 2);
-        endW = endBlock ? Math.ceil(endBlock.get('w') / 2) : 0;
-        endH = endBlock ? Math.ceil(endBlock.get('h') / 2) : 0;
         if (dir === 'i') {
           if (startIJ.i < endIJ.i) {
-            startIJ = {
-              i: startBlockEndIJ.i,
-              j: startIJ.j
-            };
-            endIJ = {
-              i: endBlockStartIJ.i,
-              j: endIJ.j
-            };
+            if (endBlock && startBlock) {
+              startIJ = {
+                i: startBlockEndIJ.i,
+                j: startIJ.j
+              };
+              endIJ = {
+                i: endBlockStartIJ.i,
+                j: endIJ.j
+              };
+            } else if (startBlock) {
+              startIJ = {
+                i: startBlockEndIJ.i,
+                j: startIJ.j
+              };
+            }
           } else {
             startIJ = {
               i: startBlockStartIJ.i,
@@ -105,14 +108,21 @@
           }
         } else {
           if (startIJ.j < endIJ.j) {
-            startIJ = {
-              i: startIJ.i,
-              j: startBlockEndIJ.j
-            };
-            endIJ = {
-              i: endIJ.i,
-              j: endBlockStartIJ.j
-            };
+            if (endBlock && startBlock) {
+              startIJ = {
+                i: startIJ.i,
+                j: startBlockEndIJ.j
+              };
+              endIJ = {
+                i: endIJ.i,
+                j: endBlockStartIJ.j
+              };
+            } else if (startBlock) {
+              startIJ = {
+                i: startIJ.i,
+                j: startBlockEndIJ.j
+              };
+            }
           } else {
             startIJ = {
               i: startIJ.i,
@@ -159,30 +169,32 @@
       };
 
       Path.prototype.makeGlimps = function() {
-        var baseDirection, end, endBlock, endBlockH, endBlockW, endIJ, returnValue, start, startBlock, startIJ, xBase, xDifference, yBase, yDifference;
+        var baseDirection, end, endBlock, endBlockH, endBlockW, endIJ, returnValue, start, startBlock, startBlockH, startBlockW, startIJ, xBase, xDifference, yBase, yDifference;
 
         startIJ = this.get('startIJ');
         endIJ = this.get('endIJ');
         startBlock = this.get('connectedStart');
         endBlock = this.get('connectedEnd');
+        startBlockW = !startBlock ? 0 : startBlock.get('w') / 2;
+        startBlockH = !startBlock ? 0 : startBlock.get('h') / 2;
         endBlockW = !endBlock ? 0 : endBlock.get('w') / 2;
         endBlockH = !endBlock ? 0 : endBlock.get('h') / 2;
         if (startIJ.i < endIJ.i) {
-          end = startIJ.i + startBlock.get('w') / 2;
+          end = startIJ.i + startBlockW;
           xDifference = (endIJ.i - endBlockW) - end;
           xBase = end + (xDifference / 2);
         } else {
           start = endIJ.i + endBlockW;
-          xDifference = (startIJ.i - startBlock.get('w') / 2) - start;
+          xDifference = (startIJ.i - startBlockW) - start;
           xBase = start + (xDifference / 2);
         }
         if (startIJ.j < endIJ.j) {
-          end = startIJ.j + startBlock.get('h') / 2;
+          end = startIJ.j + startBlockH;
           yDifference = (endIJ.j - endBlockH) - end;
           yBase = end + (yDifference / 2);
         } else {
           start = endIJ.j + endBlockH;
-          yDifference = (startIJ.j - startBlock.get('h') / 2) - start;
+          yDifference = (startIJ.j - startBlockH) - start;
           yBase = start + (yDifference / 2);
         }
         baseDirection = xDifference >= yDifference ? 'i' : 'j';
