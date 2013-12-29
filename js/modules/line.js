@@ -45,12 +45,12 @@
       };
 
       Line.prototype.serialize = function() {
-        var i, point, str, xRadius, xShift, yRadius, yShift, _i, _len, _ref1;
+        var i, point, points, str, xRadius, xShift, yRadius, yShift, _i, _len;
 
         str = '';
-        _ref1 = this.get('points');
-        for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
-          point = _ref1[i];
+        points = this.get('points');
+        for (i = _i = 0, _len = points.length; _i < _len; i = ++_i) {
+          point = points[i];
           if (i === 0 || i === this.get('points').length - 1) {
             if (this.get('path').direction === 'i') {
               point.x -= App.gs / 2;

@@ -27,12 +27,12 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 				direction = if point is 'startIJ' then 'start' else 'end'
 				if point is 'startIJ'
 					path.set 	
-										'startIJ': @get 'ij'
-										'connectedStart': 	@get 'parent'
+										'startIJ': 				@get 'ij'
+										'connectedStart': @get 'parent'
 				else
 					path.set 	
-										'endIJ': @get 'ij'
-										'connectedEnd': 	@get 'parent'
+										'endIJ': 				@get 'ij'
+										'connectedEnd': @get 'parent'
 					
 
 			connections = @get('connections')

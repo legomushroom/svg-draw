@@ -95,6 +95,11 @@
                 i: startBlockEndIJ.i,
                 j: startIJ.j
               };
+            } else if (endBlock) {
+              endIJ = {
+                i: endBlockStartIJ.i,
+                j: startIJ.j
+              };
             }
           } else {
             startIJ = {

@@ -64,6 +64,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 						endIJ 	= {i: endBlockStartIJ.i,j: endIJ.j}
 					else if startBlock
 						startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
+					else if endBlock
+						endIJ = {i: endBlockStartIJ.i,j: startIJ.j}
 				else 
 					startIJ = {i: startBlockStartIJ.i,j: startIJ.j}
 					endIJ 	= {i: endBlockEndIJ.i,j: endIJ.j}
@@ -95,6 +97,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 				else 
 					ij = {i: endIJ.i, j: i}
 				@pushPoint ij, i
+
 
 			@set 'points', @points
 			@calcPolar()
