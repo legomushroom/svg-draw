@@ -87,7 +87,7 @@
                 j: startIJ.j
               };
               endIJ = {
-                i: endBlockStartIJ.i,
+                i: endBlockStartIJ.i - 1,
                 j: endIJ.j
               };
             } else if (startBlock) {
@@ -97,8 +97,8 @@
               };
             } else if (endBlock) {
               endIJ = {
-                i: endBlockStartIJ.i,
-                j: startIJ.j
+                i: endBlockStartIJ.i - 1,
+                j: endIJ.j
               };
             }
           } else {
@@ -107,7 +107,7 @@
               j: startIJ.j
             };
             endIJ = {
-              i: endBlockEndIJ.i,
+              i: endBlockEndIJ.i + 1,
               j: endIJ.j
             };
           }
@@ -120,12 +120,17 @@
               };
               endIJ = {
                 i: endIJ.i,
-                j: endBlockStartIJ.j
+                j: endBlockStartIJ.j - 1
               };
             } else if (startBlock) {
               startIJ = {
                 i: startIJ.i,
                 j: startBlockEndIJ.j
+              };
+            } else if (endBlock) {
+              endIJ = {
+                i: endIJ.i,
+                j: endBlockStartIJ.j - 1
               };
             }
           } else {
@@ -135,7 +140,7 @@
             };
             endIJ = {
               i: endIJ.i,
-              j: endBlockEndIJ.j
+              j: endBlockEndIJ.j + 1
             };
           }
         }

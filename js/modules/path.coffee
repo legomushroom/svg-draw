@@ -61,25 +61,27 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 				if startIJ.i < endIJ.i
 					if endBlock and startBlock
 						startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
-						endIJ 	= {i: endBlockStartIJ.i,j: endIJ.j}
+						endIJ 	= {i: endBlockStartIJ.i-1,j: endIJ.j}
 					else if startBlock
 						startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
 					else if endBlock
-						endIJ = {i: endBlockStartIJ.i,j: startIJ.j}
+						endIJ = {i: endBlockStartIJ.i-1,j: endIJ.j}
+
 				else 
 					startIJ = {i: startBlockStartIJ.i,j: startIJ.j}
-					endIJ 	= {i: endBlockEndIJ.i,j: endIJ.j}
+					endIJ 	= {i: endBlockEndIJ.i+1,j: endIJ.j}
 			else 
 				if startIJ.j < endIJ.j
 					if endBlock and startBlock
 						startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
-						endIJ 	= {i: endIJ.i, j: endBlockStartIJ.j}
+						endIJ 	= {i: endIJ.i, j: endBlockStartIJ.j-1}
 					else if startBlock
 						startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
+					else if endBlock
+						endIJ = {i: endIJ.i, j: endBlockStartIJ.j-1}
 				else 
 					startIJ = {i: startIJ.i, j: startBlockStartIJ.j}
-					endIJ 	= {i: endIJ.i, j: endBlockEndIJ.j}
-
+					endIJ 	= {i: endIJ.i, j: endBlockEndIJ.j+1}
 
 			# the first path console
 			for i in [startIJ[dir]..Math.ceil(glimps.base)]
