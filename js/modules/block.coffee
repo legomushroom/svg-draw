@@ -78,9 +78,13 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 			hammer(@$el[0]).on 'release', (e)=>
 				coords = helpers.getEventCoords e
+				coordsIJ = App.grid.normalizeCoords coords
 				if App.currTool is 'path'
 					if App.currPath and App.currBlock
-						port = App.currBlock.createPort App.currPath
+						port = App.currBlock.createPort 
+																	path: App.currPath
+																	coords: coordsIJ
+
 						App.currPath.currentAddPoint = null
 						App.isBlockToPath = null
 

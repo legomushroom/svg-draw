@@ -127,12 +127,16 @@
           }
         });
         hammer(this.$el[0]).on('release', function(e) {
-          var coords, port;
+          var coords, coordsIJ, port;
 
           coords = helpers.getEventCoords(e);
+          coordsIJ = App.grid.normalizeCoords(coords);
           if (App.currTool === 'path') {
             if (App.currPath && App.currBlock) {
-              port = App.currBlock.createPort(App.currPath);
+              port = App.currBlock.createPort({
+                path: App.currPath,
+                coords: coordsIJ
+              });
               App.currPath.currentAddPoint = null;
               App.isBlockToPath = null;
             }
