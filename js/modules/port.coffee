@@ -28,6 +28,7 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 					'startIJ': 					@get 'ij'
 					'endIJ': 	 					@get 'ij'
 				direction = 'start'
+				path.set 'from', @
 			else 
 				point = path.currentAddPoint or 'endIJ'
 				direction = if point is 'startIJ' then 'start' else 'end'
@@ -39,7 +40,8 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 					path.set 	
 										'endIJ': 				@get 'ij'
 										'connectedEnd': @get 'parent'
-					
+
+				path.set 'in', @
 
 			connections = @get('connections')
 			connections.push {
@@ -53,7 +55,7 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			path
 
 		setIJ:->
-			if @positionType isnt 'fixed'
+			if @get('positionType') isnt 'fixed'
 				
 				parent = @get 'parent'
 				parentStartIJ = parent.get 'startIJ'

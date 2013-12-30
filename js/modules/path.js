@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], function($, helpers, ProtoClass, Line, _) {
+  define('path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer'], function($, helpers, ProtoClass, Line, _, hammer) {
     var Path, _ref;
 
     Path = (function(_super) {
@@ -64,7 +64,7 @@
       };
 
       Path.prototype.recalcPath = function() {
-        var dir, endBlock, endBlockEndIJ, endBlockStartIJ, endIJ, glimps, i, ij, startBlock, startBlockEndIJ, startBlockStartIJ, startIJ, _i, _j, _ref1, _ref2, _ref3, _ref4;
+        var dir, endBlock, endBlockEndIJ, endBlockStartIJ, endIJ, fromPort, fromPositionType, glimps, i, ij, inPort, inPositionType, startBlock, startBlockEndIJ, startBlockStartIJ, startIJ, _i, _j, _ref1, _ref2, _ref3, _ref4;
 
         helpers.timeIn('path recalc');
         glimps = this.makeGlimps();
@@ -74,75 +74,65 @@
         dir = glimps.direction;
         this.direction = dir;
         this.set('direction', dir);
-        startBlock = glimps.startBlock;
-        endBlock = glimps.endBlock;
-        startBlockEndIJ = startBlock ? startBlock.get('endIJ') : this.get('endIJ');
-        startBlockStartIJ = startBlock ? startBlock.get('startIJ') : this.get('startIJ');
-        endBlockEndIJ = endBlock ? endBlock.get('endIJ') : this.get('endIJ');
-        endBlockStartIJ = endBlock ? endBlock.get('startIJ') : this.get('startIJ');
-        if (dir === 'i') {
-          if (startIJ.i < endIJ.i) {
-            if (endBlock && startBlock) {
+        if (inPositionType !== 'fixed' || fromPositionType !== 'fixed') {
+          startBlock = glimps.startBlock;
+          endBlock = glimps.endBlock;
+          startBlockEndIJ = startBlock ? startBlock.get('endIJ') : this.get('endIJ');
+          startBlockStartIJ = startBlock ? startBlock.get('startIJ') : this.get('startIJ');
+          endBlockEndIJ = endBlock ? endBlock.get('endIJ') : this.get('endIJ');
+          endBlockStartIJ = endBlock ? endBlock.get('startIJ') : this.get('startIJ');
+          fromPort = this.get('from');
+          fromPositionType = fromPort != null ? fromPort.get('positionType') : void 0;
+          inPort = this.get('in');
+          inPositionType = fromPort != null ? fromPort.get('positionType') : void 0;
+          if (dir === 'i') {
+            if (this.get('xPolar') === 'plus') {
+              if (startBlock && fromPositionType !== 'fixed') {
+                startIJ = {
+                  i: startBlockEndIJ.i,
+                  j: startIJ.j
+                };
+              }
+              if (endBlock && inPositionType !== 'fixed') {
+                endIJ = {
+                  i: endBlockStartIJ.i - 1,
+                  j: endIJ.j
+                };
+              }
+            } else {
               startIJ = {
-                i: startBlockEndIJ.i,
+                i: startBlockStartIJ.i - 1,
                 j: startIJ.j
               };
               endIJ = {
-                i: endBlockStartIJ.i - 1,
-                j: endIJ.j
-              };
-            } else if (startBlock) {
-              startIJ = {
-                i: startBlockEndIJ.i,
-                j: startIJ.j
-              };
-            } else if (endBlock) {
-              endIJ = {
-                i: endBlockStartIJ.i - 1,
+                i: endBlockEndIJ.i,
                 j: endIJ.j
               };
             }
           } else {
-            startIJ = {
-              i: startBlockStartIJ.i - 1,
-              j: startIJ.j
-            };
-            endIJ = {
-              i: endBlockEndIJ.i,
-              j: endIJ.j
-            };
-          }
-        } else {
-          if (startIJ.j < endIJ.j) {
-            if (endBlock && startBlock) {
+            if (this.get('yPolar') === 'plus') {
+              if (startBlock && fromPositionType !== 'fixed') {
+                startIJ = {
+                  i: startIJ.i,
+                  j: startBlockEndIJ.j
+                };
+              }
+              if (endBlock && inPositionType !== 'fixed') {
+                endIJ = {
+                  i: endIJ.i,
+                  j: endBlockStartIJ.j - 1
+                };
+              }
+            } else {
               startIJ = {
                 i: startIJ.i,
-                j: startBlockEndIJ.j
+                j: startBlockStartIJ.j - 1
               };
               endIJ = {
                 i: endIJ.i,
-                j: endBlockStartIJ.j - 1
-              };
-            } else if (startBlock) {
-              startIJ = {
-                i: startIJ.i,
-                j: startBlockEndIJ.j
-              };
-            } else if (endBlock) {
-              endIJ = {
-                i: endIJ.i,
-                j: endBlockStartIJ.j - 1
+                j: endBlockEndIJ.j
               };
             }
-          } else {
-            startIJ = {
-              i: startIJ.i,
-              j: startBlockStartIJ.j - 1
-            };
-            endIJ = {
-              i: endIJ.i,
-              j: endBlockEndIJ.j
-            };
           }
         }
         for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
@@ -304,9 +294,14 @@
       };
 
       Path.prototype.makeSvgPath = function() {
+        var _this = this;
+
         if (this.line == null) {
-          return this.line = new Line({
+          this.line = new Line({
             path: this
+          });
+          return hammer(this.line.line).on('touch', function() {
+            return console.log('touch');
           });
         } else {
           return this.line.resetPoints(this.get('points'));

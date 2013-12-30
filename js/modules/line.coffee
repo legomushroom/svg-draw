@@ -16,12 +16,13 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 				'stroke-width': 2
 				fill: 					'none'
 				'marker-mid': 		'url(#marker-mid)'
-				'marker-start': 	'url(#marker-start)'
-				'marker-end': 		'url(#marker-end)'
+				# 'marker-start': 	'url(#marker-start)'
+				# 'marker-end': 		'url(#marker-end)'
 
 			@line = App.SVG.createElement 'path', attr
 			@serialize()
 			App.SVG.lineToDom @get('id'), @line
+			
 
 		serialize:->
 			str = ''

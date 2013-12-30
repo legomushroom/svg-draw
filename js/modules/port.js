@@ -51,6 +51,7 @@
             'endIJ': this.get('ij')
           });
           direction = 'start';
+          path.set('from', this);
         } else {
           point = path.currentAddPoint || 'endIJ';
           direction = point === 'startIJ' ? 'start' : 'end';
@@ -65,6 +66,7 @@
               'connectedEnd': this.get('parent')
             });
           }
+          path.set('in', this);
         }
         connections = this.get('connections');
         connections.push({
@@ -80,7 +82,7 @@
       Port.prototype.setIJ = function() {
         var i, j, parent, parentStartIJ;
 
-        if (this.positionType !== 'fixed') {
+        if (this.get('positionType') !== 'fixed') {
           parent = this.get('parent');
           parentStartIJ = parent.get('startIJ');
           i = parentStartIJ.i + ~~(parent.get('w') / 2);

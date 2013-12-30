@@ -1,4 +1,4 @@
-define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, helpers, ProtoClass, Line, _)->
+define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer'], ($, helpers, ProtoClass, Line, _, hammer)->
 	class Path extends ProtoClass
 		type: 'path'
 
@@ -48,42 +48,41 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 			dir = glimps.direction
 			@direction = dir
 			@set 'direction', dir
-			startBlock 	= glimps.startBlock
-			endBlock 		= glimps.endBlock
 
-			startBlockEndIJ 		= if startBlock then startBlock.get('endIJ')   else @get('endIJ')
-			startBlockStartIJ 	= if startBlock then startBlock.get('startIJ') else @get('startIJ')
+			if inPositionType isnt 'fixed' or fromPositionType isnt 'fixed'
+				startBlock 	= glimps.startBlock
+				endBlock 		= glimps.endBlock
 
-			endBlockEndIJ 	= if endBlock then endBlock.get('endIJ') 		else @get('endIJ')
-			endBlockStartIJ = if endBlock then endBlock.get('startIJ')  else @get('startIJ')
+				startBlockEndIJ 		= if startBlock then startBlock.get('endIJ')   else @get('endIJ')
+				startBlockStartIJ 	= if startBlock then startBlock.get('startIJ') else @get('startIJ')
 
+				endBlockEndIJ 	= if endBlock then endBlock.get('endIJ') 		else @get('endIJ')
+				endBlockStartIJ = if endBlock then endBlock.get('startIJ')  else @get('startIJ')
 
-			# normalize start/end points to block size
-			if dir is 'i'
-				if startIJ.i < endIJ.i
-					if endBlock and startBlock
-						startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
-						endIJ 	= {i: endBlockStartIJ.i-1,j: endIJ.j}
-					else if startBlock
-						startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
-					else if endBlock
-						endIJ = {i: endBlockStartIJ.i-1,j: endIJ.j}
+				fromPort = @get('from')
+				fromPositionType = fromPort?.get('positionType')
 
+				inPort = @get('in')
+				inPositionType = fromPort?.get('positionType')
+				# normalize start/end points to block size
+				if dir is 'i'
+					if @get('xPolar') is 'plus'
+						if startBlock and fromPositionType isnt 'fixed'
+							startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
+						if endBlock and inPositionType isnt 'fixed'
+							endIJ = {i: endBlockStartIJ.i-1,j: endIJ.j}
+					else 
+						startIJ = {i: startBlockStartIJ.i-1,j: startIJ.j}
+						endIJ 	= {i: endBlockEndIJ.i,j: endIJ.j}
 				else 
-					startIJ = {i: startBlockStartIJ.i-1,j: startIJ.j}
-					endIJ 	= {i: endBlockEndIJ.i,j: endIJ.j}
-			else 
-				if startIJ.j < endIJ.j
-					if endBlock and startBlock
-						startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
-						endIJ 	= {i: endIJ.i, j: endBlockStartIJ.j-1}
-					else if startBlock
-						startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
-					else if endBlock
-						endIJ = {i: endIJ.i, j: endBlockStartIJ.j-1}
-				else 
-					startIJ = {i: startIJ.i, j: startBlockStartIJ.j-1}
-					endIJ 	= {i: endIJ.i, j: endBlockEndIJ.j}
+					if @get('yPolar') is 'plus'
+						if startBlock and fromPositionType isnt 'fixed'
+							startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
+						if endBlock and inPositionType isnt 'fixed'
+							endIJ = {i: endIJ.i, j: endBlockStartIJ.j-1}
+					else 
+						startIJ = {i: startIJ.i, j: startBlockStartIJ.j-1}
+						endIJ 	= {i: endIJ.i, j: endBlockEndIJ.j}
 
 			# the first path console
 			for i in [startIJ[dir]..Math.ceil(glimps.base)]
@@ -184,7 +183,12 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore'], ($, he
 
 
 		makeSvgPath:()-> 
-			if !@line? then @line = new Line path: @ else @line.resetPoints @get 'points'
+			if !@line?
+				@line = new Line path: @ 
+				hammer(@line.line).on 'touch', =>
+					console.log 'touch'
+
+			else @line.resetPoints @get 'points'
 
 		removeFromGrid:->
 			points = @get 'points'
