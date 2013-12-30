@@ -16,9 +16,14 @@
 
       Port.prototype.initialize = function(o) {
         this.o = o != null ? o : {};
+        this.path = null;
+        console.log(this.o.coords);
         this.o.parent && (this.set('parent', this.o.parent));
-        this.set('connections', []);
-        this.setIJ();
+        this.set({
+          'connections': [],
+          'ij': this.o.coords
+        });
+        this.addConnection(this.o.path);
         this.on('change', _.bind(this.onChange, this));
         return this;
       };
@@ -68,20 +73,63 @@
           id: App.helpers.genHash()
         });
         this.set('connections', connections);
+        this.path = path;
+        this.path.on('change:endIJ', _.bind(this.pathChange, this));
         return path;
+      };
+
+      Port.prototype.pathChange = function() {
+        var firstPoint, lastPoint, parent, points;
+
+        if (this.positionType === 'fixed') {
+          return;
+        }
+        points = this.path.get('points');
+        firstPoint = points[0];
+        lastPoint = points[points.length - 1];
+        parent = this.get('parent');
+        if (this.path.get('direction') === 'i') {
+          if (this.path.get('xPolar') === 'plus') {
+            return this.set('ij', {
+              i: parent.get('endIJ').i,
+              j: parent.get('startIJ').j + ~~(parent.get('h') / 2)
+            });
+          } else {
+            return this.set('ij', {
+              i: parent.get('startIJ').i - 1,
+              j: parent.get('startIJ').j + ~~(parent.get('h') / 2)
+            });
+          }
+        } else {
+          if (this.path.get('yPolar') === 'plus') {
+            return this.set('ij', {
+              i: parent.get('startIJ').i + ~~(parent.get('w') / 2),
+              j: parent.get('endIJ').j
+            });
+          } else {
+            return this.set('ij', {
+              i: parent.get('startIJ').i + ~~(parent.get('w') / 2),
+              j: parent.get('startIJ').j - 1
+            });
+          }
+        }
       };
 
       Port.prototype.setIJ = function() {
         var i, j, parent, parentStartIJ;
 
-        parent = this.get('parent');
-        parentStartIJ = parent.get('startIJ');
-        i = parentStartIJ.i + ~~(parent.get('w') / 2);
-        j = parentStartIJ.j + ~~(parent.get('h') / 2);
-        this.set('ij', {
-          i: i,
-          j: j
-        });
+        if (this.positionType !== 'fixed') {
+          parent = this.get('parent');
+          parentStartIJ = parent.get('startIJ');
+          i = parentStartIJ.i;
+          j = parentStartIJ.j;
+          this.set('ij', {
+            i: i,
+            j: j
+          });
+        } else {
+          console.log('custom port');
+        }
         return this;
       };
 

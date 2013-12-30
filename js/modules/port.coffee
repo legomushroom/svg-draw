@@ -1,10 +1,18 @@
 define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 	class Port extends ProtoClass
 		initialize:(@o={})->
+			@path = null
+			console.log  @o.coords
+
+
 			@o.parent and (@set 'parent', @o.parent)
-			@set 'connections', []
-			@setIJ()
+			@set 
+					'connections': 	[]
+					'ij':  					@o.coords
+
+			@addConnection @o.path
 			@on 'change', _.bind @onChange, @
+
 			@
 
 		onChange:->
@@ -42,15 +50,37 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 													id: App.helpers.genHash()
 												}
 
-				@set 'connections', connections
+			@set 'connections', connections
+			@path = path
+			@path.on 'change:endIJ', _.bind @pathChange, @
 			path
 
-		setIJ:->
+		pathChange:->
+			return if @positionType is 'fixed'
+			points = @path.get 'points'
+			firstPoint 	= points[0]
+			lastPoint 	= points[points.length-1]
 			parent = @get 'parent'
-			parentStartIJ = parent.get 'startIJ'
-			i = parentStartIJ.i + ~~(parent.get('w')/2)
-			j = parentStartIJ.j + ~~(parent.get('h')/2)
-			@set 'ij', {i: i, j:j }
+			if @path.get('direction') is 'i'
+				if @path.get('xPolar') is 'plus'
+					@set('ij', {i: parent.get('endIJ').i, j: parent.get('startIJ').j + ~~(parent.get('h')/2) })
+				else
+					@set('ij', {i: parent.get('startIJ').i-1, j: parent.get('startIJ').j + ~~(parent.get('h')/2) })
+			else
+				if @path.get('yPolar') is 'plus'
+					@set('ij', {i: parent.get('startIJ').i + ~~(parent.get('w')/2), j: parent.get('endIJ').j  })
+				else
+					@set('ij', {i: parent.get('startIJ').i + ~~(parent.get('w')/2), j: parent.get('startIJ').j - 1  })
+
+		setIJ:->
+			if @positionType isnt 'fixed'
+				parent = @get 'parent'
+				parentStartIJ = parent.get 'startIJ'
+				i = parentStartIJ.i #+ ~~(parent.get('w')/2)
+				j = parentStartIJ.j #+ ~~(parent.get('h')/2)
+				@set 'ij', {i: i, j:j }
+			else 
+				console.log 'custom port'
 			@
 
 

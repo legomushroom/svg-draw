@@ -20,14 +20,17 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					'startIJ': coords
 					'endIJ': coords
 
-			@createPort()
+			@ports = []
 			@render()
 			@on 'change', _.bind @render, @
 
-
 			@
 
-		createPort:-> @port = new Port parent: @
+		createPort:(o)-> 
+			o.parent = @
+			port = new Port o
+			@ports.push port
+			port
 
 		render:->
 			@calcDimentions()
@@ -57,8 +60,12 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 		listenEvents:->
 			hammer(@$el[0]).on 'touch', (e)=>
 				coords = helpers.getEventCoords e
+				coordsIJ = App.grid.normalizeCoords coords
 				if App.currTool is 'path'
-					App.isBlockToPath = @port.addConnection()
+					port = @createPort
+												coords: coordsIJ
+
+					App.isBlockToPath = port.path
 				helpers.stopEvent e
 
 			hammer(@$el[0]).on 'drag', (e)=>
@@ -73,7 +80,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				coords = helpers.getEventCoords e
 				if App.currTool is 'path'
 					if App.currPath and App.currBlock
-						App.currBlock.port.addConnection App.currPath
+						port = App.currBlock.createPort App.currPath
 						App.currPath.currentAddPoint = null
 						App.isBlockToPath = null
 
@@ -168,7 +175,9 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			@isDragMode = false
 			@setToGrid()
 
-		refreshPort:-> @port.setIJ()
+		refreshPort:-> 
+			for port, i in @ports
+				port.setIJ()
 
 		setToGrid:->
 			startIJ = @get 'startIJ'

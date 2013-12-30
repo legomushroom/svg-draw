@@ -51,14 +51,6 @@
         points = this.get('points');
         for (i = _i = 0, _len = points.length; _i < _len; i = ++_i) {
           point = points[i];
-          if (i === 0 || i === this.get('points').length - 1) {
-            if (this.get('path').direction === 'i') {
-              point.x -= App.gs / 2;
-            }
-            if (this.get('path').direction === 'j') {
-              point.y -= App.gs / 2;
-            }
-          }
           if (i === 0) {
             str += "M" + point.x + "," + point.y + " ";
           } else {

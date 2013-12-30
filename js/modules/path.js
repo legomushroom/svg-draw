@@ -73,77 +73,13 @@
         endIJ = this.get('endIJ');
         dir = glimps.direction;
         this.direction = dir;
+        this.set('direction', dir);
         startBlock = glimps.startBlock;
         endBlock = glimps.endBlock;
         startBlockEndIJ = startBlock ? startBlock.get('endIJ') : this.get('endIJ');
         startBlockStartIJ = startBlock ? startBlock.get('startIJ') : this.get('startIJ');
         endBlockEndIJ = endBlock ? endBlock.get('endIJ') : this.get('endIJ');
         endBlockStartIJ = endBlock ? endBlock.get('startIJ') : this.get('startIJ');
-        if (dir === 'i') {
-          if (startIJ.i < endIJ.i) {
-            if (endBlock && startBlock) {
-              startIJ = {
-                i: startBlockEndIJ.i,
-                j: startIJ.j
-              };
-              endIJ = {
-                i: endBlockStartIJ.i - 1,
-                j: endIJ.j
-              };
-            } else if (startBlock) {
-              startIJ = {
-                i: startBlockEndIJ.i,
-                j: startIJ.j
-              };
-            } else if (endBlock) {
-              endIJ = {
-                i: endBlockStartIJ.i - 1,
-                j: endIJ.j
-              };
-            }
-          } else {
-            startIJ = {
-              i: startBlockStartIJ.i,
-              j: startIJ.j
-            };
-            endIJ = {
-              i: endBlockEndIJ.i + 1,
-              j: endIJ.j
-            };
-          }
-        } else {
-          if (startIJ.j < endIJ.j) {
-            if (endBlock && startBlock) {
-              startIJ = {
-                i: startIJ.i,
-                j: startBlockEndIJ.j
-              };
-              endIJ = {
-                i: endIJ.i,
-                j: endBlockStartIJ.j - 1
-              };
-            } else if (startBlock) {
-              startIJ = {
-                i: startIJ.i,
-                j: startBlockEndIJ.j
-              };
-            } else if (endBlock) {
-              endIJ = {
-                i: endIJ.i,
-                j: endBlockStartIJ.j - 1
-              };
-            }
-          } else {
-            startIJ = {
-              i: startIJ.i,
-              j: startBlockStartIJ.j
-            };
-            endIJ = {
-              i: endIJ.i,
-              j: endBlockEndIJ.j + 1
-            };
-          }
-        }
         for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
           if (dir === 'i') {
             ij = {

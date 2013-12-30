@@ -48,16 +48,19 @@
             'endIJ': coords
           });
         }
-        this.createPort();
+        this.ports = [];
         this.render();
         this.on('change', _.bind(this.render, this));
         return this;
       };
 
-      Block.prototype.createPort = function() {
-        return this.port = new Port({
-          parent: this
-        });
+      Block.prototype.createPort = function(o) {
+        var port;
+
+        o.parent = this;
+        port = new Port(o);
+        this.ports.push(port);
+        return port;
       };
 
       Block.prototype.render = function() {
@@ -96,11 +99,15 @@
         var _this = this;
 
         hammer(this.$el[0]).on('touch', function(e) {
-          var coords;
+          var coords, coordsIJ, port;
 
           coords = helpers.getEventCoords(e);
+          coordsIJ = App.grid.normalizeCoords(coords);
           if (App.currTool === 'path') {
-            App.isBlockToPath = _this.port.addConnection();
+            port = _this.createPort({
+              coords: coordsIJ
+            });
+            App.isBlockToPath = port.path;
           }
           return helpers.stopEvent(e);
         });
@@ -120,12 +127,12 @@
           }
         });
         hammer(this.$el[0]).on('release', function(e) {
-          var coords;
+          var coords, port;
 
           coords = helpers.getEventCoords(e);
           if (App.currTool === 'path') {
             if (App.currPath && App.currBlock) {
-              App.currBlock.port.addConnection(App.currPath);
+              port = App.currBlock.createPort(App.currPath);
               App.currPath.currentAddPoint = null;
               App.isBlockToPath = null;
             }
@@ -251,7 +258,15 @@
       };
 
       Block.prototype.refreshPort = function() {
-        return this.port.setIJ();
+        var i, port, _i, _len, _ref1, _results;
+
+        _ref1 = this.ports;
+        _results = [];
+        for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
+          port = _ref1[i];
+          _results.push(port.setIJ());
+        }
+        return _results;
       };
 
       Block.prototype.setToGrid = function() {
