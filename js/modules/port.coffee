@@ -2,14 +2,15 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 	class Port extends ProtoClass
 		initialize:(@o={})->
 			@path = null
-			console.log  @o.coords
 
 			@o.parent and (@set 'parent', @o.parent)
 			@set 'connections': 	[]
+
+			@set 'coords', @o.coords
 			@setIJ()
 
 			@addConnection @o.path
-			@on 'change', _.bind @onChange, @
+			@on 'change:ij', _.bind @onChange, @
 
 			@
 
@@ -56,14 +57,25 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 
 		setIJ:->
 			if @get('positionType') isnt 'fixed'
-				
 				parent = @get 'parent'
 				parentStartIJ = parent.get 'startIJ'
 				i = parentStartIJ.i + ~~(parent.get('w')/2)
 				j = parentStartIJ.j + ~~(parent.get('h')/2)
-				@set 'ij', {i: i, j:j }
-			else 
-				console.log 'custom port'
+			else
+				coords = @get('coords')
+				parent = @get('parent')
+
+				if coords.dir is 'i'
+					i 	= parent.get(coords.side).i
+					j 	= parent.get('startIJ').j + coords.coord
+				else
+					j = parent.get(coords.side).j
+					i = parent.get('startIJ').i + coords.coord
+
+				# console.log i, j, coords.dir
+
+			@set 'ij', {i: i, j:j }
+
 			@
 
 

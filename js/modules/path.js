@@ -30,6 +30,7 @@
       };
 
       Path.prototype.onChange = function() {
+        console.log(this);
         this.set('oldIntersects', helpers.cloneObj(this.get('intersects')));
         return this.render();
       };
@@ -64,7 +65,7 @@
       };
 
       Path.prototype.recalcPath = function() {
-        var dir, endBlock, endBlockEndIJ, endBlockStartIJ, endIJ, fromPort, fromPositionType, glimps, i, ij, inPort, inPositionType, startBlock, startBlockEndIJ, startBlockStartIJ, startIJ, _i, _j, _ref1, _ref2, _ref3, _ref4;
+        var dir, endIJ, glimps, i, ij, startIJ, _i, _j, _ref1, _ref2, _ref3, _ref4;
 
         helpers.timeIn('path recalc');
         glimps = this.makeGlimps();
@@ -74,67 +75,6 @@
         dir = glimps.direction;
         this.direction = dir;
         this.set('direction', dir);
-        if (inPositionType !== 'fixed' || fromPositionType !== 'fixed') {
-          startBlock = glimps.startBlock;
-          endBlock = glimps.endBlock;
-          startBlockEndIJ = startBlock ? startBlock.get('endIJ') : this.get('endIJ');
-          startBlockStartIJ = startBlock ? startBlock.get('startIJ') : this.get('startIJ');
-          endBlockEndIJ = endBlock ? endBlock.get('endIJ') : this.get('endIJ');
-          endBlockStartIJ = endBlock ? endBlock.get('startIJ') : this.get('startIJ');
-          fromPort = this.get('from');
-          fromPositionType = fromPort != null ? fromPort.get('positionType') : void 0;
-          inPort = this.get('in');
-          inPositionType = fromPort != null ? fromPort.get('positionType') : void 0;
-          if (dir === 'i') {
-            if (this.get('xPolar') === 'plus') {
-              if (startBlock && fromPositionType !== 'fixed') {
-                startIJ = {
-                  i: startBlockEndIJ.i,
-                  j: startIJ.j
-                };
-              }
-              if (endBlock && inPositionType !== 'fixed') {
-                endIJ = {
-                  i: endBlockStartIJ.i - 1,
-                  j: endIJ.j
-                };
-              }
-            } else {
-              startIJ = {
-                i: startBlockStartIJ.i - 1,
-                j: startIJ.j
-              };
-              endIJ = {
-                i: endBlockEndIJ.i,
-                j: endIJ.j
-              };
-            }
-          } else {
-            if (this.get('yPolar') === 'plus') {
-              if (startBlock && fromPositionType !== 'fixed') {
-                startIJ = {
-                  i: startIJ.i,
-                  j: startBlockEndIJ.j
-                };
-              }
-              if (endBlock && inPositionType !== 'fixed') {
-                endIJ = {
-                  i: endIJ.i,
-                  j: endBlockStartIJ.j - 1
-                };
-              }
-            } else {
-              startIJ = {
-                i: startIJ.i,
-                j: startBlockStartIJ.j - 1
-              };
-              endIJ = {
-                i: endIJ.i,
-                j: endBlockEndIJ.j
-              };
-            }
-          }
-        }
         for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
           if (dir === 'i') {
             ij = {

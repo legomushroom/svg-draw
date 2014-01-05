@@ -99,13 +99,13 @@
         var _this = this;
 
         hammer(this.$el[0]).on('touch', function(e) {
-          var coords, coordsIJ, port;
+          var coords, port;
 
-          coords = helpers.getEventCoords(e);
-          coordsIJ = App.grid.normalizeCoords(coords);
+          coords = App.grid.normalizeCoords(helpers.getEventCoords(e));
           if (App.currTool === 'path') {
             port = _this.createPort({
-              coords: coordsIJ
+              coords: _this.getNearestPort(coords),
+              positionType: 'fixed'
             });
             App.isBlockToPath = port.path;
           }
@@ -169,6 +169,29 @@
             return _this.$el.removeClass('is-drag');
           }
         });
+      };
+
+      Block.prototype.getNearestPort = function(ij) {
+        var coord, dir, endIJ, i, j, portCoords, side, startIJ;
+
+        startIJ = this.get('startIJ');
+        endIJ = this.get('endIJ');
+        i = (startIJ.i + this.get('w') / 2) - ij.i - 1;
+        j = (startIJ.j + this.get('h') / 2) - ij.j - 1;
+        if (Math.abs(i) >= Math.abs(j)) {
+          dir = 'i';
+          side = i < 0 ? 'endIJ' : 'startIJ';
+          coord = ij.j - startIJ.j;
+        } else {
+          dir = 'j';
+          side = j < 0 ? 'endIJ' : 'startIJ';
+          coord = ij.i - startIJ.i;
+        }
+        return portCoords = {
+          dir: dir,
+          side: side,
+          coord: coord
+        };
       };
 
       Block.prototype.moveTo = function(coords) {

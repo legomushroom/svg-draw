@@ -59,11 +59,12 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 		listenEvents:->
 			hammer(@$el[0]).on 'touch', (e)=>
-				coords = helpers.getEventCoords e
-				coordsIJ = App.grid.normalizeCoords coords
+				coords = App.grid.normalizeCoords helpers.getEventCoords e
+
 				if App.currTool is 'path'
 					port = @createPort
-												coords: coordsIJ
+												coords: 			@getNearestPort coords
+												positionType: 'fixed'
 
 					App.isBlockToPath = port.path
 				helpers.stopEvent e
@@ -110,6 +111,27 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				if App.currTool is 'path'
 					@$el.removeClass 'is-connect-path'
 				else @$el.removeClass 'is-drag'
+
+		getNearestPort:(ij)->
+			startIJ = @get('startIJ')
+			endIJ 	= @get('endIJ')
+			
+			i = (startIJ.i + @get('w')/2) - ij.i  - 1
+			j = (startIJ.j + @get('h')/2)  - ij.j - 1
+			
+			if Math.abs(i) >= Math.abs(j)
+				dir = 'i'
+				side = if i < 0 then 'endIJ' else 'startIJ'
+				coord = ij.j - startIJ.j
+			else
+				dir = 'j'
+				side = if j < 0 then 'endIJ' else 'startIJ'
+				coord = ij.i - startIJ.i
+
+			portCoords = 
+				dir: dir
+				side: side
+				coord: coord
 
 		moveTo:(coords)->
 			coords = App.grid.normalizeCoords coords

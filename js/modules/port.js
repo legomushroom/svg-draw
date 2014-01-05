@@ -17,14 +17,14 @@
       Port.prototype.initialize = function(o) {
         this.o = o != null ? o : {};
         this.path = null;
-        console.log(this.o.coords);
         this.o.parent && (this.set('parent', this.o.parent));
         this.set({
           'connections': []
         });
+        this.set('coords', this.o.coords);
         this.setIJ();
         this.addConnection(this.o.path);
-        this.on('change', _.bind(this.onChange, this));
+        this.on('change:ij', _.bind(this.onChange, this));
         return this;
       };
 
@@ -80,20 +80,28 @@
       };
 
       Port.prototype.setIJ = function() {
-        var i, j, parent, parentStartIJ;
+        var coords, i, j, parent, parentStartIJ;
 
         if (this.get('positionType') !== 'fixed') {
           parent = this.get('parent');
           parentStartIJ = parent.get('startIJ');
           i = parentStartIJ.i + ~~(parent.get('w') / 2);
           j = parentStartIJ.j + ~~(parent.get('h') / 2);
-          this.set('ij', {
-            i: i,
-            j: j
-          });
         } else {
-          console.log('custom port');
+          coords = this.get('coords');
+          parent = this.get('parent');
+          if (coords.dir === 'i') {
+            i = parent.get(coords.side).i;
+            j = parent.get('startIJ').j + coords.coord;
+          } else {
+            j = parent.get(coords.side).j;
+            i = parent.get('startIJ').i + coords.coord;
+          }
         }
+        this.set('ij', {
+          i: i,
+          j: j
+        });
         return this;
       };
 

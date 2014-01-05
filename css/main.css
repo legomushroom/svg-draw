@@ -34,7 +34,7 @@ html {
 .block-e {
   position: absolute;
   border: 0.0625em solid #00dffc;
-  background-color: #00dffc;
+  background-color: rgba(0,223,252,0.1);
 }
 .block-e.is-connect-path {
   box-shadow: 0 0 1em #00dffc;
