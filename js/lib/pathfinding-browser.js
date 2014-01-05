@@ -1416,7 +1416,7 @@ function IDAStarFinder(opt) {
     this.heuristic = opt.heuristic || Heuristic.manhattan;
     this.weight = opt.weight || 1;
     this.trackRecursion = opt.trackRecursion || false;
-    this.timeLimit = opt.timeLimit || Infinity; // Default: no time limit.
+    this.timeLimit = opt.timeLimit || 1; // Default: 1 time limit.
 }
 
 /**

@@ -44,7 +44,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 
 
 			@debug = 
-				isGrid: true
+				isGrid: false
 				time: 	false
 
 			@currTool = ['path', 'block'][0]

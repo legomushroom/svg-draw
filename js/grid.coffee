@@ -23,8 +23,7 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 				console.error 'Hold cell error - current cell is already taken'
 				return false
 
-			node.block 		= obj
-			node.walkable = false
+			node.block = obj
 			true
 
 		releaseCell:(ij, obj)->
@@ -33,7 +32,6 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 			node = @grid.getNodeAt(ij.i, ij.j)
 			if node.block?.id is obj.id
 				node.block = null
-				node.walkable = true
 
 		atIJ:(ij)-> @grid.getNodeAt(ij.i, ij.j)
 		at:(xy)-> ij = @normalizeCoords(xy);@grid.getNodeAt(ij.i, ij.j)
@@ -111,8 +109,7 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 			@clearGrid()
 			for j in [0...@h]
 				for i in [0...@w]
-					# if _.size((@grid.getNodeAt i, j).holders) or (@grid.getNodeAt i, j).block?
-					if @grid.getNodeAt(i, j).walkable is false
+					if _.size((@grid.getNodeAt i, j).holders) or (@grid.getNodeAt i, j).block?
 						attrs = 
 							x: "#{i}em"
 							y: "#{j}em"

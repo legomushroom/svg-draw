@@ -75,6 +75,7 @@
         this.direction = dir;
         this.set('direction', dir);
         for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
+          console.log(i);
           if (dir === 'i') {
             ij = {
               i: i,

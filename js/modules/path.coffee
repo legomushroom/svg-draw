@@ -49,6 +49,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			@direction = dir
 			@set 'direction', dir
 
+			# auto port from center to side normalize fix
+			# 
 			# if inPositionType isnt 'fixed' or fromPositionType isnt 'fixed'
 			# 	startBlock 	= glimps.startBlock
 			# 	endBlock 		= glimps.endBlock
@@ -83,9 +85,12 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			# 		else 
 			# 			startIJ = {i: startIJ.i, j: startBlockStartIJ.j-1}
 			# 			endIJ 	= {i: endIJ.i, j: endBlockEndIJ.j}
+			# 			
+
 
 			# the first path console
 			for i in [startIJ[dir]..Math.ceil(glimps.base)]
+				console.log i
 				if dir is 'i'
 					ij = {i: i, j: startIJ.j}
 				else
