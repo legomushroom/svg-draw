@@ -64,7 +64,7 @@
       };
 
       Path.prototype.recalcPath = function() {
-        var dir, endIJ, glimps, i, ij, startIJ, _i, _j, _ref1, _ref2, _ref3, _ref4;
+        var coef, dir, endIJ, glimps, i, ij, node, side, startIJ, x1, x2, y1, _i, _j, _k, _l, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
 
         helpers.timeIn('path recalc');
         glimps = this.makeGlimps();
@@ -74,22 +74,49 @@
         dir = glimps.direction;
         this.direction = dir;
         this.set('direction', dir);
-        for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
-          console.log(i);
-          if (dir === 'i') {
-            ij = {
-              i: i,
-              j: startIJ.j
-            };
-          } else {
-            ij = {
-              i: startIJ.i,
-              j: i
-            };
+        coef = Math.ceil(glimps.base) > startIJ[dir] ? 1 : -1;
+        node = dir === 'i' ? App.grid.grid.getNodeAt(startIJ[dir] + coef, startIJ.j) : App.grid.grid.getNodeAt(startIJ.i, startIJ[dir] + coef);
+        if (!node.block) {
+          for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
+            if (dir === 'i') {
+              ij = {
+                i: i,
+                j: startIJ.j
+              };
+            } else {
+              ij = {
+                i: startIJ.i,
+                j: i
+              };
+            }
+            this.pushPoint(ij, i);
           }
-          this.pushPoint(ij, i);
+        } else {
+          if (dir === 'i') {
+            x1 = startIJ.j - glimps.startBlock.get('startIJ').j;
+            x2 = glimps.startBlock.get('endIJ').j - startIJ.j;
+            y1 = endIJ.j - startIJ.j;
+            side = x1 + y1 < x2 - y1 ? 'startIJ' : 'endIJ';
+            coef = side === 'startIJ' ? 1 : 0;
+            for (i = _j = _ref3 = startIJ.j, _ref4 = glimps.startBlock.get(side).j - coef; _ref3 <= _ref4 ? _j <= _ref4 : _j >= _ref4; i = _ref3 <= _ref4 ? ++_j : --_j) {
+              ij = {
+                i: startIJ.i,
+                j: i
+              };
+              this.pushPoint(ij, i);
+            }
+            for (i = _k = _ref5 = startIJ.i, _ref6 = Math.ceil(glimps.base); _ref5 <= _ref6 ? _k <= _ref6 : _k >= _ref6; i = _ref5 <= _ref6 ? ++_k : --_k) {
+              ij = {
+                i: i,
+                j: glimps.startBlock.get(side).j - coef
+              };
+              this.pushPoint(ij, i);
+            }
+          }
+          console.log('make corner');
         }
-        for (i = _j = _ref3 = Math.ceil(glimps.base), _ref4 = endIJ[dir]; _ref3 <= _ref4 ? _j <= _ref4 : _j >= _ref4; i = _ref3 <= _ref4 ? ++_j : --_j) {
+        console.log(node);
+        for (i = _l = _ref7 = Math.ceil(glimps.base), _ref8 = endIJ[dir]; _ref7 <= _ref8 ? _l <= _ref8 : _l >= _ref8; i = _ref7 <= _ref8 ? ++_l : --_l) {
           if (dir === 'i') {
             ij = {
               i: i,

@@ -88,15 +88,45 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			# 			
 
 
-			# the first path console
-			for i in [startIJ[dir]..Math.ceil(glimps.base)]
-				console.log i
-				if dir is 'i'
-					ij = {i: i, j: startIJ.j}
-				else
-					ij = {i: startIJ.i, j: i}
+			coef = if Math.ceil(glimps.base) > startIJ[dir] then 1 else -1
 
-				@pushPoint ij, i
+			node = if dir is 'i'
+				App.grid.grid.getNodeAt startIJ[dir]+coef, startIJ.j
+			else App.grid.grid.getNodeAt startIJ.i, startIJ[dir]+coef
+
+			# if sibling cell is free then draw straight line
+			if !node.block
+				# the first path console
+				for i in [startIJ[dir]..Math.ceil(glimps.base)]
+					if dir is 'i'
+						ij = {i: i, j: startIJ.j}
+					else
+						ij = {i: startIJ.i, j: i}
+
+					@pushPoint ij, i
+
+			# if sibling cell isnt free then draw corner line
+			else 
+				# TODO 
+				# new path connectors algorithm for j direction
+				if dir is 'i'
+					# calc nearest corner line point
+					x1 = startIJ.j - glimps.startBlock.get('startIJ').j 
+					x2 = glimps.startBlock.get('endIJ').j - startIJ.j
+					y1 = endIJ.j - startIJ.j
+					side = if x1+y1 < x2-y1 then 'startIJ' else 'endIJ'
+					coef = if side is 'startIJ' then 1 else 0
+					for i in [startIJ.j..glimps.startBlock.get(side).j-coef]
+						ij = {i: startIJ.i, j: i}
+						@pushPoint ij, i
+
+					for i in [startIJ.i..Math.ceil(glimps.base)]
+						ij = {i: i, j: glimps.startBlock.get(side).j-coef}
+						@pushPoint ij, i
+
+				console.log 'make corner'
+
+			console.log node
 
 			# the end path console
 			for i in [Math.ceil(glimps.base)..endIJ[dir]]
