@@ -67,7 +67,6 @@
         var startIJ;
 
         this.calcDimentions();
-        this.removeOldSelfFromGrid();
         if (this.$el == null) {
           this.$el = $('<div>').addClass('block-e').append($('<div>'));
           App.$main.append(this.$el);
@@ -135,13 +134,13 @@
             if (App.currPath && App.currBlock) {
               port = App.currBlock.createPort({
                 path: App.currPath,
-                coords: coordsIJ
+                coords: App.currBlock.getNearestPort(coordsIJ),
+                positionType: 'fixed'
               });
               App.currPath.currentAddPoint = null;
               App.isBlockToPath = null;
             }
           } else {
-            _this.removeOldSelfFromGrid();
             _this.addFinilize();
             return false;
           }
@@ -197,6 +196,7 @@
       Block.prototype.moveTo = function(coords) {
         var bottom, left, right, shift, top;
 
+        this.removeSelfFromGrid();
         coords = App.grid.normalizeCoords(coords);
         if (!this.isMoveTo) {
           this.buffStartIJ = helpers.cloneObj(this.get('startIJ'));
@@ -217,7 +217,7 @@
           left = 0;
           right = left + this.get('w');
         }
-        return this.set({
+        this.set({
           'startIJ': {
             i: left,
             j: top
@@ -228,6 +228,7 @@
           },
           'isValid': this.isSuiteSize()
         });
+        return this.setToGrid();
       };
 
       Block.prototype.setSizeDelta = function(deltas) {

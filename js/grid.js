@@ -29,6 +29,7 @@
           return false;
         }
         node.block = obj;
+        node.walkable = false;
         return true;
       };
 
@@ -38,7 +39,8 @@
         ij = ij.x != null ? this.toIJ(ij) : ij;
         node = this.grid.getNodeAt(ij.i, ij.j);
         if (((_ref = node.block) != null ? _ref.id : void 0) === obj.id) {
-          return node.block = null;
+          node.block = null;
+          return node.walkable = true;
         }
       };
 
@@ -153,7 +155,7 @@
 
             _results1 = [];
             for (i = _j = 0, _ref1 = this.w; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
-              if (_.size((this.grid.getNodeAt(i, j)).holders) || ((this.grid.getNodeAt(i, j)).block != null)) {
+              if (this.grid.getNodeAt(i, j).walkable === false) {
                 attrs = {
                   x: "" + i + "em",
                   y: "" + j + "em",

@@ -30,7 +30,6 @@
       };
 
       Path.prototype.onChange = function() {
-        console.log(this);
         this.set('oldIntersects', helpers.cloneObj(this.get('intersects')));
         return this.render();
       };

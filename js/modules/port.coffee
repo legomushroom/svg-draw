@@ -56,25 +56,24 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			path
 
 		setIJ:->
+			parent = @get 'parent'
+			parentStartIJ = parent.get 'startIJ'
+
 			if @get('positionType') isnt 'fixed'
-				parent = @get 'parent'
-				parentStartIJ = parent.get 'startIJ'
-				i = parentStartIJ.i + ~~(parent.get('w')/2)
-				j = parentStartIJ.j + ~~(parent.get('h')/2)
+				ij = 
+					i: parentStartIJ.i + ~~(parent.get('w')/2)
+					j: parentStartIJ.j + ~~(parent.get('h')/2)
 			else
 				coords = @get('coords')
-				parent = @get('parent')
-
-				if coords.dir is 'i'
-					i 	= parent.get(coords.side).i
-					j 	= parent.get('startIJ').j + coords.coord
+				side = parent.get(coords.side)[coords.dir] - (if coords.side is 'startIJ' then 1 else 0)
+				ij = if coords.dir is 'i'
+						i: side
+						j: parentStartIJ.j + coords.coord
 				else
-					j = parent.get(coords.side).j
-					i = parent.get('startIJ').i + coords.coord
+						i: parentStartIJ.i + coords.coord
+						j: side
 
-				# console.log i, j, coords.dir
-
-			@set 'ij', {i: i, j:j }
+			@set 'ij', ij
 
 			@
 

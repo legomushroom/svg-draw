@@ -16,7 +16,6 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 
 
 		onChange:-> 
-			console.log @
 			@set 'oldIntersects', helpers.cloneObj @get 'intersects'
 			@render()
 

@@ -34,7 +34,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 		render:->
 			@calcDimentions()
-			@removeOldSelfFromGrid()
+			# @removeOldSelfFromGrid()
 			if !@$el?
 				@$el = $('<div>').addClass('block-e').append($('<div>')); App.$main.append @$el
 				@listenEvents()
@@ -46,6 +46,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				'top':    startIJ.j*App.gs
 				'left':   startIJ.i*App.gs)
 				.toggleClass('is-invalid', !@get('isValid') or (	@get('w')*App.gs < App.gs ) or (@get('h')*App.gs < App.gs ) )
+
 			@
 
 		calcDimentions:->
@@ -82,15 +83,16 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				coordsIJ = App.grid.normalizeCoords coords
 				if App.currTool is 'path'
 					if App.currPath and App.currBlock
-						port = App.currBlock.createPort 
+						port = App.currBlock.createPort
 																	path: App.currPath
-																	coords: coordsIJ
+																	coords: App.currBlock.getNearestPort coordsIJ
+																	positionType: 'fixed'
 
 						App.currPath.currentAddPoint = null
 						App.isBlockToPath = null
 
 				else 
-					@removeOldSelfFromGrid()
+					# @removeOldSelfFromGrid()
 					@addFinilize()
 					return false
 
@@ -115,6 +117,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 		getNearestPort:(ij)->
 			startIJ = @get('startIJ')
 			endIJ 	= @get('endIJ')
+
+			# console.log startIJ, endIJ
 			
 			i = (startIJ.i + @get('w')/2) - ij.i  - 1
 			j = (startIJ.j + @get('h')/2)  - ij.j - 1
@@ -134,6 +138,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				coord: coord
 
 		moveTo:(coords)->
+			@removeSelfFromGrid()
 			coords = App.grid.normalizeCoords coords
 			
 			if !@isMoveTo
@@ -161,6 +166,9 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				'startIJ': 	{i: left, 	j: top }
 				'endIJ': 		{i: right, 	j: bottom }
 				'isValid':  @isSuiteSize()
+
+			@setToGrid()
+			
 
 
 		setSizeDelta:(deltas)->

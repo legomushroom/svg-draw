@@ -80,28 +80,27 @@
       };
 
       Port.prototype.setIJ = function() {
-        var coords, i, j, parent, parentStartIJ;
+        var coords, ij, parent, parentStartIJ, side;
 
+        parent = this.get('parent');
+        parentStartIJ = parent.get('startIJ');
         if (this.get('positionType') !== 'fixed') {
-          parent = this.get('parent');
-          parentStartIJ = parent.get('startIJ');
-          i = parentStartIJ.i + ~~(parent.get('w') / 2);
-          j = parentStartIJ.j + ~~(parent.get('h') / 2);
+          ij = {
+            i: parentStartIJ.i + ~~(parent.get('w') / 2),
+            j: parentStartIJ.j + ~~(parent.get('h') / 2)
+          };
         } else {
           coords = this.get('coords');
-          parent = this.get('parent');
-          if (coords.dir === 'i') {
-            i = parent.get(coords.side).i;
-            j = parent.get('startIJ').j + coords.coord;
-          } else {
-            j = parent.get(coords.side).j;
-            i = parent.get('startIJ').i + coords.coord;
-          }
+          side = parent.get(coords.side)[coords.dir] - (coords.side === 'startIJ' ? 1 : 0);
+          ij = coords.dir === 'i' ? {
+            i: side,
+            j: parentStartIJ.j + coords.coord
+          } : {
+            i: parentStartIJ.i + coords.coord,
+            j: side
+          };
         }
-        this.set('ij', {
-          i: i,
-          j: j
-        });
+        this.set('ij', ij);
         return this;
       };
 
