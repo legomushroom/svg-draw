@@ -51,7 +51,7 @@
           grid: this.grid
         });
         this.debug = {
-          isGrid: false,
+          isGrid: true,
           time: false
         };
         this.currTool = ['path', 'block'][0];

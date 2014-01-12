@@ -64,7 +64,7 @@
       };
 
       Path.prototype.recalcPath = function() {
-        var coef, dir, endIJ, glimps, i, ij, node, side, startIJ, x1, x2, y1, _i, _j, _k, _l, _m, _n, _ref1, _ref10, _ref11, _ref12, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+        var block, coef, dir, endIJ, glimps, i, ij, node, side, startIJ, x1, x2, y1, _i, _j, _k, _l, _m, _n, _ref1, _ref10, _ref11, _ref12, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
 
         helpers.timeIn('path recalc');
         glimps = this.makeGlimps();
@@ -133,20 +133,23 @@
           }
         } else {
           if (dir === 'i') {
-            if (glimps.endBlock) {
-              x1 = endIJ.j - glimps.endBlock.get('startIJ').j;
-              x2 = glimps.endBlock.get('endIJ').j - endIJ.j;
+            block = glimps.endBlock || App.currBlock;
+            console.log(block);
+            console.log(App.currBlock);
+            if (block) {
+              x1 = endIJ.j - block.get('startIJ').j;
+              x2 = block.get('endIJ').j - endIJ.j;
               y1 = endIJ.j - startIJ.j;
-              side = x1 + y1 < x2 - y1 ? 'startIJ' : 'endIJ';
+              side = x1 + y1 > x2 - y1 ? 'startIJ' : 'endIJ';
               coef = side === 'startIJ' ? 1 : 0;
               for (i = _m = _ref9 = Math.ceil(glimps.base), _ref10 = endIJ.i; _ref9 <= _ref10 ? _m <= _ref10 : _m >= _ref10; i = _ref9 <= _ref10 ? ++_m : --_m) {
                 ij = {
                   i: i,
-                  j: glimps.endBlock.get(side).j - coef
+                  j: block.get(side).j - coef
                 };
                 this.pushPoint(ij, i);
               }
-              for (i = _n = _ref11 = glimps.endBlock.get(side).j - coef, _ref12 = endIJ.j; _ref11 <= _ref12 ? _n <= _ref12 : _n >= _ref12; i = _ref11 <= _ref12 ? ++_n : --_n) {
+              for (i = _n = _ref11 = block.get(side).j - coef, _ref12 = endIJ.j; _ref11 <= _ref12 ? _n <= _ref12 : _n >= _ref12; i = _ref11 <= _ref12 ? ++_n : --_n) {
                 ij = {
                   i: endIJ.i,
                   j: i

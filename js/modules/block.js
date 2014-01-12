@@ -32,7 +32,8 @@
       };
 
       Block.prototype.initialize = function(o) {
-        var coords;
+        var coords,
+          _this = this;
 
         this.o = o != null ? o : {};
         this.set({
@@ -48,8 +49,12 @@
             'endIJ': coords
           });
         }
-        this.ports = [];
+        this.ports = new PortsCollection;
+        window.ports = this.ports;
         this.release = _.bind(this.release, this);
+        this.ports.on('destroy', function() {
+          return console.log('destroy');
+        });
         this.render();
         this.on('change', _.bind(this.render, this));
         return this;
@@ -60,7 +65,7 @@
 
         o.parent = this;
         port = new Port(o);
-        this.ports.push(port);
+        this.ports.add(port);
         console.log(this.ports);
         return port;
       };
@@ -124,7 +129,10 @@
               x: e.gesture.deltaX,
               y: e.gesture.deltaY
             });
-            return helpers.stopEvent(e);
+            helpers.stopEvent(e);
+          }
+          if (App.currTool === 'path') {
+            return _this.highlightCurrPort(e);
           }
         });
         hammer(this.$el[0]).on('release', this.release);
@@ -152,6 +160,34 @@
         });
       };
 
+      Block.prototype.highlightCurrPort = function(e) {
+        var coef, coords, i, j, node, portCoords, relativePortCoords;
+
+        if (!App.currBlock) {
+          return true;
+        }
+        coords = App.grid.normalizeCoords(helpers.getEventCoords(e));
+        relativePortCoords = App.currBlock.getNearestPort(coords);
+        coef = relativePortCoords.side === 'startIJ' ? -1 : 0;
+        if (relativePortCoords.dir === 'j') {
+          i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord;
+          j = App.currBlock.get(relativePortCoords.side).j + coef;
+        } else {
+          i = App.currBlock.get(relativePortCoords.side).i + coef;
+          j = App.currBlock.get(relativePortCoords.side).j + relativePortCoords.coord;
+        }
+        if (this.highlighted) {
+          App.grid.lowlightCell(this.highlighted);
+        }
+        portCoords = {
+          i: i,
+          j: j
+        };
+        node = App.grid.grid.getNodeAt(i, j);
+        App.grid.highlightCell(portCoords);
+        return this.highlighted = portCoords;
+      };
+
       Block.prototype.release = function(e) {
         var coords, coordsIJ, port, _ref1, _ref2;
 
@@ -159,18 +195,18 @@
         coordsIJ = App.grid.normalizeCoords(coords);
         if (App.currTool === 'path') {
           if (App.currPath && App.currBlock) {
-            console.log(App.currPath.get('from'));
-            console.log(App.currPath.get('in'));
             if (App.currPath.get('from') || App.currPath.get('in')) {
+              if (this.ports.containPath(App.currPath.get('id'))) {
+                console.log('yes');
+              }
               if (App.currPath.currentAddPoint === 'startIJ') {
                 if ((_ref1 = App.currPath.get('from')) != null) {
                   _ref1.destroy();
                 }
               } else {
-                if ((_ref2 = App.currPath.get('end')) != null) {
+                if ((_ref2 = App.currPath.get('in')) != null) {
                   _ref2.destroy();
                 }
-                console.log(App.currPath["in"]);
               }
             }
             port = App.currBlock.createPort({
@@ -310,15 +346,11 @@
       };
 
       Block.prototype.refreshPort = function() {
-        var i, port, _i, _len, _ref1, _results;
+        var _this = this;
 
-        _ref1 = this.ports;
-        _results = [];
-        for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
-          port = _ref1[i];
-          _results.push(port.setIJ());
-        }
-        return _results;
+        return this.ports.each(function(port) {
+          return port.setIJ();
+        });
       };
 
       Block.prototype.setToGrid = function(startIJ, endIJ) {

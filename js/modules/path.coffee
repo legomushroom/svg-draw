@@ -144,21 +144,24 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 				# TODO 
 				# new path connectors algorithm for j direction
 				if dir is 'i'
-					if glimps.endBlock
+					block = glimps.endBlock or App.currBlock
+					console.log block
+					console.log App.currBlock
+					if block
 						# calc nearest corner line point
-						x1 = endIJ.j - glimps.endBlock.get('startIJ').j 
-						x2 = glimps.endBlock.get('endIJ').j - endIJ.j
+						x1 = endIJ.j - block.get('startIJ').j 
+						x2 = block.get('endIJ').j - endIJ.j
 						y1 = endIJ.j - startIJ.j
-						side = if x1+y1 < x2-y1 then 'startIJ' else 'endIJ'
+						side = if x1+y1 > x2-y1 then 'startIJ' else 'endIJ'
 						
 						# side = 'startIJ'
 						coef = if side is 'startIJ' then 1 else 0
 
 						for i in [Math.ceil(glimps.base)..endIJ.i]
-							ij = {i: i, j: glimps.endBlock.get(side).j-coef}
+							ij = {i: i, j: block.get(side).j-coef}
 							@pushPoint ij, i
 
-						for i in [glimps.endBlock.get(side).j-coef..endIJ.j]
+						for i in [block.get(side).j-coef..endIJ.j]
 							ij = {i: endIJ.i, j: i}
 							@pushPoint ij, i
 

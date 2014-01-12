@@ -16,6 +16,7 @@
           heuristic: this.pf.Heuristic.manhattan
         });
         this.debugGrid = [];
+        this.highLights = {};
         this;
       }
 
@@ -137,6 +138,33 @@
           path.currentAddPoint = 'startIJ';
         }
         return path;
+      };
+
+      Grid.prototype.highlightCell = function(coords) {
+        var attrs, i, j, rect;
+
+        if (this.highLights["" + coords.i + coords.j]) {
+          return;
+        }
+        i = coords.i;
+        j = coords.j;
+        attrs = {
+          x: "" + i + "em",
+          y: "" + j + "em",
+          width: "1em",
+          height: "1em",
+          fill: 'rgba(0,255,0,.5)'
+        };
+        rect = App.SVG.createElement('rect', attrs);
+        App.SVG.lineToDom(null, rect);
+        return this.highLights["" + coords.i + coords.j] = rect;
+      };
+
+      Grid.prototype.lowlightCell = function(coords) {
+        if (this.highLights["" + coords.i + coords.j]) {
+          App.SVG.removeElem(this.highLights["" + coords.i + coords.j]);
+          return this.highLights["" + coords.i + coords.j] = null;
+        }
       };
 
       Grid.prototype.refreshGrid = function() {

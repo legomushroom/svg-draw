@@ -13,6 +13,7 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 											heuristic: @pf.Heuristic.manhattan
 
 			@debugGrid = []
+			@highLights = {}
 			@
 			
 		holdCell:(ij, obj)->
@@ -91,7 +92,25 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 				path.currentAddPoint = 'startIJ'
 			return path
 
+		highlightCell:(coords)->
+			return if @highLights["#{coords.i}#{coords.j}"]
+			i = coords.i
+			j = coords.j
+			attrs = 
+				x: "#{i}em"
+				y: "#{j}em"
+				width: 	"1em"
+				height: "1em"
+				fill: 'rgba(0,255,0,.5)'
+			rect = App.SVG.createElement 'rect', attrs
+			App.SVG.lineToDom null, rect
+			@highLights["#{coords.i}#{coords.j}"] = rect
 
+
+		lowlightCell:(coords)-> 
+			if @highLights["#{coords.i}#{coords.j}"] 
+				App.SVG.removeElem @highLights["#{coords.i}#{coords.j}"] 
+				@highLights["#{coords.i}#{coords.j}"] = null
 
 
 		# ifBlockCell:(coords)->

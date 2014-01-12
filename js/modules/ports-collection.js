@@ -16,6 +16,29 @@
 
       PortsCollection.prototype.model = port;
 
+      PortsCollection.prototype.containPath = function(id) {
+        var isPath;
+
+        isPath = false;
+        this.each(function(port) {
+          var connection, _i, _len, _ref1, _results;
+
+          _ref1 = port.get('connections');
+          _results = [];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            connection = _ref1[_i];
+            console.log(connection);
+            if (connection.path.get('id') === id) {
+              _results.push(isPath = true);
+            } else {
+              _results.push(void 0);
+            }
+          }
+          return _results;
+        });
+        return isPath;
+      };
+
       return PortsCollection;
 
     })(ProtoCollection);

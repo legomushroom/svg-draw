@@ -20,8 +20,11 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					'startIJ': coords
 					'endIJ': coords
 
-			@ports = []
+			@ports = new PortsCollection
+			window.ports = @ports
 			@release = _.bind @release, @
+
+			@ports.on 'destroy', => console.log 'destroy'
 
 			@render()
 			@on 'change', _.bind @render, @
@@ -31,7 +34,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 		createPort:(o)-> 
 			o.parent = @
 			port = new Port o
-			@ports.push port
+			@ports.add port
 			console.log @ports
 			port
 
@@ -80,6 +83,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					@moveTo {x: e.gesture.deltaX, y:  e.gesture.deltaY}
 					helpers.stopEvent e
 
+				if App.currTool is 'path'
+					@highlightCurrPort e
 
 			hammer(@$el[0]).on 'release', @release
 
@@ -99,21 +104,41 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					@$el.removeClass 'is-connect-path'
 				else @$el.removeClass 'is-drag'
 
+		highlightCurrPort:(e)->
+			if !App.currBlock then return true
+			coords = App.grid.normalizeCoords helpers.getEventCoords e
+			relativePortCoords = App.currBlock.getNearestPort coords
+			coef = if relativePortCoords.side is 'startIJ' then -1 else 0
+			if relativePortCoords.dir is 'j'
+				i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord
+				j = App.currBlock.get(relativePortCoords.side).j + coef
+			else 
+				i = App.currBlock.get(relativePortCoords.side).i + coef
+				j = App.currBlock.get(relativePortCoords.side).j + relativePortCoords.coord
+
+			App.grid.lowlightCell(@highlighted) if @highlighted
+
+			portCoords = { i: i, j: j }
+			node = App.grid.grid.getNodeAt i, j
+			App.grid.highlightCell portCoords
+			@highlighted = portCoords
+
+
 		release:(e)->
 			coords = helpers.getEventCoords e
 			coordsIJ = App.grid.normalizeCoords coords
 			if App.currTool is 'path'
 				if App.currPath and App.currBlock
 
-					console.log App.currPath.get('from')
-					console.log App.currPath.get('in')
 					if App.currPath.get('from') or App.currPath.get('in')
+
+						if @ports.containPath App.currPath.get('id')
+							console.log 'yes'
+
 						if App.currPath.currentAddPoint is 'startIJ'
 							App.currPath.get('from')?.destroy()
-						else 
-							App.currPath.get('end')?.destroy()
-							console.log App.currPath.in
-					
+						else App.currPath.get('in')?.destroy()
+
 					port = App.currBlock.createPort
 																path: App.currPath
 																coords: App.currBlock.getNearestPort coordsIJ
@@ -224,7 +249,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			@setToGrid()
 
 		refreshPort:-> 
-			for port, i in @ports
+			@ports.each (port)=>
 				port.setIJ()
 
 		setToGrid:(startIJ, endIJ)->
