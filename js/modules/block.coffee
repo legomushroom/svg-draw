@@ -105,18 +105,25 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				else @$el.removeClass 'is-drag'
 
 		highlightCurrPort:(e)->
+			@highlighted and App.grid.lowlightCell(@highlighted)
 			if !App.currBlock then return true
 			coords = App.grid.normalizeCoords helpers.getEventCoords e
 			relativePortCoords = App.currBlock.getNearestPort coords
 			coef = if relativePortCoords.side is 'startIJ' then -1 else 0
 			if relativePortCoords.dir is 'j'
-				i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord
-				j = App.currBlock.get(relativePortCoords.side).j + coef
+				if relativePortCoords.side is 'startIJ'
+					i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord
+					j = App.currBlock.get(relativePortCoords.side).j + coef
+				else 
+					i = App.currBlock.get('startIJ').i + relativePortCoords.coord
+					j = App.currBlock.get(relativePortCoords.side).j + coef
 			else 
-				i = App.currBlock.get(relativePortCoords.side).i + coef
-				j = App.currBlock.get(relativePortCoords.side).j + relativePortCoords.coord
-
-			App.grid.lowlightCell(@highlighted) if @highlighted
+				if relativePortCoords.side is 'startIJ'
+					i = App.currBlock.get(relativePortCoords.side).i + coef
+					j = App.currBlock.get(relativePortCoords.side).j + relativePortCoords.coord
+				else 
+					i = App.currBlock.get(relativePortCoords.side).i + coef
+					j = App.currBlock.get('startIJ').j + relativePortCoords.coord
 
 			portCoords = { i: i, j: j }
 			node = App.grid.grid.getNodeAt i, j

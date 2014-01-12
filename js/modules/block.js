@@ -163,6 +163,7 @@
       Block.prototype.highlightCurrPort = function(e) {
         var coef, coords, i, j, node, portCoords, relativePortCoords;
 
+        this.highlighted && App.grid.lowlightCell(this.highlighted);
         if (!App.currBlock) {
           return true;
         }
@@ -170,14 +171,21 @@
         relativePortCoords = App.currBlock.getNearestPort(coords);
         coef = relativePortCoords.side === 'startIJ' ? -1 : 0;
         if (relativePortCoords.dir === 'j') {
-          i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord;
-          j = App.currBlock.get(relativePortCoords.side).j + coef;
+          if (relativePortCoords.side === 'startIJ') {
+            i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord;
+            j = App.currBlock.get(relativePortCoords.side).j + coef;
+          } else {
+            i = App.currBlock.get('startIJ').i + relativePortCoords.coord;
+            j = App.currBlock.get(relativePortCoords.side).j + coef;
+          }
         } else {
-          i = App.currBlock.get(relativePortCoords.side).i + coef;
-          j = App.currBlock.get(relativePortCoords.side).j + relativePortCoords.coord;
-        }
-        if (this.highlighted) {
-          App.grid.lowlightCell(this.highlighted);
+          if (relativePortCoords.side === 'startIJ') {
+            i = App.currBlock.get(relativePortCoords.side).i + coef;
+            j = App.currBlock.get(relativePortCoords.side).j + relativePortCoords.coord;
+          } else {
+            i = App.currBlock.get(relativePortCoords.side).i + coef;
+            j = App.currBlock.get('startIJ').j + relativePortCoords.coord;
+          }
         }
         portCoords = {
           i: i,
