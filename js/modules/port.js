@@ -17,6 +17,7 @@
       Port.prototype.initialize = function(o) {
         this.o = o != null ? o : {};
         this.path = null;
+        console.log('create Port');
         this.o.parent && (this.set('parent', this.o.parent));
         this.set({
           'connections': []
@@ -60,13 +61,14 @@
               'startIJ': this.get('ij'),
               'connectedStart': this.get('parent')
             });
+            path.set('in', this);
           } else {
             path.set({
               'endIJ': this.get('ij'),
               'connectedEnd': this.get('parent')
             });
+            path.set('from', this);
           }
-          path.set('in', this);
         }
         connections = this.get('connections');
         connections.push({

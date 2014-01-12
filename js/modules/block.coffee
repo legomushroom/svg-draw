@@ -1,4 +1,4 @@
-define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'port'], (B, _, helpers, ProtoClass, hammer, Path, Port)->
+define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'ports-collection', 'port'], (B, _, helpers, ProtoClass, hammer, Path, PortsCollection, Port)->
 
 	class Block extends ProtoClass
 		type:  			'block'
@@ -21,6 +21,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					'endIJ': coords
 
 			@ports = []
+			@release = _.bind @release, @
+
 			@render()
 			@on 'change', _.bind @render, @
 
@@ -30,6 +32,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			o.parent = @
 			port = new Port o
 			@ports.push port
+			console.log @ports
 			port
 
 		render:->
@@ -78,25 +81,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					helpers.stopEvent e
 
 
-			hammer(@$el[0]).on 'release', (e)=>
-				coords = helpers.getEventCoords e
-				coordsIJ = App.grid.normalizeCoords coords
-				if App.currTool is 'path'
-					if App.currPath and App.currBlock
-						port = App.currBlock.createPort
-																	path: App.currPath
-																	coords: App.currBlock.getNearestPort coordsIJ
-																	positionType: 'fixed'
-
-						App.currPath.currentAddPoint = null
-						App.isBlockToPath = null
-
-				else 
-					# @removeOldSelfFromGrid()
-					@addFinilize()
-					return false
-
-				helpers.stopEvent e
+			hammer(@$el[0]).on 'release', @release
 
 			@$el.on 'mouseenter', =>
 				if @isDragMode then return
@@ -113,6 +98,35 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				if App.currTool is 'path'
 					@$el.removeClass 'is-connect-path'
 				else @$el.removeClass 'is-drag'
+
+		release:(e)->
+			coords = helpers.getEventCoords e
+			coordsIJ = App.grid.normalizeCoords coords
+			if App.currTool is 'path'
+				if App.currPath and App.currBlock
+
+					console.log App.currPath.get('from')
+					console.log App.currPath.get('in')
+					if App.currPath.get('from') or App.currPath.get('in')
+						if App.currPath.currentAddPoint is 'startIJ'
+							App.currPath.get('from')?.destroy()
+						else 
+							App.currPath.get('end')?.destroy()
+							console.log App.currPath.in
+					
+					port = App.currBlock.createPort
+																path: App.currPath
+																coords: App.currBlock.getNearestPort coordsIJ
+																positionType: 'fixed'
+
+					App.currPath.currentAddPoint = null
+					App.isBlockToPath = null
+
+			else 
+				@addFinilize()
+				return false
+
+			helpers.stopEvent e
 
 		getNearestPort:(ij)->
 			startIJ = @get('startIJ')
@@ -162,13 +176,13 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				left = 0 
 				right = left + @get 'w'
 
+			@setToGrid {i: left, 	j: top }, {i: right, 	j: bottom }
+
 			@set
 				'startIJ': 	{i: left, 	j: top }
 				'endIJ': 		{i: right, 	j: bottom }
 				'isValid':  @isSuiteSize()
 
-			@setToGrid()
-			
 
 
 		setSizeDelta:(deltas)->
@@ -213,9 +227,9 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			for port, i in @ports
 				port.setIJ()
 
-		setToGrid:->
-			startIJ = @get 'startIJ'
-			endIJ 	= @get 'endIJ'
+		setToGrid:(startIJ, endIJ)->
+			startIJ ?= @get 'startIJ'
+			endIJ 	?= @get 'endIJ'
 			for i in [startIJ.i...endIJ.i]
 				for j in [startIJ.j...endIJ.j]
 					if !App.grid.holdCell {i:i, j:j}, @

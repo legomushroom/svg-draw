@@ -11,8 +11,10 @@
       path: 'modules/path',
       block: 'modules/block',
       port: 'modules/port',
+      'ports-collection': 'modules/ports-collection',
       line: 'modules/line',
       ProtoClass: 'modules/ProtoClass',
+      ProtoCollection: 'modules/ProtoCollection',
       backbone: 'lib/backbone'
     },
     shim: {
@@ -132,9 +134,8 @@
       };
 
       App.prototype.releasePath = function(e) {
-        if (this.currPath) {
-          this.currPath.currentAddPoint = null;
-          return this.currPath.removeIfEmpty();
+        if (this.currBlock) {
+          return this.currBlock.release(e);
         }
       };
 

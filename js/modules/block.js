@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'port'], function(B, _, helpers, ProtoClass, hammer, Path, Port) {
+  define('block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'ports-collection', 'port'], function(B, _, helpers, ProtoClass, hammer, Path, PortsCollection, Port) {
     var Block, _ref;
 
     Block = (function(_super) {
@@ -49,6 +49,7 @@
           });
         }
         this.ports = [];
+        this.release = _.bind(this.release, this);
         this.render();
         this.on('change', _.bind(this.render, this));
         return this;
@@ -60,6 +61,7 @@
         o.parent = this;
         port = new Port(o);
         this.ports.push(port);
+        console.log(this.ports);
         return port;
       };
 
@@ -125,27 +127,7 @@
             return helpers.stopEvent(e);
           }
         });
-        hammer(this.$el[0]).on('release', function(e) {
-          var coords, coordsIJ, port;
-
-          coords = helpers.getEventCoords(e);
-          coordsIJ = App.grid.normalizeCoords(coords);
-          if (App.currTool === 'path') {
-            if (App.currPath && App.currBlock) {
-              port = App.currBlock.createPort({
-                path: App.currPath,
-                coords: App.currBlock.getNearestPort(coordsIJ),
-                positionType: 'fixed'
-              });
-              App.currPath.currentAddPoint = null;
-              App.isBlockToPath = null;
-            }
-          } else {
-            _this.addFinilize();
-            return false;
-          }
-          return helpers.stopEvent(e);
-        });
+        hammer(this.$el[0]).on('release', this.release);
         this.$el.on('mouseenter', function() {
           if (_this.isDragMode) {
             return;
@@ -168,6 +150,42 @@
             return _this.$el.removeClass('is-drag');
           }
         });
+      };
+
+      Block.prototype.release = function(e) {
+        var coords, coordsIJ, port, _ref1, _ref2;
+
+        coords = helpers.getEventCoords(e);
+        coordsIJ = App.grid.normalizeCoords(coords);
+        if (App.currTool === 'path') {
+          if (App.currPath && App.currBlock) {
+            console.log(App.currPath.get('from'));
+            console.log(App.currPath.get('in'));
+            if (App.currPath.get('from') || App.currPath.get('in')) {
+              if (App.currPath.currentAddPoint === 'startIJ') {
+                if ((_ref1 = App.currPath.get('from')) != null) {
+                  _ref1.destroy();
+                }
+              } else {
+                if ((_ref2 = App.currPath.get('end')) != null) {
+                  _ref2.destroy();
+                }
+                console.log(App.currPath["in"]);
+              }
+            }
+            port = App.currBlock.createPort({
+              path: App.currPath,
+              coords: App.currBlock.getNearestPort(coordsIJ),
+              positionType: 'fixed'
+            });
+            App.currPath.currentAddPoint = null;
+            App.isBlockToPath = null;
+          }
+        } else {
+          this.addFinilize();
+          return false;
+        }
+        return helpers.stopEvent(e);
       };
 
       Block.prototype.getNearestPort = function(ij) {
@@ -217,7 +235,14 @@
           left = 0;
           right = left + this.get('w');
         }
-        this.set({
+        this.setToGrid({
+          i: left,
+          j: top
+        }, {
+          i: right,
+          j: bottom
+        });
+        return this.set({
           'startIJ': {
             i: left,
             j: top
@@ -228,7 +253,6 @@
           },
           'isValid': this.isSuiteSize()
         });
-        return this.setToGrid();
       };
 
       Block.prototype.setSizeDelta = function(deltas) {
@@ -297,11 +321,15 @@
         return _results;
       };
 
-      Block.prototype.setToGrid = function() {
-        var endIJ, i, j, startIJ, _i, _j, _ref1, _ref2, _ref3, _ref4;
+      Block.prototype.setToGrid = function(startIJ, endIJ) {
+        var i, j, _i, _j, _ref1, _ref2, _ref3, _ref4;
 
-        startIJ = this.get('startIJ');
-        endIJ = this.get('endIJ');
+        if (startIJ == null) {
+          startIJ = this.get('startIJ');
+        }
+        if (endIJ == null) {
+          endIJ = this.get('endIJ');
+        }
         for (i = _i = _ref1 = startIJ.i, _ref2 = endIJ.i; _ref1 <= _ref2 ? _i < _ref2 : _i > _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
           for (j = _j = _ref3 = startIJ.j, _ref4 = endIJ.j; _ref3 <= _ref4 ? _j < _ref4 : _j > _ref4; j = _ref3 <= _ref4 ? ++_j : --_j) {
             if (!App.grid.holdCell({

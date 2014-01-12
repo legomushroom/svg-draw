@@ -110,12 +110,12 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 				# TODO 
 				# new path connectors algorithm for j direction
 				if dir is 'i'
-					console.log 'make corner start'
 					# calc nearest corner line point
 					x1 = startIJ.j - glimps.startBlock.get('startIJ').j 
 					x2 = glimps.startBlock.get('endIJ').j - startIJ.j
 					y1 = endIJ.j - startIJ.j
 					side = if x1+y1 < x2-y1 then 'startIJ' else 'endIJ'
+
 					coef = if side is 'startIJ' then 1 else 0
 					for i in [startIJ.j..glimps.startBlock.get(side).j-coef]
 						ij = {i: startIJ.i, j: i}
@@ -125,8 +125,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 						ij = {i: i, j: glimps.startBlock.get(side).j-coef}
 						@pushPoint ij, i
 
-
-			coef = - coef
+			coef = if Math.ceil(glimps.base) > startIJ[dir] then -1 else 1
 
 			node = if dir is 'i'
 				App.grid.grid.getNodeAt endIJ[dir]+coef, endIJ.j
@@ -146,8 +145,13 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 				# new path connectors algorithm for j direction
 				if dir is 'i'
 					if glimps.endBlock
-						console.log 'make corner end'
-						side = 'startIJ'
+						# calc nearest corner line point
+						x1 = endIJ.j - glimps.endBlock.get('startIJ').j 
+						x2 = glimps.endBlock.get('endIJ').j - endIJ.j
+						y1 = endIJ.j - startIJ.j
+						side = if x1+y1 < x2-y1 then 'startIJ' else 'endIJ'
+						
+						# side = 'startIJ'
 						coef = if side is 'startIJ' then 1 else 0
 
 						for i in [Math.ceil(glimps.base)..endIJ.i]

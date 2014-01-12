@@ -93,7 +93,6 @@
           }
         } else {
           if (dir === 'i') {
-            console.log('make corner start');
             x1 = startIJ.j - glimps.startBlock.get('startIJ').j;
             x2 = glimps.startBlock.get('endIJ').j - startIJ.j;
             y1 = endIJ.j - startIJ.j;
@@ -115,7 +114,7 @@
             }
           }
         }
-        coef = -coef;
+        coef = Math.ceil(glimps.base) > startIJ[dir] ? -1 : 1;
         node = dir === 'i' ? App.grid.grid.getNodeAt(endIJ[dir] + coef, endIJ.j) : App.grid.grid.getNodeAt(endIJ.i, endIJ[dir] + coef);
         if (!node.block) {
           for (i = _l = _ref7 = Math.ceil(glimps.base), _ref8 = endIJ[dir]; _ref7 <= _ref8 ? _l <= _ref8 : _l >= _ref8; i = _ref7 <= _ref8 ? ++_l : --_l) {
@@ -135,8 +134,10 @@
         } else {
           if (dir === 'i') {
             if (glimps.endBlock) {
-              console.log('make corner end');
-              side = 'startIJ';
+              x1 = endIJ.j - glimps.endBlock.get('startIJ').j;
+              x2 = glimps.endBlock.get('endIJ').j - endIJ.j;
+              y1 = endIJ.j - startIJ.j;
+              side = x1 + y1 < x2 - y1 ? 'startIJ' : 'endIJ';
               coef = side === 'startIJ' ? 1 : 0;
               for (i = _m = _ref9 = Math.ceil(glimps.base), _ref10 = endIJ.i; _ref9 <= _ref10 ? _m <= _ref10 : _m >= _ref10; i = _ref9 <= _ref10 ? ++_m : --_m) {
                 ij = {

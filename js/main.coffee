@@ -9,8 +9,10 @@ require.config
 		path: 				'modules/path'
 		block: 				'modules/block'
 		port: 				'modules/port'
+		'ports-collection': 				'modules/ports-collection'
 		line: 				'modules/line'
 		ProtoClass: 	'modules/ProtoClass'
+		ProtoCollection: 	'modules/ProtoCollection'
 		backbone: 		'lib/backbone'
 
 	shim: 
@@ -99,9 +101,19 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 			else @addCurrentPath(coords)
 
 		releasePath:(e)-> 
-			if @currPath
-				@currPath.currentAddPoint = null
-				@currPath.removeIfEmpty();
+			if @currBlock
+				@currBlock.release e
+			# coords = @grid.normalizeCoords helpers.getEventCoords(e)
+			
+
+				# if @currPath.currentAddPoint is 'startIJ'
+				# 	console.log @currPath.get 'from'
+				# else 
+				# 	console.log @currPath.get 'in'
+
+			# if @currPath
+			# 	@currPath.currentAddPoint = null
+			# 	@currPath.removeIfEmpty();
 
 		dragPath:(e)->
 			coords = helpers.getEventCoords(e)
