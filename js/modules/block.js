@@ -147,7 +147,8 @@
             return _this.$el.addClass('is-drag');
           }
         });
-        return this.$el.on('mouseleave', function() {
+        this.$el.on('mouseleave', function(e) {
+          _this.highlighted && App.grid.lowlightCell(_this.highlighted);
           if (_this.isDragMode) {
             return;
           }
@@ -156,6 +157,11 @@
             return _this.$el.removeClass('is-connect-path');
           } else {
             return _this.$el.removeClass('is-drag');
+          }
+        });
+        return this.$el.on('mousemove', function(e) {
+          if (App.currTool === 'path') {
+            return _this.highlightCurrPort(e);
           }
         });
       };

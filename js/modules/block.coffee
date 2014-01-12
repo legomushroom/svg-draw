@@ -96,13 +96,18 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					@$el.addClass 'is-connect-path'
 				else @$el.addClass 'is-drag'
 
-			@$el.on 'mouseleave', =>
+			@$el.on 'mouseleave', (e)=>
+				@highlighted and App.grid.lowlightCell(@highlighted)
 				if @isDragMode then return
 
 				App.currBlock = null
 				if App.currTool is 'path'
 					@$el.removeClass 'is-connect-path'
 				else @$el.removeClass 'is-drag'
+
+			@$el.on 'mousemove', (e)=>
+				if App.currTool is 'path'
+					@highlightCurrPort e
 
 		highlightCurrPort:(e)->
 			@highlighted and App.grid.lowlightCell(@highlighted)
@@ -133,7 +138,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 		release:(e)->
 			@highlighted and App.grid.lowlightCell(@highlighted)
-			
+
 			coords = helpers.getEventCoords e
 			coordsIJ = App.grid.normalizeCoords coords
 			if App.currTool is 'path'

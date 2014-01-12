@@ -26,10 +26,17 @@
         return copy;
       },
       getEventCoords: function(e) {
-        return {
-          x: e.gesture.center.pageX,
-          y: e.gesture.center.pageY
-        };
+        if (e.clientX) {
+          return {
+            x: e.clientX,
+            y: e.clientY
+          };
+        } else {
+          return {
+            x: e.gesture.center.pageX,
+            y: e.gesture.center.pageY
+          };
+        }
       },
       timeIn: function(name) {
         return App.debug.time && console.time(name);

@@ -15,7 +15,9 @@ define 'helpers', ['md5'], (md5)->
 			copy
 		
 
-		getEventCoords:(e)-> { x: e.gesture.center.pageX, y: e.gesture.center.pageY }
+		getEventCoords:(e)-> 
+			return if e.clientX then { x: e.clientX, y: e.clientY }
+			else { x: e.gesture.center.pageX, y: e.gesture.center.pageY }
 		
 		timeIn:(name)->  App.debug.time and console.time name
 		
