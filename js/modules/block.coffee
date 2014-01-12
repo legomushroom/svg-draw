@@ -132,19 +132,21 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 
 		release:(e)->
+			@highlighted and App.grid.lowlightCell(@highlighted)
+			
 			coords = helpers.getEventCoords e
 			coordsIJ = App.grid.normalizeCoords coords
 			if App.currTool is 'path'
 				if App.currPath and App.currBlock
 
-					if App.currPath.get('from') or App.currPath.get('in')
+					# if App.currPath.get('from') or App.currPath.get('in')
 
-						if @ports.containPath App.currPath.get('id')
-							console.log 'yes'
+					# 	if @ports.containPath App.currPath.get('id')
+					# 		console.log 'yes'
 
-						if App.currPath.currentAddPoint is 'startIJ'
-							App.currPath.get('from')?.destroy()
-						else App.currPath.get('in')?.destroy()
+					# 	if App.currPath.currentAddPoint is 'startIJ'
+					# 		App.currPath.get('from')?.destroy()
+					# 	else App.currPath.get('in')?.destroy()
 
 					port = App.currBlock.createPort
 																path: App.currPath

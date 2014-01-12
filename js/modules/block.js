@@ -197,26 +197,13 @@
       };
 
       Block.prototype.release = function(e) {
-        var coords, coordsIJ, port, _ref1, _ref2;
+        var coords, coordsIJ, port;
 
+        this.highlighted && App.grid.lowlightCell(this.highlighted);
         coords = helpers.getEventCoords(e);
         coordsIJ = App.grid.normalizeCoords(coords);
         if (App.currTool === 'path') {
           if (App.currPath && App.currBlock) {
-            if (App.currPath.get('from') || App.currPath.get('in')) {
-              if (this.ports.containPath(App.currPath.get('id'))) {
-                console.log('yes');
-              }
-              if (App.currPath.currentAddPoint === 'startIJ') {
-                if ((_ref1 = App.currPath.get('from')) != null) {
-                  _ref1.destroy();
-                }
-              } else {
-                if ((_ref2 = App.currPath.get('in')) != null) {
-                  _ref2.destroy();
-                }
-              }
-            }
             port = App.currBlock.createPort({
               path: App.currPath,
               coords: App.currBlock.getNearestPort(coordsIJ),
