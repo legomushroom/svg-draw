@@ -74,6 +74,7 @@
         dir = glimps.direction;
         this.direction = dir;
         this.set('direction', dir);
+        console.log(this);
         coef = Math.ceil(glimps.base) > startIJ[dir] ? 1 : -1;
         node = dir === 'i' ? App.grid.grid.getNodeAt(startIJ[dir] + coef, startIJ.j) : App.grid.grid.getNodeAt(startIJ.i, startIJ[dir] + coef);
         if (!node.block) {
