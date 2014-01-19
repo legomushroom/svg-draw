@@ -40,33 +40,205 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 
 		recalcPath:->
 			helpers.timeIn 'path recalc'
+			glimps = @makeGlimps()
 			@points = []
+
 			startIJ = @get('startIJ')
 			endIJ = @get('endIJ')
+			dir = glimps.direction
+			@direction = dir
+			@set 'direction', dir
+
+			# auto port from center to side normalize fix
+			# 
+			# if inPositionType isnt 'fixed' or fromPositionType isnt 'fixed'
+			# 	startBlock 	= glimps.startBlock
+			# 	endBlock 		= glimps.endBlock
+
+			# 	startBlockEndIJ 		= if startBlock then startBlock.get('endIJ')   else @get('endIJ')
+			# 	startBlockStartIJ 	= if startBlock then startBlock.get('startIJ') else @get('startIJ')
+
+			# 	endBlockEndIJ 	= if endBlock then endBlock.get('endIJ') 		else @get('endIJ')
+			# 	endBlockStartIJ = if endBlock then endBlock.get('startIJ')  else @get('startIJ')
+
+			# 	fromPort = @get('from')
+			# 	fromPositionType = fromPort?.get('positionType')
+
+			# 	inPort = @get('in')
+			# 	inPositionType = fromPort?.get('positionType')
+			# 	# normalize start/end points to block size
+			# 	if dir is 'i'
+			# 		if @get('xPolar') is 'plus'
+			# 			if startBlock and fromPositionType isnt 'fixed'
+			# 				startIJ = {i: startBlockEndIJ.i,j: startIJ.j}
+			# 			if endBlock and inPositionType isnt 'fixed'
+			# 				endIJ = {i: endBlockStartIJ.i-1,j: endIJ.j}
+			# 		else 
+			# 			startIJ = {i: startBlockStartIJ.i-1,j: startIJ.j}
+			# 			endIJ 	= {i: endBlockEndIJ.i,j: endIJ.j}
+			# 	else 
+			# 		if @get('yPolar') is 'plus'
+			# 			if startBlock and fromPositionType isnt 'fixed'
+			# 				startIJ = {i: startIJ.i, j: startBlockEndIJ.j}
+			# 			if endBlock and inPositionType isnt 'fixed'
+			# 				endIJ = {i: endIJ.i, j: endBlockStartIJ.j-1}
+			# 		else 
+			# 			startIJ = {i: startIJ.i, j: startBlockStartIJ.j-1}
+			# 			endIJ 	= {i: endIJ.i, j: endBlockEndIJ.j}
+			# 			
+			
+
+			# START SEGMENT
+
+			coef = if Math.ceil(glimps.base) > startIJ[dir] then 1 else -1
+
+			node = if dir is 'i'
+				App.grid.grid.getNodeAt startIJ[dir]+coef, startIJ.j
+			else App.grid.grid.getNodeAt startIJ.i, startIJ[dir]+coef
+
+			# if sibling cell is free then draw straight line
+			if !node.block
+				# the first path console
+				for i in [startIJ[dir]..Math.ceil(glimps.base)]
+					if dir is 'i'
+						ij = {i: i, j: startIJ.j}
+					else
+						ij = {i: startIJ.i, j: i}
+
+					@pushPoint ij, i
+
+			# if sibling cell isnt free then draw corner line
+			else 
+				if dir is 'i'
+					# calc nearest corner line point
+					x1 = startIJ.j - glimps.startBlock.get('startIJ').j 
+					x2 = glimps.startBlock.get('endIJ').j - startIJ.j
+					y1 = endIJ.j - startIJ.j
+					side = if x1+y1 < x2-y1 then 'startIJ' else 'endIJ'
+
+					coef = if side is 'startIJ' then 1 else 0
+					for i in [startIJ.j..glimps.startBlock.get(side).j-coef]
+						ij = {i: startIJ.i, j: i}
+						@pushPoint ij, i
+
+					for i in [startIJ.i..Math.ceil(glimps.base)]
+						ij = {i: i, j: glimps.startBlock.get(side).j-coef}
+						@pushPoint ij, i
+				else 
+					side = 'startIJ' 
+					coef = if side is 'startIJ' then 1 else 0
+					for i in [startIJ.i..glimps.startBlock.get(side).i-coef]
+						ij = {i: i, j: startIJ.j}
+						@pushPoint ij, i
+
+					for i in [startIJ.j..Math.ceil(glimps.base)]
+						ij = {i: glimps.startBlock.get(side).i-coef, j: i}
+						@pushPoint ij, i
 
 
-			console.log startIJ
-			console.log endIJ
+			# END SEGMENT
 
-			startBlock = @get('connectedStart')
-			endBlock 	 = @get('connectedEnd')
+			coef = if Math.ceil(glimps.base) > startIJ[dir] then -1 else 1
 
+			node = if dir is 'i'
+				App.grid.grid.getNodeAt endIJ[dir]+coef, endIJ.j
+			else App.grid.grid.getNodeAt endIJ.i, endIJ[dir]+coef
 
-			if !startBlock and !endBlock
-				@pushPoint startIJ, 0
-				@pushPoint endIJ,   1
+			if !node.block
+				# the end path console
+				for i in [Math.ceil(glimps.base)..endIJ[dir]]
+					if dir is 'i'
+						ij = {i: i, j: endIJ.j}
+					else 
+						ij = {i: endIJ.i, j: i}
+					@pushPoint ij, i
 
+			else
+				# TODO 
+				# new path connectors algorithm for j direction
+				if dir is 'i'
+					block = glimps.endBlock or App.currBlock
+					if block
+						# calc nearest corner line point
+						x1 = endIJ.j - block.get('startIJ').j 
+						x2 = block.get('endIJ').j - endIJ.j
+						y1 = endIJ.j - startIJ.j
+						side = if x1+y1 > x2-y1 then 'startIJ' else 'endIJ'
+						
+						# side = 'startIJ'
+						coef = if side is 'startIJ' then 1 else 0
 
-			# if !startBlock then 
+						for i in [Math.ceil(glimps.base)..endIJ.i]
+							ij = {i: i, j: block.get(side).j-coef}
+							@pushPoint ij, i
 
+						for i in [block.get(side).j-coef..endIJ.j]
+							ij = {i: endIJ.i, j: i}
+							@pushPoint ij, i
 
-			@set 'points', @points
-			# @calcPolar()
-			helpers.timeOut 'path recalc'
-			@
+				else 
+					block = glimps.endBlock or App.currBlock
+					if block
+						# calc nearest corner line point
+						side = 'startIJ'
+						coef = if side is 'startIJ' then 1 else 0
+
+						for i in [Math.ceil(glimps.base)..block.get(side).j-coef]
+							ij = {i: block.get(side).i-coef, j: i}
+							@pushPoint ij, i
+
+						for i in [block.get(side).i-coef..endIJ.i]
+							ij = {i: i, j: block.get(side).j-coef}
+							@pushPoint ij, i
+
+						
+
 
 					
 
+
+
+			@set 'points', @points
+			@calcPolar()
+			helpers.timeOut 'path recalc'
+			@
+
+		makeGlimps:->
+			startIJ 	= @get 'startIJ'
+			endIJ 		= @get 'endIJ'
+			startBlock = @get('connectedStart')
+			endBlock 	 = @get('connectedEnd')
+
+			startBlockW = if not startBlock then 0 else startBlock.get('w')/2
+			startBlockH = if not startBlock then 0 else startBlock.get('h')/2
+
+			endBlockW = if not endBlock then 0 else endBlock.get('w')/2
+			endBlockH = if not endBlock then 0 else endBlock.get('h')/2
+
+			if startIJ.i < endIJ.i
+				end = (startIJ.i + startBlockW)
+				xDifference =  (endIJ.i - endBlockW) - end
+				xBase = end + (xDifference/2)
+			else
+				start = (endIJ.i + endBlockW)
+				xDifference = (startIJ.i - startBlockW) - start
+				xBase = start + (xDifference/2)
+
+			if startIJ.j < endIJ.j
+				end = (startIJ.j + startBlockH)
+				yDifference =  (endIJ.j - endBlockH) - end
+				yBase = end + (yDifference/2)
+			else
+				start = (endIJ.j + endBlockH)
+				yDifference = (startIJ.j - startBlockH) - start
+				yBase = start + (yDifference/2)
+
+			baseDirection = if (xDifference >= yDifference) then 'i' else 'j'
+			return returnValue =
+								direction: baseDirection
+								base: if baseDirection is 'i' then xBase else yBase
+								startBlock: startBlock
+								endBlock: 	endBlock
 
 		calcPolar:->
 			points = @get 'points'
