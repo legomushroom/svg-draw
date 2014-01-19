@@ -38,7 +38,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			@points
 
 
-		recalcPath:->
+		recalcPath:-> 
 			helpers.timeIn 'path recalc'
 			glimps = @makeGlimps()
 			@points = []
