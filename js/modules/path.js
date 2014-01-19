@@ -64,143 +64,23 @@
       };
 
       Path.prototype.recalcPath = function() {
-        var block, coef, dir, endIJ, glimps, i, ij, node, side, startIJ, x1, x2, y1, _i, _j, _k, _l, _m, _n, _ref1, _ref10, _ref11, _ref12, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+        var endBlock, endIJ, startBlock, startIJ;
 
         helpers.timeIn('path recalc');
-        glimps = this.makeGlimps();
         this.points = [];
         startIJ = this.get('startIJ');
         endIJ = this.get('endIJ');
-        dir = glimps.direction;
-        this.direction = dir;
-        this.set('direction', dir);
-        coef = Math.ceil(glimps.base) > startIJ[dir] ? 1 : -1;
-        node = dir === 'i' ? App.grid.grid.getNodeAt(startIJ[dir] + coef, startIJ.j) : App.grid.grid.getNodeAt(startIJ.i, startIJ[dir] + coef);
-        if (!node.block) {
-          for (i = _i = _ref1 = startIJ[dir], _ref2 = Math.ceil(glimps.base); _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
-            if (dir === 'i') {
-              ij = {
-                i: i,
-                j: startIJ.j
-              };
-            } else {
-              ij = {
-                i: startIJ.i,
-                j: i
-              };
-            }
-            this.pushPoint(ij, i);
-          }
-        } else {
-          if (dir === 'i') {
-            x1 = startIJ.j - glimps.startBlock.get('startIJ').j;
-            x2 = glimps.startBlock.get('endIJ').j - startIJ.j;
-            y1 = endIJ.j - startIJ.j;
-            side = x1 + y1 < x2 - y1 ? 'startIJ' : 'endIJ';
-            coef = side === 'startIJ' ? 1 : 0;
-            for (i = _j = _ref3 = startIJ.j, _ref4 = glimps.startBlock.get(side).j - coef; _ref3 <= _ref4 ? _j <= _ref4 : _j >= _ref4; i = _ref3 <= _ref4 ? ++_j : --_j) {
-              ij = {
-                i: startIJ.i,
-                j: i
-              };
-              this.pushPoint(ij, i);
-            }
-            for (i = _k = _ref5 = startIJ.i, _ref6 = Math.ceil(glimps.base); _ref5 <= _ref6 ? _k <= _ref6 : _k >= _ref6; i = _ref5 <= _ref6 ? ++_k : --_k) {
-              ij = {
-                i: i,
-                j: glimps.startBlock.get(side).j - coef
-              };
-              this.pushPoint(ij, i);
-            }
-          }
-        }
-        coef = Math.ceil(glimps.base) > startIJ[dir] ? -1 : 1;
-        node = dir === 'i' ? App.grid.grid.getNodeAt(endIJ[dir] + coef, endIJ.j) : App.grid.grid.getNodeAt(endIJ.i, endIJ[dir] + coef);
-        if (!node.block) {
-          for (i = _l = _ref7 = Math.ceil(glimps.base), _ref8 = endIJ[dir]; _ref7 <= _ref8 ? _l <= _ref8 : _l >= _ref8; i = _ref7 <= _ref8 ? ++_l : --_l) {
-            if (dir === 'i') {
-              ij = {
-                i: i,
-                j: endIJ.j
-              };
-            } else {
-              ij = {
-                i: endIJ.i,
-                j: i
-              };
-            }
-            this.pushPoint(ij, i);
-          }
-        } else {
-          if (dir === 'i') {
-            block = glimps.endBlock || App.currBlock;
-            console.log(block);
-            console.log(App.currBlock);
-            if (block) {
-              x1 = endIJ.j - block.get('startIJ').j;
-              x2 = block.get('endIJ').j - endIJ.j;
-              y1 = endIJ.j - startIJ.j;
-              side = x1 + y1 > x2 - y1 ? 'startIJ' : 'endIJ';
-              coef = side === 'startIJ' ? 1 : 0;
-              for (i = _m = _ref9 = Math.ceil(glimps.base), _ref10 = endIJ.i; _ref9 <= _ref10 ? _m <= _ref10 : _m >= _ref10; i = _ref9 <= _ref10 ? ++_m : --_m) {
-                ij = {
-                  i: i,
-                  j: block.get(side).j - coef
-                };
-                this.pushPoint(ij, i);
-              }
-              for (i = _n = _ref11 = block.get(side).j - coef, _ref12 = endIJ.j; _ref11 <= _ref12 ? _n <= _ref12 : _n >= _ref12; i = _ref11 <= _ref12 ? ++_n : --_n) {
-                ij = {
-                  i: endIJ.i,
-                  j: i
-                };
-                this.pushPoint(ij, i);
-              }
-            }
-          }
-        }
-        this.set('points', this.points);
-        this.calcPolar();
-        helpers.timeOut('path recalc');
-        return this;
-      };
-
-      Path.prototype.makeGlimps = function() {
-        var baseDirection, end, endBlock, endBlockH, endBlockW, endIJ, returnValue, start, startBlock, startBlockH, startBlockW, startIJ, xBase, xDifference, yBase, yDifference;
-
-        startIJ = this.get('startIJ');
-        endIJ = this.get('endIJ');
+        console.log(startIJ);
+        console.log(endIJ);
         startBlock = this.get('connectedStart');
         endBlock = this.get('connectedEnd');
-        startBlockW = !startBlock ? 0 : startBlock.get('w') / 2;
-        startBlockH = !startBlock ? 0 : startBlock.get('h') / 2;
-        endBlockW = !endBlock ? 0 : endBlock.get('w') / 2;
-        endBlockH = !endBlock ? 0 : endBlock.get('h') / 2;
-        if (startIJ.i < endIJ.i) {
-          end = startIJ.i + startBlockW;
-          xDifference = (endIJ.i - endBlockW) - end;
-          xBase = end + (xDifference / 2);
-        } else {
-          start = endIJ.i + endBlockW;
-          xDifference = (startIJ.i - startBlockW) - start;
-          xBase = start + (xDifference / 2);
+        if (!startBlock && !endBlock) {
+          this.pushPoint(startIJ, 0);
+          this.pushPoint(endIJ, 1);
         }
-        if (startIJ.j < endIJ.j) {
-          end = startIJ.j + startBlockH;
-          yDifference = (endIJ.j - endBlockH) - end;
-          yBase = end + (yDifference / 2);
-        } else {
-          start = endIJ.j + endBlockH;
-          yDifference = (startIJ.j - startBlockH) - start;
-          yBase = start + (yDifference / 2);
-        }
-        baseDirection = xDifference >= yDifference ? 'i' : 'j';
-        return returnValue = {
-          direction: baseDirection,
-          base: baseDirection === 'i' ? xBase : yBase,
-          startBlock: startBlock,
-          endBlock: endBlock
-        };
+        this.set('points', this.points);
+        helpers.timeOut('path recalc');
+        return this;
       };
 
       Path.prototype.calcPolar = function() {
