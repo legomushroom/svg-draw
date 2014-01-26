@@ -14,15 +14,15 @@
       "fileType" : 8,
       "debugStyle" : 0
     },
-    "\/js\/lib\/backbone.js" : {
+    "\/js\/lib\/require.js" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/lib\/backbone.js",
+      "inputAbbreviatedPath" : "\/js\/lib\/require.js",
       "outputStyle" : 1,
       "syntaxCheckerStyle" : 1,
-      "outputAbbreviatedPath" : "\/js\/lib\/backbone-ck.js",
+      "outputAbbreviatedPath" : "\/js\/lib\/require-ck.js",
       "fileType" : 64
     },
     "\/js\/lib\/hammer.js" : {
@@ -147,6 +147,17 @@
       "outputAbbreviatedPath" : "\/js\/modules\/ports-collection-ck.js",
       "fileType" : 64
     },
+    "\/js\/modules\/port.js" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 1,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/js\/modules\/port.js",
+      "outputStyle" : 1,
+      "syntaxCheckerStyle" : 1,
+      "outputAbbreviatedPath" : "\/js\/modules\/port-ck.js",
+      "fileType" : 64
+    },
     "\/js\/modules\/ProtoClass.coffee" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -158,17 +169,6 @@
       "outputAbbreviatedPath" : "\/js\/modules\/ProtoClass.js",
       "outputStyle" : 0,
       "fileType" : 32
-    },
-    "\/js\/modules\/port.js" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 1,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/modules\/port.js",
-      "outputStyle" : 1,
-      "syntaxCheckerStyle" : 1,
-      "outputAbbreviatedPath" : "\/js\/modules\/port-ck.js",
-      "fileType" : 64
     },
     "\/js\/require.js" : {
       "ignoreWasSetByUser" : 0,
@@ -326,15 +326,15 @@
       "outputAbbreviatedPath" : "\/js\/modules\/line-ck.js",
       "fileType" : 64
     },
-    "\/js\/modules\/port.coffee" : {
+    "\/js\/svg.coffee" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/modules\/port.coffee",
+      "inputAbbreviatedPath" : "\/js\/svg.coffee",
       "checkOutputStyle" : 0,
       "minifyOutput" : 0,
-      "outputAbbreviatedPath" : "\/js\/modules\/port.js",
+      "outputAbbreviatedPath" : "\/js\/svg.js",
       "outputStyle" : 0,
       "fileType" : 32
     },
@@ -350,18 +350,6 @@
       "outputStyle" : 0,
       "fileType" : 32
     },
-    "\/js\/svg.coffee" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/svg.coffee",
-      "checkOutputStyle" : 0,
-      "minifyOutput" : 0,
-      "outputAbbreviatedPath" : "\/js\/svg.js",
-      "outputStyle" : 0,
-      "fileType" : 32
-    },
     "\/js\/modules\/ProtoCollection.coffee" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -374,16 +362,17 @@
       "outputStyle" : 0,
       "fileType" : 32
     },
-    "\/index.jade" : {
+    "\/js\/modules\/port.coffee" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/index.jade",
+      "inputAbbreviatedPath" : "\/js\/modules\/port.coffee",
+      "checkOutputStyle" : 0,
+      "minifyOutput" : 0,
+      "outputAbbreviatedPath" : "\/js\/modules\/port.js",
       "outputStyle" : 0,
-      "compileDebug" : 1,
-      "outputAbbreviatedPath" : "\/index.html",
-      "fileType" : 512
+      "fileType" : 32
     },
     "\/js\/modules\/path.js" : {
       "ignoreWasSetByUser" : 0,
@@ -404,6 +393,17 @@
       "inputAbbreviatedPath" : "\/index.html",
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 2048
+    },
+    "\/index.jade" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/index.jade",
+      "outputStyle" : 0,
+      "compileDebug" : 1,
+      "outputAbbreviatedPath" : "\/index.html",
+      "fileType" : 512
     },
     "\/js\/modules\/line.coffee" : {
       "ignoreWasSetByUser" : 0,
@@ -428,15 +428,15 @@
       "outputAbbreviatedPath" : "\/js\/lib\/dat.gui.min-ck.js",
       "fileType" : 64
     },
-    "\/js\/lib\/require.js" : {
+    "\/js\/lib\/backbone.js" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/lib\/require.js",
+      "inputAbbreviatedPath" : "\/js\/lib\/backbone.js",
       "outputStyle" : 1,
       "syntaxCheckerStyle" : 1,
-      "outputAbbreviatedPath" : "\/js\/lib\/require-ck.js",
+      "outputAbbreviatedPath" : "\/js\/lib\/backbone-ck.js",
       "fileType" : 64
     }
   },
