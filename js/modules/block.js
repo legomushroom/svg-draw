@@ -32,8 +32,7 @@
       };
 
       Block.prototype.initialize = function(o) {
-        var coords,
-          _this = this;
+        var coords;
 
         this.o = o != null ? o : {};
         this.set({
@@ -52,21 +51,21 @@
         this.ports = new PortsCollection;
         window.ports = this.ports;
         this.release = _.bind(this.release, this);
-        this.ports.on('destroy', function() {
-          return console.log('destroy');
-        });
         this.render();
         this.on('change', _.bind(this.render, this));
         return this;
       };
 
       Block.prototype.createPort = function(o) {
-        var port;
+        var port, portDirection, _ref1, _ref2, _ref3;
 
         o.parent = this;
+        portDirection = ((_ref1 = o.path) != null ? _ref1.currentAddPoint : void 0) === 'startIJ' ? 'from' : 'in';
+        if ((_ref2 = (_ref3 = o.path) != null ? _ref3.get(portDirection) : void 0) != null) {
+          _ref2.destroy();
+        }
         port = new Port(o);
         this.ports.add(port);
-        console.log(this.ports);
         return port;
       };
 
@@ -427,3 +426,7 @@
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=block.map
+*/

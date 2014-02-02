@@ -148,6 +148,7 @@
             this.currPath = this.isBlockToPath;
             return this.isBlockToPath = false;
           } else {
+            console.log(this.currPath.currentAddPoint);
             point = this.currPath.currentAddPoint || 'endIJ';
             return (_ref = this.currPath) != null ? _ref.set(point, this.grid.toIJ(coords)) : void 0;
           }
@@ -181,3 +182,7 @@
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=main.map
+*/

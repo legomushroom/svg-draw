@@ -92,10 +92,10 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 
 		touchPath:(e)->
 			coords = helpers.getEventCoords(e)
-			
 			pathEndCell = @grid.isPathEndCell(coords)
-			if pathEndCell then @currPath = pathEndCell; return
+			
 
+			if pathEndCell then @currPath = pathEndCell; return
 			if not @grid.isFreeCell coords
 				@currPath = null; return
 			else @addCurrentPath(coords)
@@ -121,6 +121,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 				if @isBlockToPath
 					@currPath = @isBlockToPath; @isBlockToPath = false
 				else 
+					console.log @currPath.currentAddPoint
 					point = @currPath.currentAddPoint or 'endIJ'
 					@currPath?.set point, @grid.toIJ coords
 

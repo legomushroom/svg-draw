@@ -4,7 +4,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 
 		initialize:(@o={})->
 			@set 'id', helpers.genHash()
-			debugger
+			# debugger
 
 			if @o.coords
 				@set 
@@ -292,11 +292,6 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			# 			for i in [block.get(side).i-coef..endIJ.i]
 			# 				ij = {i: i, j: block.get(side).j-coef}
 			# 				@pushPoint ij, i
-
-						
-
-
-					
 
 
 

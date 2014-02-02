@@ -24,7 +24,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			window.ports = @ports
 			@release = _.bind @release, @
 
-			@ports.on 'destroy', => console.log 'destroy'
+			# @ports.on 'destroy', => console.log 'destroy'
 
 			@render()
 			@on 'change', _.bind @render, @
@@ -33,9 +33,13 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 		createPort:(o)-> 
 			o.parent = @
+
+			# destroy the old port if it is existent
+			portDirection = if o.path?.currentAddPoint is 'startIJ' then 'from' else 'in'
+			(o.path?.get portDirection)?.destroy()
+
 			port = new Port o
 			@ports.add port
-			console.log @ports
 			port
 
 		render:->
@@ -262,9 +266,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			@isDragMode = false
 			@setToGrid()
 
-		refreshPort:-> 
-			@ports.each (port)=>
-				port.setIJ()
+		refreshPort:-> @ports.each (port)=> port.setIJ()
 
 		setToGrid:(startIJ, endIJ)->
 			startIJ ?= @get 'startIJ'

@@ -90,7 +90,8 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 			path = holders[Object.keys(holders)[0]] if holders
 			if path and path.get('startIJ').i is coords.i and path.get('startIJ').j is coords.j
 				path.currentAddPoint = 'startIJ'
-			return path
+			
+			path
 
 		highlightCell:(coords)->
 			return if @highLights["#{coords.i}#{coords.j}"]

@@ -3,8 +3,6 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 		initialize:(@o={})->
 			@path = null
 
-			console.log('create Port')
-
 			@o.parent and (@set 'parent', @o.parent)
 			@set 'connections': 	[]
 
@@ -40,14 +38,14 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 										'startIJ': 				@get 'ij'
 										'connectedStart': @get 'parent'
 
-					path.set 'in', @
+					path.set 'from', @
 
 				else
 					path.set 	
 										'endIJ': 				@get 'ij'
 										'connectedEnd': @get 'parent'
 					
-					path.set 'from', @
+					path.set 'in', @
 
 
 
