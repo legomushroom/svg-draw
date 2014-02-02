@@ -18,6 +18,7 @@
       Path.prototype.initialize = function(o) {
         this.o = o != null ? o : {};
         this.set('id', helpers.genHash());
+        debugger;
         if (this.o.coords) {
           this.set({
             'startIJ': App.grid.toIJ(this.o.coords),
@@ -401,3 +402,7 @@
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=path.map
+*/

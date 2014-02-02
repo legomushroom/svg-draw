@@ -4,7 +4,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 
 		initialize:(@o={})->
 			@set 'id', helpers.genHash()
-
+			debugger
 
 			if @o.coords
 				@set 
