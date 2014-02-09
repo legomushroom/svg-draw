@@ -5,7 +5,7 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 			path = @o.path
 			@set 'path', @o.path
 			@set 'points', path.get 'points'
-			@addDomElement()
+			@serialize()
 			@
 
 		addDomElement:->
@@ -22,12 +22,12 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 			@g = App.SVG.createElement 'g', { id: @.get 'id' }
 			@line = App.SVG.createElement 'path', attr
 			@g.appendChild @line
-			@serialize()
-			@removeFromDom()
 			App.SVG.lineToDom @g
 			
 
 		serialize:->
+			@removeFromDom()
+			@addDomElement()
 			str = ''
 			points = @get('points')
 			# console.log(points)
@@ -61,13 +61,39 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 						str += "a1,1 0 0,1 #{xRadius},#{yRadius} "
 
 			App.SVG.setAttribute.call @line, 'd', str
+			@addHandles(points)
 			@
+
+		addHandles:(points)->
+			points ?= @get('points')
+			@handles = []
+			console.clear()
+			for point, i in points
+				if i is points.length-1 then continue
+				nextPoint = points[i+1]
+				isY = if point.x is nextPoint.x then true else false
+				@handles.push 
+							x: if isY then point.x else (point.x+nextPoint.x)/2
+							y: if isY then (point.y+nextPoint.y)/2 else point.y
+
+			@appendHandles()
+
+		appendHandles:->
+			for handle, i in @handles
+				attr = 
+					fill: 					'red'
+					'marker-mid': 		'url(#marker-mid)'
+					x: handle.x - 8
+					y: handle.y - 8
+					width: 16
+					height: 16
+
+				handleSvg = App.SVG.createElement 'rect', attr
+				@g.appendChild handleSvg
 
 		resetPoints:(points)-> @set 'points', points; @serialize(); @
 
 		remove:-> @removeFromDom(); return @
 
-		removeFromDom:-> 
-			console.log @g
-			App.SVG.canvas.removeChild @g
+		removeFromDom:-> @g and App.SVG.canvas.removeChild @g
 

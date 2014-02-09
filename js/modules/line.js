@@ -22,7 +22,7 @@
         path = this.o.path;
         this.set('path', this.o.path);
         this.set('points', path.get('points'));
-        this.addDomElement();
+        this.serialize();
         return this;
       };
 
@@ -41,14 +41,14 @@
         });
         this.line = App.SVG.createElement('path', attr);
         this.g.appendChild(this.line);
-        this.serialize();
-        this.removeFromDom();
         return App.SVG.lineToDom(this.g);
       };
 
       Line.prototype.serialize = function() {
         var i, point, points, str, xRadius, xShift, yRadius, yShift, _i, _len;
 
+        this.removeFromDom();
+        this.addDomElement();
         str = '';
         points = this.get('points');
         for (i = _i = 0, _len = points.length; _i < _len; i = ++_i) {
@@ -77,7 +77,52 @@
           }
         }
         App.SVG.setAttribute.call(this.line, 'd', str);
+        this.addHandles(points);
         return this;
+      };
+
+      Line.prototype.addHandles = function(points) {
+        var i, isY, nextPoint, point, _i, _len;
+
+        if (points == null) {
+          points = this.get('points');
+        }
+        this.handles = [];
+        console.clear();
+        for (i = _i = 0, _len = points.length; _i < _len; i = ++_i) {
+          point = points[i];
+          if (i === points.length - 1) {
+            continue;
+          }
+          nextPoint = points[i + 1];
+          isY = point.x === nextPoint.x ? true : false;
+          this.handles.push({
+            x: isY ? point.x : (point.x + nextPoint.x) / 2,
+            y: isY ? (point.y + nextPoint.y) / 2 : point.y
+          });
+        }
+        return this.appendHandles();
+      };
+
+      Line.prototype.appendHandles = function() {
+        var attr, handle, handleSvg, i, _i, _len, _ref1, _results;
+
+        _ref1 = this.handles;
+        _results = [];
+        for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
+          handle = _ref1[i];
+          attr = {
+            fill: 'red',
+            'marker-mid': 'url(#marker-mid)',
+            x: handle.x - 8,
+            y: handle.y - 8,
+            width: 16,
+            height: 16
+          };
+          handleSvg = App.SVG.createElement('rect', attr);
+          _results.push(this.g.appendChild(handleSvg));
+        }
+        return _results;
       };
 
       Line.prototype.resetPoints = function(points) {
@@ -92,8 +137,7 @@
       };
 
       Line.prototype.removeFromDom = function() {
-        console.log(this.g);
-        return App.SVG.canvas.removeChild(this.g);
+        return this.g && App.SVG.canvas.removeChild(this.g);
       };
 
       return Line;
