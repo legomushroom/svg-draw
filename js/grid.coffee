@@ -104,7 +104,7 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 				height: "1em"
 				fill: 'rgba(0,255,0,.5)'
 			rect = App.SVG.createElement 'rect', attrs
-			App.SVG.lineToDom null, rect
+			App.SVG.lineToDom rect
 			@highLights["#{coords.i}#{coords.j}"] = rect
 
 

@@ -10,7 +10,7 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 
 		addDomElement:->
 			attr = 
-				id: 						@get 'id'
+				# id: 						@get 'id'
 				d: 							''
 				stroke: 				'#00DFFC'
 				'stroke-width': 2
@@ -19,9 +19,12 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 				# 'marker-start': 	'url(#marker-start)'
 				# 'marker-end': 		'url(#marker-end)'
 
+			@g = App.SVG.createElement 'g', { id: @.get 'id' }
 			@line = App.SVG.createElement 'path', attr
+			@g.appendChild @line
 			@serialize()
-			App.SVG.lineToDom @get('id'), @line
+			@removeFromDom()
+			App.SVG.lineToDom @g
 			
 
 		serialize:->
@@ -64,5 +67,7 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 
 		remove:-> @removeFromDom(); return @
 
-		removeFromDom:-> App.SVG.canvas.removeChild @line
+		removeFromDom:-> 
+			console.log @g
+			App.SVG.canvas.removeChild @g
 

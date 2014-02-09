@@ -30,16 +30,20 @@
         var attr;
 
         attr = {
-          id: this.get('id'),
           d: '',
           stroke: '#00DFFC',
           'stroke-width': 2,
           fill: 'none',
           'marker-mid': 'url(#marker-mid)'
         };
+        this.g = App.SVG.createElement('g', {
+          id: this.get('id')
+        });
         this.line = App.SVG.createElement('path', attr);
+        this.g.appendChild(this.line);
         this.serialize();
-        return App.SVG.lineToDom(this.get('id'), this.line);
+        this.removeFromDom();
+        return App.SVG.lineToDom(this.g);
       };
 
       Line.prototype.serialize = function() {
@@ -88,7 +92,8 @@
       };
 
       Line.prototype.removeFromDom = function() {
-        return App.SVG.canvas.removeChild(this.line);
+        console.log(this.g);
+        return App.SVG.canvas.removeChild(this.g);
       };
 
       return Line;
@@ -97,3 +102,7 @@
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=line.map
+*/

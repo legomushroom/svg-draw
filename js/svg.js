@@ -75,7 +75,7 @@
         return this;
       };
 
-      SVG.prototype.lineToDom = function(id, elem) {
+      SVG.prototype.lineToDom = function(elem) {
         this.canvas.appendChild(elem);
         return this;
       };
@@ -92,3 +92,7 @@
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=svg.map
+*/
