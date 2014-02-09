@@ -386,7 +386,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			return if !points?
 			for point in points
 				node = App.grid.at(point)
-				delete node.holders[@get 'id']
+				delete node.holders?[@get 'id']
 
 		removeIfEmpty:-> 
 			if @isEmpty()

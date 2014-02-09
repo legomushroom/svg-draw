@@ -380,7 +380,7 @@
       };
 
       Path.prototype.removeFromGrid = function() {
-        var node, point, points, _i, _len, _results;
+        var node, point, points, _i, _len, _ref1, _results;
 
         points = this.get('points');
         if (points == null) {
@@ -390,7 +390,7 @@
         for (_i = 0, _len = points.length; _i < _len; _i++) {
           point = points[_i];
           node = App.grid.at(point);
-          _results.push(delete node.holders[this.get('id')]);
+          _results.push((_ref1 = node.holders) != null ? delete _ref1[this.get('id')] : void 0);
         }
         return _results;
       };
