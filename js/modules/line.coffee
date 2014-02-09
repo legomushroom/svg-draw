@@ -18,14 +18,27 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 				@currentDragHandle = e.target
 				@preventEvent e
 			hammer($(@g)).on 'drag', (e)=>
-				@dragHandle()
+				@dragHandle e
 				@preventEvent e
 			hammer($(@g)).on 'release', (e)=>
 				@currentDragHandle = null
 				@preventEvent e
 
 		dragHandle:(e)->
-			console.log @currentDragHandle
+			$segment = $ @currentDragHandle
+			data = $segment.data()
+			coords = App.grid.getNearestCellCenter App.helpers.getEventCoords e
+			points = @get 'points'		
+				
+			if data.direction is 'x'
+				points[data.segment].y 	= coords.y
+				points[data.segment+1].y = coords.y
+			else 
+				points[data.segment].x 	= coords.x
+				points[data.segment+1].x = coords.x
+
+			@serialize()
+
 
 		preventEvent:(e)->
 			e.stopPropagation()
@@ -83,13 +96,14 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 			points ?= @get('points')
 			@handles = []
 			for point, i in points
-				if i is points.length-1 or i is points.length or i is 0 then continue
+				if (i >= points.length-2) or (i is 0) then continue
 				nextPoint = points[i+1]
 				isY = if point.x is nextPoint.x then true else false
 				@handles.push 
 							x: if isY then point.x else (point.x+nextPoint.x)/2
 							y: if isY then (point.y+nextPoint.y)/2 else point.y
 							segment: i
+							direction: if isY then 'y' else 'x'
 
 			@appendHandles()
 
@@ -98,13 +112,14 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 				attr = 
 					fill: 					'red'
 					'marker-mid': 		'url(#marker-mid)'
-					x: handle.x - 8
-					y: handle.y - 8
-					width: 16
-					height: 16
+					x: handle.x - (App.gs/2)
+					y: handle.y - (App.gs/2)
+					width:  App.gs
+					height: App.gs
 					class: 	'path-handle'
 					id: 		'js-path-handle'
-					'data-segment': handle.segment
+					'data-segment':   handle.segment
+					'data-direction': handle.direction
 
 				handleSvg = App.SVG.createElement 'rect', attr
 				@g.appendChild handleSvg

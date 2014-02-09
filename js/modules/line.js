@@ -42,7 +42,7 @@
           return _this.preventEvent(e);
         });
         hammer($(this.g)).on('drag', function(e) {
-          _this.dragHandle();
+          _this.dragHandle(e);
           return _this.preventEvent(e);
         });
         return hammer($(this.g)).on('release', function(e) {
@@ -52,7 +52,20 @@
       };
 
       Line.prototype.dragHandle = function(e) {
-        return console.log(this.currentDragHandle);
+        var $segment, coords, data, points;
+
+        $segment = $(this.currentDragHandle);
+        data = $segment.data();
+        coords = App.grid.getNearestCellCenter(App.helpers.getEventCoords(e));
+        points = this.get('points');
+        if (data.direction === 'x') {
+          points[data.segment].y = coords.y;
+          points[data.segment + 1].y = coords.y;
+        } else {
+          points[data.segment].x = coords.x;
+          points[data.segment + 1].x = coords.x;
+        }
+        return this.serialize();
       };
 
       Line.prototype.preventEvent = function(e) {
@@ -122,7 +135,7 @@
         this.handles = [];
         for (i = _i = 0, _len = points.length; _i < _len; i = ++_i) {
           point = points[i];
-          if (i === points.length - 1 || i === points.length || i === 0) {
+          if ((i >= points.length - 2) || (i === 0)) {
             continue;
           }
           nextPoint = points[i + 1];
@@ -130,7 +143,8 @@
           this.handles.push({
             x: isY ? point.x : (point.x + nextPoint.x) / 2,
             y: isY ? (point.y + nextPoint.y) / 2 : point.y,
-            segment: i
+            segment: i,
+            direction: isY ? 'y' : 'x'
           });
         }
         return this.appendHandles();
@@ -146,13 +160,14 @@
           attr = {
             fill: 'red',
             'marker-mid': 'url(#marker-mid)',
-            x: handle.x - 8,
-            y: handle.y - 8,
-            width: 16,
-            height: 16,
+            x: handle.x - (App.gs / 2),
+            y: handle.y - (App.gs / 2),
+            width: App.gs,
+            height: App.gs,
             "class": 'path-handle',
             id: 'js-path-handle',
-            'data-segment': handle.segment
+            'data-segment': handle.segment,
+            'data-direction': handle.direction
           };
           handleSvg = App.SVG.createElement('rect', attr);
           _results.push(this.g.appendChild(handleSvg));
