@@ -14,11 +14,9 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			@on 'change:startIJ', _.bind @onChange, @
 			@on 'change:endIJ',		_.bind @onChange, @
 
-
 		onChange:-> 
 			@set 'oldIntersects', helpers.cloneObj @get 'intersects'
 			@render()
-
 
 		render:(isRepaintIntersects=false)->
 			@removeFromGrid()

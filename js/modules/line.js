@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('line', ['ProtoClass', 'helpers'], function(ProtoClass, helpers) {
+  define('line', ['ProtoClass', 'helpers', 'hammer'], function(ProtoClass, helpers, hammer) {
     var Line, _ref;
 
     return Line = (function(_super) {
@@ -22,8 +22,43 @@
         path = this.o.path;
         this.set('path', this.o.path);
         this.set('points', path.get('points'));
+        this.addContainer();
         this.serialize();
         return this;
+      };
+
+      Line.prototype.addContainer = function() {
+        this.g = App.SVG.createElement('g', {
+          id: this.get('id')
+        });
+        return this.events();
+      };
+
+      Line.prototype.events = function() {
+        var _this = this;
+
+        hammer($(this.g)).on('touch', function(e) {
+          _this.currentDragHandle = e.target;
+          return _this.preventEvent(e);
+        });
+        hammer($(this.g)).on('drag', function(e) {
+          _this.dragHandle();
+          return _this.preventEvent(e);
+        });
+        return hammer($(this.g)).on('release', function(e) {
+          _this.currentDragHandle = null;
+          return _this.preventEvent(e);
+        });
+      };
+
+      Line.prototype.dragHandle = function(e) {
+        return console.log(this.currentDragHandle);
+      };
+
+      Line.prototype.preventEvent = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
       };
 
       Line.prototype.addDomElement = function() {
@@ -36,9 +71,6 @@
           fill: 'none',
           'marker-mid': 'url(#marker-mid)'
         };
-        this.g = App.SVG.createElement('g', {
-          id: this.get('id')
-        });
         this.line = App.SVG.createElement('path', attr);
         this.g.appendChild(this.line);
         return App.SVG.lineToDom(this.g);
@@ -57,7 +89,7 @@
             str += "M" + point.x + "," + point.y + " ";
           } else {
             if (point.curve == null) {
-              str += "L " + point.x + ", " + point.y + " ";
+              str += "L" + point.x + "," + point.y + " ";
             } else {
               xShift = yShift = xRadius = yRadius = 0;
               if (point.curve === 'vertical') {
@@ -88,17 +120,17 @@
           points = this.get('points');
         }
         this.handles = [];
-        console.clear();
         for (i = _i = 0, _len = points.length; _i < _len; i = ++_i) {
           point = points[i];
-          if (i === points.length - 1) {
+          if (i === points.length - 1 || i === points.length || i === 0) {
             continue;
           }
           nextPoint = points[i + 1];
           isY = point.x === nextPoint.x ? true : false;
           this.handles.push({
             x: isY ? point.x : (point.x + nextPoint.x) / 2,
-            y: isY ? (point.y + nextPoint.y) / 2 : point.y
+            y: isY ? (point.y + nextPoint.y) / 2 : point.y,
+            segment: i
           });
         }
         return this.appendHandles();
@@ -117,7 +149,10 @@
             x: handle.x - 8,
             y: handle.y - 8,
             width: 16,
-            height: 16
+            height: 16,
+            "class": 'path-handle',
+            id: 'js-path-handle',
+            'data-segment': handle.segment
           };
           handleSvg = App.SVG.createElement('rect', attr);
           _results.push(this.g.appendChild(handleSvg));
@@ -137,7 +172,16 @@
       };
 
       Line.prototype.removeFromDom = function() {
-        return this.g && App.SVG.canvas.removeChild(this.g);
+        var _results;
+
+        if (!this.g) {
+          return;
+        }
+        _results = [];
+        while (this.g.hasChildNodes()) {
+          _results.push(this.g.removeChild(this.g.lastChild));
+        }
+        return _results;
       };
 
       return Line;

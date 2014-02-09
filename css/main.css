@@ -104,3 +104,6 @@ html {
 #svg-canvas path:hover {
   stroke: #008000;
 }
+#svg-canvas .path-handle:hover {
+  cursor: pointer;
+}

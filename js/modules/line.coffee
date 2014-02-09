@@ -1,16 +1,39 @@
-define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
+define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer)->
 	class Line extends ProtoClass
 		initialize:(@o={})->
 			@set 'id', helpers.genHash()
 			path = @o.path
 			@set 'path', @o.path
 			@set 'points', path.get 'points'
+			@addContainer()
 			@serialize()
 			@
 
+		addContainer:->
+			@g = App.SVG.createElement 'g', { id: @.get 'id' }
+			@events()
+
+		events:->
+			hammer($(@g)).on 'touch', (e)=>
+				@currentDragHandle = e.target
+				@preventEvent e
+			hammer($(@g)).on 'drag', (e)=>
+				@dragHandle()
+				@preventEvent e
+			hammer($(@g)).on 'release', (e)=>
+				@currentDragHandle = null
+				@preventEvent e
+
+		dragHandle:(e)->
+			console.log @currentDragHandle
+
+		preventEvent:(e)->
+			e.stopPropagation()
+			e.preventDefault()
+			false
+
 		addDomElement:->
 			attr = 
-				# id: 						@get 'id'
 				d: 							''
 				stroke: 				'#00DFFC'
 				'stroke-width': 2
@@ -19,7 +42,6 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 				# 'marker-start': 	'url(#marker-start)'
 				# 'marker-end': 		'url(#marker-end)'
 
-			@g = App.SVG.createElement 'g', { id: @.get 'id' }
 			@line = App.SVG.createElement 'path', attr
 			@g.appendChild @line
 			App.SVG.lineToDom @g
@@ -30,19 +52,12 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 			@addDomElement()
 			str = ''
 			points = @get('points')
-			# console.log(points)
-			# points.unshift {i: points[0].x - App.gs/2, j: points[0].j}
 			for point, i in points
-				
-				# if i is 0 or i is @get('points').length-1
-				# 	if @get('path').direction is 'i' then point.x -= (App.gs/2)
-				# 	if @get('path').direction is 'j' then point.y -= (App.gs/2)
-
 				if i is 0 
 					str += "M#{point.x},#{point.y} "
 				else
 					if !point.curve? 
-						str += "L #{point.x}, #{point.y} " 
+						str += "L#{point.x},#{point.y} " 
 					else
 						xShift = yShift = xRadius = yRadius = 0
 						if point.curve is 'vertical'
@@ -67,14 +82,14 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 		addHandles:(points)->
 			points ?= @get('points')
 			@handles = []
-			console.clear()
 			for point, i in points
-				if i is points.length-1 then continue
+				if i is points.length-1 or i is points.length or i is 0 then continue
 				nextPoint = points[i+1]
 				isY = if point.x is nextPoint.x then true else false
 				@handles.push 
 							x: if isY then point.x else (point.x+nextPoint.x)/2
 							y: if isY then (point.y+nextPoint.y)/2 else point.y
+							segment: i
 
 			@appendHandles()
 
@@ -87,6 +102,9 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 					y: handle.y - 8
 					width: 16
 					height: 16
+					class: 	'path-handle'
+					id: 		'js-path-handle'
+					'data-segment': handle.segment
 
 				handleSvg = App.SVG.createElement 'rect', attr
 				@g.appendChild handleSvg
@@ -95,5 +113,8 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 
 		remove:-> @removeFromDom(); return @
 
-		removeFromDom:-> @g and App.SVG.canvas.removeChild @g
+		removeFromDom:-> 
+			if !@g then return
+			while @g.hasChildNodes()
+				@g.removeChild(@g.lastChild)
 
