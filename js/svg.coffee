@@ -27,7 +27,9 @@ define 'svg', ['line', 'helpers'], (Line, helpers)->
 			@setAttributes elem, attrs  if attrs is Object(attrs)
 			elem
 
-		setAttribute:(k, v)-> @setAttribute k, v
+		setAttribute:(k, v)-> 
+			@setAttribute k, v
+
 		removeAttribute:(k)-> @removeAttribute k
 
 		setAttributes: (elem, attrs) ->

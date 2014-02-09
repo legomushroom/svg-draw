@@ -78,7 +78,6 @@
         var attr;
 
         attr = {
-          d: '',
           stroke: '#00DFFC',
           'stroke-width': 2,
           fill: 'none',

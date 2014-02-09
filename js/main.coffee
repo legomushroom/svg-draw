@@ -121,7 +121,6 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 				if @isBlockToPath
 					@currPath = @isBlockToPath; @isBlockToPath = false
 				else 
-					console.log @currPath.currentAddPoint
 					point = @currPath.currentAddPoint or 'endIJ'
 					@currPath?.set point, @grid.toIJ coords
 

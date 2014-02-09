@@ -47,7 +47,6 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 
 		addDomElement:->
 			attr = 
-				d: 							''
 				stroke: 				'#00DFFC'
 				'stroke-width': 2
 				fill: 					'none'
