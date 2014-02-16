@@ -49,7 +49,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 				isGrid: false
 				time: 	false
 
-			@currTool = ['path', 'block'][0]
+			@currTool = ['path', 'block', 'event'][0]
 			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'
 
 			@
@@ -129,7 +129,6 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 			$('#js-tools').on 'click', '#js-tool', (e)-> 
 				$this = $(@); it.currTool = $this.data().role
 				$this.addClass('is-check').siblings().removeClass('is-check')
-
 
 		addCurrentPath:(coords)->
 			@currPath = new Path

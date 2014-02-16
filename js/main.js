@@ -54,7 +54,7 @@
           isGrid: false,
           time: false
         };
-        this.currTool = ['path', 'block'][0];
+        this.currTool = ['path', 'block', 'event'][0];
         this.$tools.find("[data-role=\"" + this.currTool + "\"]").addClass('is-check');
         return this;
       };

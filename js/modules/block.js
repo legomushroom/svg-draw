@@ -160,18 +160,42 @@
         });
         return this.$el.on('mousemove', function(e) {
           if (App.currTool === 'path') {
-            return _this.highlightCurrPort(e);
+            _this.highlightCurrPort(e);
+          }
+          if (App.currTool === 'event') {
+            return _this.placeCurrentEvent(e);
           }
         });
       };
 
-      Block.prototype.highlightCurrPort = function(e) {
-        var coef, coords, i, j, node, portCoords, relativePortCoords;
+      Block.prototype.placeCurrentEvent = function(e) {
+        var portCoords;
 
         this.highlighted && App.grid.lowlightCell(this.highlighted);
         if (!App.currBlock) {
           return true;
         }
+        portCoords = this.translateToNearestPort(e);
+        console.log(portCoords);
+        App.grid.highlightCell(portCoords);
+        return this.highlighted = portCoords;
+      };
+
+      Block.prototype.highlightCurrPort = function(e) {
+        var portCoords;
+
+        this.highlighted && App.grid.lowlightCell(this.highlighted);
+        if (!App.currBlock) {
+          return true;
+        }
+        portCoords = this.translateToNearestPort(e);
+        App.grid.highlightCell(portCoords);
+        return this.highlighted = portCoords;
+      };
+
+      Block.prototype.translateToNearestPort = function(e) {
+        var coef, coords, i, j, relativePortCoords;
+
         coords = App.grid.normalizeCoords(helpers.getEventCoords(e));
         relativePortCoords = App.currBlock.getNearestPort(coords);
         coef = relativePortCoords.side === 'startIJ' ? -1 : 0;
@@ -192,13 +216,10 @@
             j = App.currBlock.get('startIJ').j + relativePortCoords.coord;
           }
         }
-        portCoords = {
+        return {
           i: i,
           j: j
         };
-        node = App.grid.grid.getNodeAt(i, j);
-        App.grid.highlightCell(portCoords);
-        return this.highlighted = portCoords;
       };
 
       Block.prototype.release = function(e) {

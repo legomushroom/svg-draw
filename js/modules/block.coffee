@@ -113,9 +113,25 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				if App.currTool is 'path'
 					@highlightCurrPort e
 
+				if App.currTool is 'event'
+					@placeCurrentEvent e
+
+		placeCurrentEvent:(e)->
+			@highlighted and App.grid.lowlightCell(@highlighted)
+			if !App.currBlock then return true
+			portCoords = @translateToNearestPort e
+			console.log portCoords
+			App.grid.highlightCell portCoords
+			@highlighted = portCoords
+
 		highlightCurrPort:(e)->
 			@highlighted and App.grid.lowlightCell(@highlighted)
 			if !App.currBlock then return true
+			portCoords = @translateToNearestPort e
+			App.grid.highlightCell portCoords
+			@highlighted = portCoords
+
+		translateToNearestPort:(e)->
 			coords = App.grid.normalizeCoords helpers.getEventCoords e
 			relativePortCoords = App.currBlock.getNearestPort coords
 			coef = if relativePortCoords.side is 'startIJ' then -1 else 0
@@ -134,10 +150,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					i = App.currBlock.get(relativePortCoords.side).i + coef
 					j = App.currBlock.get('startIJ').j + relativePortCoords.coord
 
-			portCoords = { i: i, j: j }
-			node = App.grid.grid.getNodeAt i, j
-			App.grid.highlightCell portCoords
-			@highlighted = portCoords
+			i: i
+			j: j
 
 
 		release:(e)->
