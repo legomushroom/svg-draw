@@ -243,14 +243,15 @@
       };
 
       Block.prototype.release = function(e) {
-        var coords, coordsIJ, port;
+        var coords, coordsIJ, method, port;
 
         this.highlighted && App.grid.lowlightCell(this.highlighted);
         coords = helpers.getEventCoords(e);
         coordsIJ = App.grid.normalizeCoords(coords);
-        if (App.currTool === 'path') {
+        if (App.currTool === 'path' || App.currTool === 'event') {
           if (App.currPath && App.currBlock) {
-            port = App.currBlock.createPort({
+            method = App.currTool === 'path' ? 'Port' : 'Event';
+            port = App.currBlock["create" + method]({
               path: App.currPath,
               coords: App.currBlock.getNearestPort(coordsIJ),
               positionType: 'fixed'

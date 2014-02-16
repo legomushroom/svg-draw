@@ -73,7 +73,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 
 			hammer(@$main[0]).on 'release', (e)=>
 				switch @currTool
-					when 'path'
+					when 'path', 'event'
 						@releasePath(e)
 					when 'block'
 						@releaseBlock(e)
@@ -94,7 +94,6 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 		touchPath:(e)->
 			coords = helpers.getEventCoords(e)
 			pathEndCell = @grid.isPathEndCell(coords)
-			
 
 			if pathEndCell then @currPath = pathEndCell; return
 			if not @grid.isFreeCell coords
@@ -104,17 +103,6 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 		releasePath:(e)-> 
 			if @currBlock
 				@currBlock.release e
-			# coords = @grid.normalizeCoords helpers.getEventCoords(e)
-			
-
-				# if @currPath.currentAddPoint is 'startIJ'
-				# 	console.log @currPath.get 'from'
-				# else 
-				# 	console.log @currPath.get 'in'
-
-			# if @currPath
-			# 	@currPath.currentAddPoint = null
-			# 	@currPath.removeIfEmpty();
 
 		dragPath:(e)->
 			coords = helpers.getEventCoords(e)

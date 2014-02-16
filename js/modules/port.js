@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('port', ['ProtoClass', 'path'], function(ProtoClass, Path) {
+  define('port', ['ProtoClass', 'path', 'helpers', 'hammer'], function(ProtoClass, Path, helpers, hammer) {
     var Port, _ref;
 
     Port = (function(_super) {
@@ -13,6 +13,10 @@
         _ref = Port.__super__.constructor.apply(this, arguments);
         return _ref;
       }
+
+      Port.prototype.defaults = {
+        size: 1
+      };
 
       Port.prototype.initialize = function(o) {
         this.o = o != null ? o : {};
@@ -25,8 +29,26 @@
         this.setIJ();
         this.addConnection(this.o.path);
         this.render();
+        this.events();
         this.on('change:ij', _.bind(this.onChange, this));
         return this;
+      };
+
+      Port.prototype.events = function() {
+        var _this = this;
+
+        hammer(this.el).on('drag', function(e) {
+          var coords;
+
+          coords = App.grid.normalizeCoords(helpers.getEventCoords(e));
+          App.currPath = _this.path;
+          _this.set('ij', coords);
+          e.preventDefault();
+          return e.stopPropagation();
+        });
+        return hammer(this.el).on('relese', function(e) {
+          return App.currPath = null;
+        });
       };
 
       Port.prototype.onChange = function() {
@@ -55,17 +77,22 @@
       };
 
       Port.prototype.createDomElement = function() {
-        var attrs, el, ij;
+        var attrs, el, ij, size;
 
         ij = this.get('ij');
+        size = this.get('size');
         attrs = {
-          width: App.gs,
-          height: App.gs,
+          width: size * App.gs,
+          height: size * App.gs,
           fill: 'orange'
         };
         el = App.SVG.createElement('rect', attrs);
         App.SVG.lineToDom(el);
         return el;
+      };
+
+      Port.prototype.removeFromDom = function() {
+        return App.SVG.removeElem(this.el);
       };
 
       Port.prototype.addConnection = function(path) {
@@ -132,6 +159,12 @@
         }
         this.set('ij', ij);
         return this;
+      };
+
+      Port.prototype.destroy = function() {
+        hammer(this.el).off('drag');
+        this.removeFromDom();
+        return Port.__super__.destroy.apply(this, arguments);
       };
 
       return Port;

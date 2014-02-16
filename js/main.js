@@ -84,6 +84,7 @@
         return hammer(this.$main[0]).on('release', function(e) {
           switch (_this.currTool) {
             case 'path':
+            case 'event':
               return _this.releasePath(e);
             case 'block':
               return _this.releaseBlock(e);

@@ -14,6 +14,10 @@
         return _ref;
       }
 
+      Event.prototype.defaults = {
+        size: 2
+      };
+
       return Event;
 
     })(Port);

@@ -34,7 +34,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 		createPort:(o)-> 
 			o.parent = @
 
-			# destroy the old port if it is existent
+			# destroy the old port if it exists
 			portDirection = if o.path?.currentAddPoint is 'startIJ' then 'from' else 'in'
 			(o.path?.get portDirection)?.destroy()
 
@@ -44,8 +44,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 		createEvent:(o)-> 
 			o.parent = @
-
-			# destroy the old port if it is existent
+			# destroy the old port if it exists
 			portDirection = if o.path?.currentAddPoint is 'startIJ' then 'from' else 'in'
 			(o.path?.get portDirection)?.destroy()
 
@@ -178,19 +177,11 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 			coords = helpers.getEventCoords e
 			coordsIJ = App.grid.normalizeCoords coords
-			if App.currTool is 'path'
+			if App.currTool is 'path' or App.currTool is 'event'
 				if App.currPath and App.currBlock
 
-					# if App.currPath.get('from') or App.currPath.get('in')
-
-					# 	if @ports.containPath App.currPath.get('id')
-					# 		console.log 'yes'
-
-					# 	if App.currPath.currentAddPoint is 'startIJ'
-					# 		App.currPath.get('from')?.destroy()
-					# 	else App.currPath.get('in')?.destroy()
-
-					port = App.currBlock.createPort
+					method = if App.currTool is 'path' then 'Port' else 'Event'
+					port = App.currBlock["create#{method}"]
 																path: App.currPath
 																coords: App.currBlock.getNearestPort coordsIJ
 																positionType: 'fixed'

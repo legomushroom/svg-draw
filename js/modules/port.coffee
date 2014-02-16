@@ -1,5 +1,8 @@
-define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
+define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, helpers, hammer)->
 	class Port extends ProtoClass
+		defaults:
+			size: 1
+
 		initialize:(@o={})->
 			@path = null
 
@@ -11,9 +14,22 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 
 			@addConnection @o.path
 			@render()
+			@events()
 			@on 'change:ij', _.bind @onChange, @
 
 			@
+
+		events:->
+			hammer(@el).on 'drag', (e)=>
+				coords = App.grid.normalizeCoords helpers.getEventCoords e
+				App.currPath = @path
+				@set 'ij', coords
+				e.preventDefault()
+				e.stopPropagation()
+
+			hammer(@el).on 'relese', (e)=>
+				App.currPath = null
+
 
 		onChange:->
 			for connection,i in @get 'connections'
@@ -30,16 +46,19 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 				y: ij.j*App.gs
 			
 		createDomElement:->
-			ij = @get('ij')
+			ij 		= @get('ij')
+			size 	= @get('size')
 			attrs =
-				width: App.gs
-				height: App.gs
-				fill: 'orange'
+				width:  size*App.gs
+				height: size*App.gs
+				fill: 	'orange'
 			
 			el = App.SVG.createElement 'rect', attrs
 			App.SVG.lineToDom el
 			el
 
+		removeFromDom:->
+			App.SVG.removeElem @el
 
 		addConnection:(path)->
 			direction = ''
@@ -102,5 +121,10 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			@set 'ij', ij
 
 			@
+
+		destroy:->
+			hammer(@el).off 'drag'
+			@removeFromDom()
+			super
 
 	Port
