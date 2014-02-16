@@ -9,6 +9,7 @@ require.config
 		path: 				'modules/path'
 		block: 				'modules/block'
 		port: 				'modules/port'
+		event: 				'modules/event'
 		'ports-collection': 				'modules/ports-collection'
 		line: 				'modules/line'
 		ProtoClass: 	'modules/ProtoClass'
@@ -65,7 +66,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 
 			hammer(@$main[0]).on 'drag', (e)=>
 				switch @currTool
-					when 'path'
+					when 'path', 'event'
 						@dragPath(e)
 					when 'block'
 						@dragBlock(e)

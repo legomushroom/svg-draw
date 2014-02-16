@@ -11,6 +11,7 @@
       path: 'modules/path',
       block: 'modules/block',
       port: 'modules/port',
+      event: 'modules/event',
       'ports-collection': 'modules/ports-collection',
       line: 'modules/line',
       ProtoClass: 'modules/ProtoClass',
@@ -74,6 +75,7 @@
         hammer(this.$main[0]).on('drag', function(e) {
           switch (_this.currTool) {
             case 'path':
+            case 'event':
               return _this.dragPath(e);
             case 'block':
               return _this.dragBlock(e);

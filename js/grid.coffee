@@ -14,6 +14,7 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 
 			@debugGrid = []
 			@highLights = {}
+			@highLightsEvent = {}
 			@
 			
 		holdCell:(ij, obj)->
@@ -93,6 +94,21 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 			
 			path
 
+
+		highlightEvent:(coords)->
+			return if @highLightsEvent["#{coords.i}#{coords.j}"]
+			i = coords.i
+			j = coords.j
+			attrs = 
+				x: "#{i-1}em"
+				y: "#{j-1}em"
+				width: 	"2em"
+				height: "2em"
+				fill: 'rgba(0,255,0,.5)'
+			rect = App.SVG.createElement 'rect', attrs
+			App.SVG.lineToDom rect
+			@highLightsEvent["#{coords.i}#{coords.j}"] = rect
+
 		highlightCell:(coords)->
 			return if @highLights["#{coords.i}#{coords.j}"]
 			i = coords.i
@@ -112,6 +128,11 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 			if @highLights["#{coords.i}#{coords.j}"] 
 				App.SVG.removeElem @highLights["#{coords.i}#{coords.j}"] 
 				@highLights["#{coords.i}#{coords.j}"] = null
+
+		lowlightEvent:(coords)-> 
+			if @highLightsEvent["#{coords.i}#{coords.j}"] 
+				App.SVG.removeElem @highLightsEvent["#{coords.i}#{coords.j}"] 
+				@highLightsEvent["#{coords.i}#{coords.j}"] = null
 
 
 		# ifBlockCell:(coords)->

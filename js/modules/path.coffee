@@ -376,8 +376,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 		makeSvgPath:()-> 
 			if !@line?
 				@line = new Line path: @ 
-				hammer(@line.line).on 'touch', =>
-					console.log 'touch'
+				# hammer(@line.line).on 'touch', =>
+				# 	console.log 'touch'
 
 			else @line.resetPoints @get 'points'
 

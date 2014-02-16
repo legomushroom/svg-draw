@@ -85,7 +85,8 @@
         };
         this.line = App.SVG.createElement('path', attr);
         this.g.appendChild(this.line);
-        return App.SVG.lineToDom(this.g);
+        !this.appended && App.SVG.lineToDom(this.g);
+        return this.appended = true;
       };
 
       Line.prototype.serialize = function() {

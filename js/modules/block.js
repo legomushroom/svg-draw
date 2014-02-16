@@ -3,7 +3,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'ports-collection', 'port'], function(B, _, helpers, ProtoClass, hammer, Path, PortsCollection, Port) {
+  define('block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'ports-collection', 'port', 'event'], function(B, _, helpers, ProtoClass, hammer, Path, PortsCollection, Port, Event) {
     var Block, _ref;
 
     Block = (function(_super) {
@@ -69,6 +69,19 @@
         return port;
       };
 
+      Block.prototype.createEvent = function(o) {
+        var port, portDirection, _ref1, _ref2, _ref3;
+
+        o.parent = this;
+        portDirection = ((_ref1 = o.path) != null ? _ref1.currentAddPoint : void 0) === 'startIJ' ? 'from' : 'in';
+        if ((_ref2 = (_ref3 = o.path) != null ? _ref3.get(portDirection) : void 0) != null) {
+          _ref2.destroy();
+        }
+        port = new Event(o);
+        this.ports.add(port);
+        return port;
+      };
+
       Block.prototype.render = function() {
         var startIJ;
 
@@ -114,6 +127,13 @@
             });
             App.isBlockToPath = port.path;
           }
+          if (App.currTool === 'event') {
+            port = _this.createEvent({
+              coords: _this.getNearestPort(coords),
+              positionType: 'fixed'
+            });
+            App.isBlockToPath = port.path;
+          }
           return helpers.stopEvent(e);
         });
         hammer(this.$el[0]).on('drag', function(e) {
@@ -148,6 +168,7 @@
         });
         this.$el.on('mouseleave', function(e) {
           _this.highlighted && App.grid.lowlightCell(_this.highlighted);
+          _this.highlightedEvent && App.grid.lowlightEvent(_this.highlightedEvent);
           if (_this.isDragMode) {
             return;
           }
@@ -171,14 +192,13 @@
       Block.prototype.placeCurrentEvent = function(e) {
         var portCoords;
 
-        this.highlighted && App.grid.lowlightCell(this.highlighted);
+        this.highlightedEvent && App.grid.lowlightEvent(this.highlightedEvent);
         if (!App.currBlock) {
           return true;
         }
-        portCoords = this.translateToNearestPort(e);
-        console.log(portCoords);
-        App.grid.highlightCell(portCoords);
-        return this.highlighted = portCoords;
+        portCoords = this.translateToNearestPort(e, true);
+        App.grid.highlightEvent(portCoords);
+        return this.highlightedEvent = portCoords;
       };
 
       Block.prototype.highlightCurrPort = function(e) {
@@ -193,12 +213,12 @@
         return this.highlighted = portCoords;
       };
 
-      Block.prototype.translateToNearestPort = function(e) {
+      Block.prototype.translateToNearestPort = function(e, isEvent) {
         var coef, coords, i, j, relativePortCoords;
 
         coords = App.grid.normalizeCoords(helpers.getEventCoords(e));
         relativePortCoords = App.currBlock.getNearestPort(coords);
-        coef = relativePortCoords.side === 'startIJ' ? -1 : 0;
+        coef = relativePortCoords.side === 'startIJ' && !isEvent ? -1 : 0;
         if (relativePortCoords.dir === 'j') {
           if (relativePortCoords.side === 'startIJ') {
             i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord;

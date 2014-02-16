@@ -365,14 +365,9 @@
       };
 
       Path.prototype.makeSvgPath = function() {
-        var _this = this;
-
         if (this.line == null) {
-          this.line = new Line({
+          return this.line = new Line({
             path: this
-          });
-          return hammer(this.line.line).on('touch', function() {
-            return console.log('touch');
           });
         } else {
           return this.line.resetPoints(this.get('points'));

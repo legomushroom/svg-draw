@@ -1,4 +1,4 @@
-define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'ports-collection', 'port'], (B, _, helpers, ProtoClass, hammer, Path, PortsCollection, Port)->
+define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'ports-collection', 'port', 'event'], (B, _, helpers, ProtoClass, hammer, Path, PortsCollection, Port, Event)->
 
 	class Block extends ProtoClass
 		type:  			'block'
@@ -42,6 +42,17 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			@ports.add port
 			port
 
+		createEvent:(o)-> 
+			o.parent = @
+
+			# destroy the old port if it is existent
+			portDirection = if o.path?.currentAddPoint is 'startIJ' then 'from' else 'in'
+			(o.path?.get portDirection)?.destroy()
+
+			port = new Event o
+			@ports.add port
+			port
+
 		render:->
 			@calcDimentions()
 			# @removeOldSelfFromGrid()
@@ -78,6 +89,14 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 												positionType: 'fixed'
 
 					App.isBlockToPath = port.path
+
+				if App.currTool is 'event'
+					port = @createEvent
+												coords: 			@getNearestPort coords
+												positionType: 'fixed'
+
+					App.isBlockToPath = port.path
+
 				helpers.stopEvent e
 
 			hammer(@$el[0]).on 'drag', (e)=>
@@ -101,7 +120,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				else @$el.addClass 'is-drag'
 
 			@$el.on 'mouseleave', (e)=>
-				@highlighted and App.grid.lowlightCell(@highlighted)
+				@highlighted  		and App.grid.lowlightCell(@highlighted)
+				@highlightedEvent and App.grid.lowlightEvent(@highlightedEvent)
 				if @isDragMode then return
 
 				App.currBlock = null
@@ -117,12 +137,11 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					@placeCurrentEvent e
 
 		placeCurrentEvent:(e)->
-			@highlighted and App.grid.lowlightCell(@highlighted)
+			@highlightedEvent and App.grid.lowlightEvent(@highlightedEvent)
 			if !App.currBlock then return true
-			portCoords = @translateToNearestPort e
-			console.log portCoords
-			App.grid.highlightCell portCoords
-			@highlighted = portCoords
+			portCoords = @translateToNearestPort e, true
+			App.grid.highlightEvent portCoords
+			@highlightedEvent = portCoords
 
 		highlightCurrPort:(e)->
 			@highlighted and App.grid.lowlightCell(@highlighted)
@@ -131,10 +150,10 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			App.grid.highlightCell portCoords
 			@highlighted = portCoords
 
-		translateToNearestPort:(e)->
+		translateToNearestPort:(e, isEvent)->
 			coords = App.grid.normalizeCoords helpers.getEventCoords e
 			relativePortCoords = App.currBlock.getNearestPort coords
-			coef = if relativePortCoords.side is 'startIJ' then -1 else 0
+			coef = if relativePortCoords.side is 'startIJ' and !isEvent then -1 else 0
 			if relativePortCoords.dir is 'j'
 				if relativePortCoords.side is 'startIJ'
 					i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord

@@ -10,6 +10,7 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			@setIJ()
 
 			@addConnection @o.path
+			@render()
 			@on 'change:ij', _.bind @onChange, @
 
 			@
@@ -19,6 +20,26 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 				connection.path.set "#{connection.direction}IJ", @get 'ij'
 
 			App.grid.refreshGrid()
+			@render()
+
+		render:->
+			@el ?= @createDomElement()
+			ij = @get('ij')
+			App.SVG.setAttributes @el, 
+				x: ij.i*App.gs
+				y: ij.j*App.gs
+			
+		createDomElement:->
+			ij = @get('ij')
+			attrs =
+				width: App.gs
+				height: App.gs
+				fill: 'orange'
+			
+			el = App.SVG.createElement 'rect', attrs
+			App.SVG.lineToDom el
+			el
+
 
 		addConnection:(path)->
 			direction = ''

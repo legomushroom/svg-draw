@@ -17,6 +17,7 @@
         });
         this.debugGrid = [];
         this.highLights = {};
+        this.highLightsEvent = {};
         this;
       }
 
@@ -140,6 +141,26 @@
         return path;
       };
 
+      Grid.prototype.highlightEvent = function(coords) {
+        var attrs, i, j, rect;
+
+        if (this.highLightsEvent["" + coords.i + coords.j]) {
+          return;
+        }
+        i = coords.i;
+        j = coords.j;
+        attrs = {
+          x: "" + (i - 1) + "em",
+          y: "" + (j - 1) + "em",
+          width: "2em",
+          height: "2em",
+          fill: 'rgba(0,255,0,.5)'
+        };
+        rect = App.SVG.createElement('rect', attrs);
+        App.SVG.lineToDom(rect);
+        return this.highLightsEvent["" + coords.i + coords.j] = rect;
+      };
+
       Grid.prototype.highlightCell = function(coords) {
         var attrs, i, j, rect;
 
@@ -164,6 +185,13 @@
         if (this.highLights["" + coords.i + coords.j]) {
           App.SVG.removeElem(this.highLights["" + coords.i + coords.j]);
           return this.highLights["" + coords.i + coords.j] = null;
+        }
+      };
+
+      Grid.prototype.lowlightEvent = function(coords) {
+        if (this.highLightsEvent["" + coords.i + coords.j]) {
+          App.SVG.removeElem(this.highLightsEvent["" + coords.i + coords.j]);
+          return this.highLightsEvent["" + coords.i + coords.j] = null;
         }
       };
 

@@ -24,6 +24,7 @@
         this.set('coords', this.o.coords);
         this.setIJ();
         this.addConnection(this.o.path);
+        this.render();
         this.on('change:ij', _.bind(this.onChange, this));
         return this;
       };
@@ -36,7 +37,35 @@
           connection = _ref1[i];
           connection.path.set("" + connection.direction + "IJ", this.get('ij'));
         }
-        return App.grid.refreshGrid();
+        App.grid.refreshGrid();
+        return this.render();
+      };
+
+      Port.prototype.render = function() {
+        var ij, _ref1;
+
+        if ((_ref1 = this.el) == null) {
+          this.el = this.createDomElement();
+        }
+        ij = this.get('ij');
+        return App.SVG.setAttributes(this.el, {
+          x: ij.i * App.gs,
+          y: ij.j * App.gs
+        });
+      };
+
+      Port.prototype.createDomElement = function() {
+        var attrs, el, ij;
+
+        ij = this.get('ij');
+        attrs = {
+          width: App.gs,
+          height: App.gs,
+          fill: 'orange'
+        };
+        el = App.SVG.createElement('rect', attrs);
+        App.SVG.lineToDom(el);
+        return el;
       };
 
       Port.prototype.addConnection = function(path) {

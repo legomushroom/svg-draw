@@ -56,7 +56,8 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 
 			@line = App.SVG.createElement 'path', attr
 			@g.appendChild @line
-			App.SVG.lineToDom @g
+			!@appended and App.SVG.lineToDom(@g)
+			@appended = true
 			
 
 		serialize:->
