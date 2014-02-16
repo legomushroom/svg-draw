@@ -14,7 +14,6 @@ define 'helpers', ['md5'], (md5)->
 				copy[attr] = obj[attr]  if obj.hasOwnProperty(attr)
 			copy
 		
-
 		getEventCoords:(e)-> 
 			return if e.clientX then { x: e.clientX, y: e.clientY }
 			else { x: e.gesture.center.pageX, y: e.gesture.center.pageY }
