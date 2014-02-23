@@ -2,6 +2,7 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 	class Port extends ProtoClass
 		defaults:
 			size: 1
+			type: 'port'
 
 		initialize:(@o={})->
 			@path = null
@@ -27,8 +28,18 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 				e.preventDefault()
 				e.stopPropagation()
 
-			hammer(@el).on 'relese', (e)=>
+			hammer(@el).on 'release', (e)=>
+				switch @get 'type'
+					when 'event' 
+						coords = App.currBlock.placeCurrentEvent App.grid.normalizeCoords helpers.getEventCoords e
+					when 'port' 
+						coords = App.currBlock.getNearestPort App.grid.normalizeCoords helpers.getEventCoords e
+				@set 'coords', coords
+				console.log coords
+				@setIJ()
 				App.currPath = null
+				e.preventDefault()
+				e.stopPropagation()
 
 
 		onChange:->
@@ -79,7 +90,6 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 										'connectedStart': @get 'parent'
 
 					path.set 'from', @
-
 				else
 					path.set 	
 										'endIJ': 				@get 'ij'
@@ -100,6 +110,9 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 			@path = path
 			path
 
+		###
+		 * [setIJ set relative coordinates from nearest port/event object]
+		###
 		setIJ:->
 			parent = @get 'parent'
 			parentStartIJ = parent.get 'startIJ'

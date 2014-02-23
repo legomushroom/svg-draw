@@ -67,6 +67,7 @@
         hammer(this.$main[0]).on('touch', function(e) {
           switch (_this.currTool) {
             case 'path':
+            case 'event':
               return _this.touchPath(e);
             case 'block':
               return _this.touchBlock(e);

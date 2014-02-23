@@ -59,7 +59,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 			@currPath = null
 			hammer(@$main[0]).on 'touch', (e)=>
 				switch @currTool
-					when 'path'
+					when 'path', 'event'
 						@touchPath(e)
 					when 'block'
 						@touchBlock(e)

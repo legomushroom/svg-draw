@@ -181,9 +181,10 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				if App.currPath and App.currBlock
 
 					method = if App.currTool is 'path' then 'Port' else 'Event'
+					coords = App.currBlock.getNearestPort coordsIJ
 					port = App.currBlock["create#{method}"]
 																path: App.currPath
-																coords: App.currBlock.getNearestPort coordsIJ
+																coords: coords
 																positionType: 'fixed'
 
 					App.currPath.currentAddPoint = null

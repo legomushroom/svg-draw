@@ -251,9 +251,10 @@
         if (App.currTool === 'path' || App.currTool === 'event') {
           if (App.currPath && App.currBlock) {
             method = App.currTool === 'path' ? 'Port' : 'Event';
+            coords = App.currBlock.getNearestPort(coordsIJ);
             port = App.currBlock["create" + method]({
               path: App.currPath,
-              coords: App.currBlock.getNearestPort(coordsIJ),
+              coords: coords,
               positionType: 'fixed'
             });
             App.currPath.currentAddPoint = null;

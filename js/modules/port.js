@@ -15,7 +15,8 @@
       }
 
       Port.prototype.defaults = {
-        size: 1
+        size: 1,
+        type: 'port'
       };
 
       Port.prototype.initialize = function(o) {
@@ -46,8 +47,22 @@
           e.preventDefault();
           return e.stopPropagation();
         });
-        return hammer(this.el).on('relese', function(e) {
-          return App.currPath = null;
+        return hammer(this.el).on('release', function(e) {
+          var coords;
+
+          switch (_this.get('type')) {
+            case 'event':
+              coords = App.currBlock.placeCurrentEvent(App.grid.normalizeCoords(helpers.getEventCoords(e)));
+              break;
+            case 'port':
+              coords = App.currBlock.getNearestPort(App.grid.normalizeCoords(helpers.getEventCoords(e)));
+          }
+          _this.set('coords', coords);
+          console.log(coords);
+          _this.setIJ();
+          App.currPath = null;
+          e.preventDefault();
+          return e.stopPropagation();
         });
       };
 
@@ -135,6 +150,11 @@
         this.path = path;
         return path;
       };
+
+      /*
+      		 * [setIJ set relative coordinates from nearest port/event object]
+      */
+
 
       Port.prototype.setIJ = function() {
         var coords, ij, parent, parentStartIJ, side;

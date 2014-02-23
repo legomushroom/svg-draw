@@ -15,7 +15,8 @@
       }
 
       Event.prototype.defaults = {
-        size: 2
+        size: 2,
+        type: 'event'
       };
 
       return Event;
