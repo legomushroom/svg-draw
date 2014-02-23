@@ -52,7 +52,7 @@
 
           switch (_this.get('type')) {
             case 'event':
-              coords = App.currBlock.placeCurrentEvent(App.grid.normalizeCoords(helpers.getEventCoords(e)));
+              coords = App.currBlock.getNearestPort(App.currBlock.placeCurrentEvent(e));
               break;
             case 'port':
               coords = App.currBlock.getNearestPort(App.grid.normalizeCoords(helpers.getEventCoords(e)));

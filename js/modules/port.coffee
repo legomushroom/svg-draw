@@ -31,7 +31,7 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 			hammer(@el).on 'release', (e)=>
 				switch @get 'type'
 					when 'event' 
-						coords = App.currBlock.placeCurrentEvent App.grid.normalizeCoords helpers.getEventCoords e
+						coords = App.currBlock.getNearestPort App.currBlock.placeCurrentEvent e
 					when 'port' 
 						coords = App.currBlock.getNearestPort App.grid.normalizeCoords helpers.getEventCoords e
 				@set 'coords', coords
