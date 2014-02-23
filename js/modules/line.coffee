@@ -28,8 +28,9 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 			$segment = $ @currentDragHandle
 			data = $segment.data()
 			coords = App.grid.getNearestCellCenter App.helpers.getEventCoords e
-			points = @get 'points'		
-				
+			points = @get 'points'
+
+			console.log data.segment
 			if data.direction is 'x'
 				points[data.segment].y 	= coords.y
 				points[data.segment+1].y = coords.y
@@ -64,7 +65,9 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 			@removeFromDom()
 			@addDomElement()
 			str = ''
-			points = @get('points')
+			# points = @get('points')
+			path = @get 'path'
+			points = @normalizeFirstPoints()
 			for point, i in points
 				if i is 0 
 					str += "M#{point.x},#{point.y} "
@@ -92,18 +95,69 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 			@addHandles(points)
 			@
 
+		normalizeFirstPoints:->
+			path = @get 'path'
+			startPort 	= path.get 'from'
+			endPort  	  = path.get 'in'
+			points = @get('points').slice(0)
+
+			endX = 0
+			endY = 0
+			startX = 0
+			startY = 0
+			if startPort
+				coords = startPort.get 'coords'
+				if coords.dir is 'i'
+					if coords.side is 'startIJ'
+						endX = App.gs/2
+					else 
+						endX = -(App.gs/2)
+				else
+					if coords.side is 'startIJ'
+						endY = App.gs/2
+					else 
+						endY = -(App.gs/2)
+
+			if endPort
+				coords = endPort.get 'coords'
+				if coords.dir is 'i'
+					if coords.side is 'startIJ'
+						endX = (App.gs/2)
+					else 
+						endX = - (App.gs/2)
+				else
+					if coords.side is 'startIJ'
+						endY = (App.gs/2)
+						endX = 0
+					else 
+						endY = - (App.gs/2)
+						endX = 0
+
+			points.unshift 
+						i: -1
+						x: points[0].x + startX
+						y: points[0].y + startY
+
+			points.push
+						i: 34
+						x: points[points.length-1].x + endX
+						y: points[points.length-1].y + endY
+
+			points
+
+
 
 		addHandles:(points)->
 			points ?= @get('points')
 			@handles = []
 			for point, i in points
-				if (i >= points.length-2) or (i is 0) then continue
+				if (i >= points.length-3) or (i < 2) then continue
 				nextPoint = points[i+1]
 				isY = if point.x is nextPoint.x then true else false
 				@handles.push 
 							x: if isY then point.x else (point.x+nextPoint.x)/2
 							y: if isY then (point.y+nextPoint.y)/2 else point.y
-							segment: i
+							segment: i-1
 							direction: if isY then 'y' else 'x'
 
 			@appendHandles()
@@ -114,8 +168,8 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 				attr = 
 					fill: 					'red'
 					'marker-mid': 		'url(#marker-mid)'
-					x: if dir is 'x' then handle.x - (App.gs) else handle.x - (App.gs/4)
-					y: if dir is 'y' then handle.y - (App.gs/2) else handle.y - App.gs
+					x: if dir is 'x' then handle.x - (App.gs) else handle.x -   (App.gs/4)
+					y: if dir is 'y' then handle.y - (App.gs/2) else handle.y - (App.gs/4)
 					width:  if dir is 'y' then App.gs/2 else App.gs
 					height: if dir is 'x' then App.gs/2 else App.gs
 					class: 	'path-handle'

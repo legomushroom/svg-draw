@@ -58,6 +58,7 @@
         data = $segment.data();
         coords = App.grid.getNearestCellCenter(App.helpers.getEventCoords(e));
         points = this.get('points');
+        console.log(data.segment);
         if (data.direction === 'x') {
           points[data.segment].y = coords.y;
           points[data.segment + 1].y = coords.y;
@@ -90,12 +91,13 @@
       };
 
       Line.prototype.serialize = function() {
-        var i, point, points, str, xRadius, xShift, yRadius, yShift, _i, _len;
+        var i, path, point, points, str, xRadius, xShift, yRadius, yShift, _i, _len;
 
         this.removeFromDom();
         this.addDomElement();
         str = '';
-        points = this.get('points');
+        path = this.get('path');
+        points = this.normalizeFirstPoints();
         for (i = _i = 0, _len = points.length; _i < _len; i = ++_i) {
           point = points[i];
           if (i === 0) {
@@ -126,6 +128,64 @@
         return this;
       };
 
+      Line.prototype.normalizeFirstPoints = function() {
+        var coords, endPort, endX, endY, path, points, startPort, startX, startY;
+
+        path = this.get('path');
+        startPort = path.get('from');
+        endPort = path.get('in');
+        points = this.get('points').slice(0);
+        endX = 0;
+        endY = 0;
+        startX = 0;
+        startY = 0;
+        if (startPort) {
+          coords = startPort.get('coords');
+          if (coords.dir === 'i') {
+            if (coords.side === 'startIJ') {
+              endX = App.gs / 2;
+            } else {
+              endX = -(App.gs / 2);
+            }
+          } else {
+            if (coords.side === 'startIJ') {
+              endY = App.gs / 2;
+            } else {
+              endY = -(App.gs / 2);
+            }
+          }
+        }
+        if (endPort) {
+          coords = endPort.get('coords');
+          if (coords.dir === 'i') {
+            if (coords.side === 'startIJ') {
+              endX = App.gs / 2;
+            } else {
+              endX = -(App.gs / 2);
+            }
+          } else {
+            if (coords.side === 'startIJ') {
+              endY = App.gs / 2;
+              endX = 0;
+            } else {
+              endY = -(App.gs / 2);
+              endX = 0;
+            }
+          }
+        }
+        points.unshift({
+          i: -1,
+          x: points[0].x + startX,
+          y: points[0].y + startY
+        });
+        points.push({
+          i: 34,
+          x: points[points.length - 1].x + endX,
+          y: points[points.length - 1].y + endY
+        });
+        return points;
+      };
+
       Line.prototype.addHandles = function(points) {
         var i, isY, nextPoint, point, _i, _len;
 
@@ -135,7 +195,7 @@
         this.handles = [];
         for (i = _i = 0, _len = points.length; _i < _len; i = ++_i) {
           point = points[i];
-          if ((i >= points.length - 2) || (i === 0)) {
+          if ((i >= points.length - 3) || (i < 2)) {
             continue;
           }
           nextPoint = points[i + 1];
@@ -143,7 +203,7 @@
           this.handles.push({
             x: isY ? point.x : (point.x + nextPoint.x) / 2,
             y: isY ? (point.y + nextPoint.y) / 2 : point.y,
-            segment: i,
+            segment: i - 1,
             direction: isY ? 'y' : 'x'
           });
         }
@@ -162,7 +222,7 @@
             fill: 'red',
             'marker-mid': 'url(#marker-mid)',
             x: dir === 'x' ? handle.x - App.gs : handle.x - (App.gs / 4),
-            y: dir === 'y' ? handle.y - (App.gs / 2) : handle.y - App.gs,
+            y: dir === 'y' ? handle.y - (App.gs / 2) : handle.y - (App.gs / 4),
             width: dir === 'y' ? App.gs / 2 : App.gs,
             height: dir === 'x' ? App.gs / 2 : App.gs,
             "class": 'path-handle',
