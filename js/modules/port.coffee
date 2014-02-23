@@ -1,9 +1,11 @@
-define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
+define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, helpers, hammer)->
 	class Port extends ProtoClass
+		defaults:
+			size: 1
+			type: 'port'
+
 		initialize:(@o={})->
 			@path = null
-
-			console.log('create Port')
 
 			@o.parent and (@set 'parent', @o.parent)
 			@set 'connections': 	[]
@@ -12,15 +14,103 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			@setIJ()
 
 			@addConnection @o.path
+			@render()
+			@events()
 			@on 'change:ij', _.bind @onChange, @
 
 			@
 
+		events:->
+			hammer(@el).on 'drag', (e)=>
+				coords = App.grid.normalizeCoords helpers.getEventCoords e
+				App.currPath = @path
+				@set 'ij', coords
+				e.preventDefault()
+				e.stopPropagation()
+
+			hammer(@el).on 'release', (e)=>
+				switch @get 'type'
+					when 'event' 
+						coords = App.currBlock.getNearestPort App.currBlock.placeCurrentEvent e
+					when 'port' 
+						coords = App.currBlock.getNearestPort App.grid.normalizeCoords helpers.getEventCoords e
+				
+				@set 
+						'coords': coords
+						'parent': App.currBlock
+
+				@setIJ()
+				App.currPath = null
+				e.preventDefault()
+				e.stopPropagation()
+
+
 		onChange:->
-			for connection,i in @get 'connections'
-				connection.path.set "#{connection.direction}IJ", @get 'ij'
+			connection = @get 'connection'
+			connection.path.set "#{connection.direction}IJ", @get 'ij'
 
 			App.grid.refreshGrid()
+			@render()
+
+		render:->
+			@el ?= @createDomElement()
+			ij 		= @get('ij')
+			size 	= @get('size')
+			size = size*App.gs
+			@addition = @normalizeArrowCoords()
+			App.SVG.setAttributes @el, 
+				transform: "translate(#{(ij.i*App.gs)+@addition.x},#{(ij.j*App.gs)+@addition.y}) rotate(#{@addition.angle},#{size/2},#{size/2})"
+
+		normalizeArrowCoords:->
+			coords = @get 'coords'
+			angle  			= 0
+			x 	= 0
+			y 	= 0
+			if @get('connection').direction is 'end'
+				if coords.dir is 'i'
+					if coords.side is 'startIJ'
+						angle = -90
+						x = (App.gs/2) + 2
+					else 
+						angle = 90
+						x = -(App.gs/2) - 2
+				else 
+					if coords.side is 'startIJ'
+						y = (App.gs/2) + 2
+					else 
+						angle = 180
+						y = -(App.gs/2) - 2
+
+			angle: 	angle
+			x: x
+			y: y
+			
+		createDomElement:->
+			connection =  @get 'connection'
+			size 	= @get('size')
+			if connection.direction is 'start'
+				attrs =
+					width:  size*App.gs
+					height: size*App.gs
+					class: 'port'
+			
+				el = App.SVG.createElement 'rect', attrs
+				App.SVG.lineToDom el
+			else 
+				size = size*App.gs
+				attrs =
+					width:  size
+					height: size
+					class: 'port-arrow'
+					points: "3,0 #{size - 3},0 #{size/2},#{size - 10}"
+
+				el = App.SVG.createElement 'polygon', attrs
+				App.SVG.lineToDom el
+
+			el
+
+		removeFromDom:->
+			App.SVG.removeElem @el
 
 		addConnection:(path)->
 			direction = ''
@@ -40,28 +130,26 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 										'startIJ': 				@get 'ij'
 										'connectedStart': @get 'parent'
 
-					path.set 'in', @
-
+					path.set 'from', @
 				else
 					path.set 	
 										'endIJ': 				@get 'ij'
 										'connectedEnd': @get 'parent'
 					
-					path.set 'from', @
+					path.set 'in', @
 
 
 
-			connections = @get('connections')
-			connections.push {
+			@set 'connection',
 													direction: direction
 													path: path
 													id: App.helpers.genHash()
-												}
-
-			@set 'connections', connections
 			@path = path
 			path
 
+		###
+		 * [setIJ set relative coordinates from nearest port/event object]
+		###
 		setIJ:->
 			parent = @get 'parent'
 			parentStartIJ = parent.get 'startIJ'
@@ -83,5 +171,10 @@ define 'port', ['ProtoClass', 'path'], (ProtoClass, Path)->
 			@set 'ij', ij
 
 			@
+
+		destroy:->
+			hammer(@el).off 'drag'
+			@removeFromDom()
+			super
 
 	Port

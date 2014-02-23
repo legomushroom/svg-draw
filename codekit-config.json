@@ -2,17 +2,6 @@
   "CodeKitInfo" : "This is a CodeKit project configuration file. It is designed to sync project settings across multiple machines. Modifying the contents of this file can be a poor life decision if you don't know what you're doing. This file is not useful unless accompanied by the project that created it in CodeKit. For more information, see: http:\/\/incident57.com\/codekit",
   "creatorBuild" : "8403",
   "files" : {
-    "\/js\/lib\/backbone.js" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/lib\/backbone.js",
-      "outputStyle" : 1,
-      "syntaxCheckerStyle" : 1,
-      "outputAbbreviatedPath" : "\/js\/lib\/backbone-ck.js",
-      "fileType" : 64
-    },
     "\/css\/main.styl" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -25,6 +14,17 @@
       "fileType" : 8,
       "debugStyle" : 0
     },
+    "\/js\/lib\/backbone.js" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/js\/lib\/backbone.js",
+      "outputStyle" : 1,
+      "syntaxCheckerStyle" : 1,
+      "outputAbbreviatedPath" : "\/js\/lib\/backbone-ck.js",
+      "fileType" : 64
+    },
     "\/js\/lib\/hammer.js" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -36,17 +36,6 @@
       "outputAbbreviatedPath" : "\/js\/lib\/hammer-ck.js",
       "fileType" : 64
     },
-    "\/js\/lib\/pathfinding-browser.js" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/lib\/pathfinding-browser.js",
-      "outputStyle" : 1,
-      "syntaxCheckerStyle" : 1,
-      "outputAbbreviatedPath" : "\/js\/lib\/pathfinding-browser-ck.js",
-      "fileType" : 64
-    },
     "\/js\/grid.js" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 1,
@@ -56,6 +45,17 @@
       "outputStyle" : 1,
       "syntaxCheckerStyle" : 1,
       "outputAbbreviatedPath" : "\/js\/grid-ck.js",
+      "fileType" : 64
+    },
+    "\/js\/lib\/pathfinding-browser.js" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/js\/lib\/pathfinding-browser.js",
+      "outputStyle" : 1,
+      "syntaxCheckerStyle" : 1,
+      "outputAbbreviatedPath" : "\/js\/lib\/pathfinding-browser-ck.js",
       "fileType" : 64
     },
     "\/js\/lib\/tween.min.js" : {
@@ -103,15 +103,6 @@
       "outputAbbreviatedPath" : "\/js\/svg-ck.js",
       "fileType" : 64
     },
-    "\/css\/main.css" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 1,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/css\/main.css",
-      "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 16
-    },
     "\/js\/modules\/path.coffee" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -123,6 +114,15 @@
       "outputAbbreviatedPath" : "\/js\/modules\/path.js",
       "outputStyle" : 0,
       "fileType" : 32
+    },
+    "\/css\/main.css" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 1,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/css\/main.css",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 16
     },
     "\/js\/modules\/block.coffee" : {
       "ignoreWasSetByUser" : 0,
@@ -159,15 +159,15 @@
       "outputStyle" : 0,
       "fileType" : 32
     },
-    "\/js\/modules\/port.js" : {
+    "\/js\/modules\/event.js" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 1,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/modules\/port.js",
+      "inputAbbreviatedPath" : "\/js\/modules\/event.js",
       "outputStyle" : 1,
       "syntaxCheckerStyle" : 1,
-      "outputAbbreviatedPath" : "\/js\/modules\/port-ck.js",
+      "outputAbbreviatedPath" : "\/js\/modules\/event-ck.js",
       "fileType" : 64
     },
     "\/js\/require.js" : {
@@ -214,6 +214,17 @@
       "outputAbbreviatedPath" : "\/js\/modules\/block-ck.js",
       "fileType" : 64
     },
+    "\/js\/modules\/port.js" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 1,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/js\/modules\/port.js",
+      "outputStyle" : 1,
+      "syntaxCheckerStyle" : 1,
+      "outputAbbreviatedPath" : "\/js\/modules\/port-ck.js",
+      "fileType" : 64
+    },
     "\/css\/colors.css" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 1,
@@ -234,18 +245,6 @@
       "outputAbbreviatedPath" : "\/js\/helpers-ck.js",
       "fileType" : 64
     },
-    "\/js\/helpers.coffee" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/helpers.coffee",
-      "checkOutputStyle" : 0,
-      "minifyOutput" : 0,
-      "outputAbbreviatedPath" : "\/js\/helpers.js",
-      "outputStyle" : 0,
-      "fileType" : 32
-    },
     "\/js\/modules\/ports-collection.coffee" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -255,6 +254,18 @@
       "checkOutputStyle" : 0,
       "minifyOutput" : 0,
       "outputAbbreviatedPath" : "\/js\/modules\/ports-collection.js",
+      "outputStyle" : 0,
+      "fileType" : 32
+    },
+    "\/js\/helpers.coffee" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/js\/helpers.coffee",
+      "checkOutputStyle" : 0,
+      "minifyOutput" : 0,
+      "outputAbbreviatedPath" : "\/js\/helpers.js",
       "outputStyle" : 0,
       "fileType" : 32
     },
@@ -270,6 +281,18 @@
       "outputStyle" : 0,
       "fileType" : 32
     },
+    "\/js\/modules\/event.coffee" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/js\/modules\/event.coffee",
+      "checkOutputStyle" : 0,
+      "minifyOutput" : 0,
+      "outputAbbreviatedPath" : "\/js\/modules\/event.js",
+      "outputStyle" : 0,
+      "fileType" : 32
+    },
     "\/js\/modules\/ProtoCollection.js" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 1,
@@ -279,17 +302,6 @@
       "outputStyle" : 1,
       "syntaxCheckerStyle" : 1,
       "outputAbbreviatedPath" : "\/js\/modules\/ProtoCollection-ck.js",
-      "fileType" : 64
-    },
-    "\/js\/modules\/ProtoClass.js" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 1,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/modules\/ProtoClass.js",
-      "outputStyle" : 1,
-      "syntaxCheckerStyle" : 1,
-      "outputAbbreviatedPath" : "\/js\/modules\/ProtoClass-ck.js",
       "fileType" : 64
     },
     "\/js\/lib\/lodash.underscore.js" : {
@@ -302,6 +314,15 @@
       "syntaxCheckerStyle" : 1,
       "outputAbbreviatedPath" : "\/js\/lib\/lodash.underscore-ck.js",
       "fileType" : 64
+    },
+    "\/index.html" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 1,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/index.html",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 2048
     },
     "\/css\/mixins.styl" : {
       "ignoreWasSetByUser" : 0,
@@ -362,16 +383,17 @@
       "outputStyle" : 0,
       "fileType" : 32
     },
-    "\/js\/modules\/path.js" : {
+    "\/js\/svg.coffee" : {
       "ignoreWasSetByUser" : 0,
-      "ignore" : 1,
+      "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/modules\/path.js",
-      "outputStyle" : 1,
-      "syntaxCheckerStyle" : 1,
-      "outputAbbreviatedPath" : "\/js\/modules\/path-ck.js",
-      "fileType" : 64
+      "inputAbbreviatedPath" : "\/js\/svg.coffee",
+      "checkOutputStyle" : 0,
+      "minifyOutput" : 0,
+      "outputAbbreviatedPath" : "\/js\/svg.js",
+      "outputStyle" : 0,
+      "fileType" : 32
     },
     "\/index.jade" : {
       "ignoreWasSetByUser" : 0,
@@ -384,26 +406,27 @@
       "outputAbbreviatedPath" : "\/index.html",
       "fileType" : 512
     },
-    "\/index.html" : {
+    "\/js\/modules\/path.js" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 1,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/index.html",
-      "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 2048
+      "inputAbbreviatedPath" : "\/js\/modules\/path.js",
+      "outputStyle" : 1,
+      "syntaxCheckerStyle" : 1,
+      "outputAbbreviatedPath" : "\/js\/modules\/path-ck.js",
+      "fileType" : 64
     },
-    "\/js\/svg.coffee" : {
+    "\/js\/modules\/ProtoClass.js" : {
       "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
+      "ignore" : 1,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/js\/svg.coffee",
-      "checkOutputStyle" : 0,
-      "minifyOutput" : 0,
-      "outputAbbreviatedPath" : "\/js\/svg.js",
-      "outputStyle" : 0,
-      "fileType" : 32
+      "inputAbbreviatedPath" : "\/js\/modules\/ProtoClass.js",
+      "outputStyle" : 1,
+      "syntaxCheckerStyle" : 1,
+      "outputAbbreviatedPath" : "\/js\/modules\/ProtoClass-ck.js",
+      "fileType" : 64
     },
     "\/js\/modules\/line.coffee" : {
       "ignoreWasSetByUser" : 0,

@@ -17,7 +17,6 @@ define 'svg', ['line', 'helpers'], (Line, helpers)->
 				id: 							'svg-canvas'
 				width: 						"#{@grid.w}em"
 				height: 					"#{@grid.h}em"
-				# style: 						'left:0;top:0;right:0;bottom:0;position:absolute;'
 			
 			@canvas = @createElement 'svg', attrs
 			$el[0].appendChild @canvas
@@ -28,9 +27,10 @@ define 'svg', ['line', 'helpers'], (Line, helpers)->
 			@setAttributes elem, attrs  if attrs is Object(attrs)
 			elem
 
-		setAttribute: (k, v) -> @setAttribute k, v
+		setAttribute:(k, v)-> 
+			@setAttribute k, v
 
-		removeAttribute: (k) -> @removeAttribute k
+		removeAttribute:(k)-> @removeAttribute k
 
 		setAttributes: (elem, attrs) ->
 			for attrName, attrValue of attrs
@@ -42,13 +42,8 @@ define 'svg', ['line', 'helpers'], (Line, helpers)->
 				@removeAttribute.call(elem, attrName) if attrs.hasOwnProperty(attrName)
 			@
 
-		lineToDom:(id, elem)->
-			@canvas.appendChild elem
-			@
-
-		removeElem:(elem)->
-			@canvas.removeChild elem
-			@
+		lineToDom:(elem)-> @canvas.appendChild(elem); @
+		removeElem:(elem)-> @canvas.removeChild(elem); @
 
 	SVG
 

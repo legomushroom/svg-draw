@@ -9,6 +9,7 @@ require.config
 		path: 				'modules/path'
 		block: 				'modules/block'
 		port: 				'modules/port'
+		event: 				'modules/event'
 		'ports-collection': 				'modules/ports-collection'
 		line: 				'modules/line'
 		ProtoClass: 	'modules/ProtoClass'
@@ -49,7 +50,7 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 				isGrid: false
 				time: 	false
 
-			@currTool = ['path', 'block'][0]
+			@currTool = ['path', 'block', 'event'][0]
 			@$tools.find("[data-role=\"#{@currTool}\"]").addClass 'is-check'
 
 			@
@@ -58,21 +59,21 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 			@currPath = null
 			hammer(@$main[0]).on 'touch', (e)=>
 				switch @currTool
-					when 'path'
+					when 'path', 'event'
 						@touchPath(e)
 					when 'block'
 						@touchBlock(e)
 
 			hammer(@$main[0]).on 'drag', (e)=>
 				switch @currTool
-					when 'path'
+					when 'path', 'event'
 						@dragPath(e)
 					when 'block'
 						@dragBlock(e)
 
 			hammer(@$main[0]).on 'release', (e)=>
 				switch @currTool
-					when 'path'
+					when 'path', 'event'
 						@releasePath(e)
 					when 'block'
 						@releaseBlock(e)
@@ -92,10 +93,9 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 
 		touchPath:(e)->
 			coords = helpers.getEventCoords(e)
-			
 			pathEndCell = @grid.isPathEndCell(coords)
-			if pathEndCell then @currPath = pathEndCell; return
 
+			if pathEndCell then @currPath = pathEndCell; return
 			if not @grid.isFreeCell coords
 				@currPath = null; return
 			else @addCurrentPath(coords)
@@ -103,17 +103,6 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 		releasePath:(e)-> 
 			if @currBlock
 				@currBlock.release e
-			# coords = @grid.normalizeCoords helpers.getEventCoords(e)
-			
-
-				# if @currPath.currentAddPoint is 'startIJ'
-				# 	console.log @currPath.get 'from'
-				# else 
-				# 	console.log @currPath.get 'in'
-
-			# if @currPath
-			# 	@currPath.currentAddPoint = null
-			# 	@currPath.removeIfEmpty();
 
 		dragPath:(e)->
 			coords = helpers.getEventCoords(e)
@@ -129,7 +118,6 @@ define 'main', ['helpers', 'hammer', 'jquery', 'svg', 'path', 'block', 'grid', '
 			$('#js-tools').on 'click', '#js-tool', (e)-> 
 				$this = $(@); it.currTool = $this.data().role
 				$this.addClass('is-check').siblings().removeClass('is-check')
-
 
 		addCurrentPath:(coords)->
 			@currPath = new Path

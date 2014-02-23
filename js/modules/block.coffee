@@ -1,4 +1,4 @@
-define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'ports-collection', 'port'], (B, _, helpers, ProtoClass, hammer, Path, PortsCollection, Port)->
+define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'path', 'ports-collection', 'port', 'event'], (B, _, helpers, ProtoClass, hammer, Path, PortsCollection, Port, Event)->
 
 	class Block extends ProtoClass
 		type:  			'block'
@@ -24,7 +24,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			window.ports = @ports
 			@release = _.bind @release, @
 
-			@ports.on 'destroy', => console.log 'destroy'
+			# @ports.on 'destroy', => console.log 'destroy'
 
 			@render()
 			@on 'change', _.bind @render, @
@@ -33,9 +33,23 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 		createPort:(o)-> 
 			o.parent = @
+
+			# destroy the old port if it exists
+			portDirection = if o.path?.currentAddPoint is 'startIJ' then 'from' else 'in'
+			(o.path?.get portDirection)?.destroy()
+
 			port = new Port o
 			@ports.add port
-			console.log @ports
+			port
+
+		createEvent:(o)-> 
+			o.parent = @
+			# destroy the old port if it exists
+			portDirection = if o.path?.currentAddPoint is 'startIJ' then 'from' else 'in'
+			(o.path?.get portDirection)?.destroy()
+
+			port = new Event o
+			@ports.add port
 			port
 
 		render:->
@@ -74,6 +88,14 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 												positionType: 'fixed'
 
 					App.isBlockToPath = port.path
+
+				if App.currTool is 'event'
+					port = @createEvent
+												coords: 			@getNearestPort coords
+												positionType: 'fixed'
+
+					App.isBlockToPath = port.path
+
 				helpers.stopEvent e
 
 			hammer(@$el[0]).on 'drag', (e)=>
@@ -97,7 +119,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				else @$el.addClass 'is-drag'
 
 			@$el.on 'mouseleave', (e)=>
-				@highlighted and App.grid.lowlightCell(@highlighted)
+				@highlighted  		and App.grid.lowlightCell(@highlighted)
+				@highlightedEvent and App.grid.lowlightEvent(@highlightedEvent)
 				if @isDragMode then return
 
 				App.currBlock = null
@@ -109,12 +132,27 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				if App.currTool is 'path'
 					@highlightCurrPort e
 
+				if App.currTool is 'event'
+					@placeCurrentEvent e
+
+		placeCurrentEvent:(e)->
+			@highlightedEvent and App.grid.lowlightEvent(@highlightedEvent)
+			if !App.currBlock then return true
+			portCoords = @translateToNearestPort e, true
+			App.grid.highlightEvent portCoords
+			@highlightedEvent = portCoords
+
 		highlightCurrPort:(e)->
 			@highlighted and App.grid.lowlightCell(@highlighted)
 			if !App.currBlock then return true
+			portCoords = @translateToNearestPort e
+			App.grid.highlightCell portCoords
+			@highlighted = portCoords
+
+		translateToNearestPort:(e, isEvent)->
 			coords = App.grid.normalizeCoords helpers.getEventCoords e
 			relativePortCoords = App.currBlock.getNearestPort coords
-			coef = if relativePortCoords.side is 'startIJ' then -1 else 0
+			coef = if relativePortCoords.side is 'startIJ' and !isEvent then -1 else 0
 			if relativePortCoords.dir is 'j'
 				if relativePortCoords.side is 'startIJ'
 					i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord
@@ -130,10 +168,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					i = App.currBlock.get(relativePortCoords.side).i + coef
 					j = App.currBlock.get('startIJ').j + relativePortCoords.coord
 
-			portCoords = { i: i, j: j }
-			node = App.grid.grid.getNodeAt i, j
-			App.grid.highlightCell portCoords
-			@highlighted = portCoords
+			i: i
+			j: j
 
 
 		release:(e)->
@@ -141,21 +177,14 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 			coords = helpers.getEventCoords e
 			coordsIJ = App.grid.normalizeCoords coords
-			if App.currTool is 'path'
+			if App.currTool is 'path' or App.currTool is 'event'
 				if App.currPath and App.currBlock
 
-					# if App.currPath.get('from') or App.currPath.get('in')
-
-					# 	if @ports.containPath App.currPath.get('id')
-					# 		console.log 'yes'
-
-					# 	if App.currPath.currentAddPoint is 'startIJ'
-					# 		App.currPath.get('from')?.destroy()
-					# 	else App.currPath.get('in')?.destroy()
-
-					port = App.currBlock.createPort
+					method = if App.currTool is 'path' then 'Port' else 'Event'
+					coords = App.currBlock.getNearestPort coordsIJ
+					port = App.currBlock["create#{method}"]
 																path: App.currPath
-																coords: App.currBlock.getNearestPort coordsIJ
+																coords: coords
 																positionType: 'fixed'
 
 					App.currPath.currentAddPoint = null
@@ -262,9 +291,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 			@isDragMode = false
 			@setToGrid()
 
-		refreshPort:-> 
-			@ports.each (port)=>
-				port.setIJ()
+		refreshPort:-> @ports.each (port)=> port.setIJ()
 
 		setToGrid:(startIJ, endIJ)->
 			startIJ ?= @get 'startIJ'

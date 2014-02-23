@@ -1,17 +1,52 @@
-define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
+define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer)->
 	class Line extends ProtoClass
 		initialize:(@o={})->
 			@set 'id', helpers.genHash()
 			path = @o.path
 			@set 'path', @o.path
 			@set 'points', path.get 'points'
-			@addDomElement()
+			@addContainer()
+			@serialize()
 			@
+
+		addContainer:->
+			@g = App.SVG.createElement 'g', { id: @.get 'id' }
+			@events()
+
+		events:->
+			hammer($(@g)).on 'touch', (e)=>
+				@currentDragHandle = e.target
+				@preventEvent e
+			hammer($(@g)).on 'drag', (e)=>
+				@dragHandle e
+				@preventEvent e
+			hammer($(@g)).on 'release', (e)=>
+				@currentDragHandle = null
+				@preventEvent e
+
+		dragHandle:(e)->
+			$segment = $ @currentDragHandle
+			data = $segment.data()
+			coords = App.grid.getNearestCellCenter App.helpers.getEventCoords e
+			points = @get 'points'		
+				
+			if data.direction is 'x'
+				points[data.segment].y 	= coords.y
+				points[data.segment+1].y = coords.y
+			else 
+				points[data.segment].x 	= coords.x
+				points[data.segment+1].x = coords.x
+
+			@serialize()
+
+
+		preventEvent:(e)->
+			e.stopPropagation()
+			e.preventDefault()
+			false
 
 		addDomElement:->
 			attr = 
-				id: 						@get 'id'
-				d: 							''
 				stroke: 				'#00DFFC'
 				'stroke-width': 2
 				fill: 					'none'
@@ -20,26 +55,22 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 				# 'marker-end': 		'url(#marker-end)'
 
 			@line = App.SVG.createElement 'path', attr
-			@serialize()
-			App.SVG.lineToDom @get('id'), @line
+			@g.appendChild @line
+			!@appended and App.SVG.lineToDom(@g)
+			@appended = true
 			
 
 		serialize:->
+			@removeFromDom()
+			@addDomElement()
 			str = ''
 			points = @get('points')
-			# console.log(points)
-			# points.unshift {i: points[0].x - App.gs/2, j: points[0].j}
 			for point, i in points
-				
-				# if i is 0 or i is @get('points').length-1
-				# 	if @get('path').direction is 'i' then point.x -= (App.gs/2)
-				# 	if @get('path').direction is 'j' then point.y -= (App.gs/2)
-
 				if i is 0 
 					str += "M#{point.x},#{point.y} "
 				else
 					if !point.curve? 
-						str += "L #{point.x}, #{point.y} " 
+						str += "L#{point.x},#{point.y} " 
 					else
 						xShift = yShift = xRadius = yRadius = 0
 						if point.curve is 'vertical'
@@ -58,11 +89,47 @@ define 'line', ['ProtoClass', 'helpers'], (ProtoClass, helpers)->
 						str += "a1,1 0 0,1 #{xRadius},#{yRadius} "
 
 			App.SVG.setAttribute.call @line, 'd', str
+			@addHandles(points)
 			@
+
+		addHandles:(points)->
+			points ?= @get('points')
+			@handles = []
+			for point, i in points
+				if (i >= points.length-2) or (i is 0) then continue
+				nextPoint = points[i+1]
+				isY = if point.x is nextPoint.x then true else false
+				@handles.push 
+							x: if isY then point.x else (point.x+nextPoint.x)/2
+							y: if isY then (point.y+nextPoint.y)/2 else point.y
+							segment: i
+							direction: if isY then 'y' else 'x'
+
+			@appendHandles()
+
+		appendHandles:->
+			for handle, i in @handles
+				attr = 
+					fill: 					'red'
+					'marker-mid': 		'url(#marker-mid)'
+					x: handle.x - (App.gs/2)
+					y: handle.y - (App.gs/2)
+					width:  App.gs
+					height: App.gs
+					class: 	'path-handle'
+					id: 		'js-path-handle'
+					'data-segment':   handle.segment
+					'data-direction': handle.direction
+
+				handleSvg = App.SVG.createElement 'rect', attr
+				@g.appendChild handleSvg
 
 		resetPoints:(points)-> @set 'points', points; @serialize(); @
 
 		remove:-> @removeFromDom(); return @
 
-		removeFromDom:-> App.SVG.canvas.removeChild @line
+		removeFromDom:-> 
+			if !@g then return
+			while @g.hasChildNodes()
+				@g.removeChild(@g.lastChild)
 

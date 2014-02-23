@@ -4,7 +4,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 
 		initialize:(@o={})->
 			@set 'id', helpers.genHash()
-
+			# debugger
 
 			if @o.coords
 				@set 
@@ -14,11 +14,9 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			@on 'change:startIJ', _.bind @onChange, @
 			@on 'change:endIJ',		_.bind @onChange, @
 
-
 		onChange:-> 
 			@set 'oldIntersects', helpers.cloneObj @get 'intersects'
 			@render()
-
 
 		render:(isRepaintIntersects=false)->
 			@removeFromGrid()
@@ -351,11 +349,6 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			# 				ij = {i: i, j: block.get(side).j-coef}
 			# 				@pushPoint ij, i
 
-						
-
-
-					
-
 
 
 			@set 'points', @points
@@ -441,8 +434,8 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 		makeSvgPath:()-> 
 			if !@line?
 				@line = new Line path: @ 
-				hammer(@line.line).on 'touch', =>
-					console.log 'touch'
+				# hammer(@line.line).on 'touch', =>
+				# 	console.log 'touch'
 
 			else @line.resetPoints @get 'points'
 
@@ -451,7 +444,7 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			return if !points?
 			for point in points
 				node = App.grid.at(point)
-				delete node.holders[@get 'id']
+				delete node.holders?[@get 'id']
 
 		removeIfEmpty:-> 
 			if @isEmpty()
