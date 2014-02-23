@@ -36,24 +36,38 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			@points
 
 
-		#isInRectangle: (point, )
 		getOrientation: (block,point,tobj) ->
+
+			pt1 = {}
+			pt2 = {}
+			pt1.i = block.get('startIJ').i-1
+			pt1.j = block.get('startIJ').j-1
+			pt2.i  = block.get('endIJ').i;
+			pt2.j  = block.get('endIJ').j;
+			
+
 			if tobj
 				point1 = @transform(tobj,point)
-				b1 = @transform(tobj,block.get('startIJ'))
-				b2 = @transform(tobj,block.get('endIJ'))
+				b1 = @transform(tobj,pt1)
+				b2 = @transform(tobj,pt2)
+				if b1.i>b2.i
+					tmp = b1.i; b1.i = b2.i; b2.i = tmp
+				if b1.j> b2.j
+					tmp = b1.j; b1.j = b2.j; b2.j = tmp
 			else
 				point1 = point
-				b1 = block.get('startIJ')
-				b2 = block.get('endIJ')
+				b1 = pt1 #block.get('startIJ')
+				b2 = pt2 #block.get('endIJ')
 
-			if (point1.i == b1.i-1)
+
+
+			if point1.i == b1.i  #-1
 				orient = 'W'
 			else
-				if (point1.j == b1.j-1)
+				if point1.j == b1.j #-1 
 					orient = 'N'
 				else
-					if (point1.i == b2.i)
+					if point1.i == b2.i
 						orient = 'E'
 					else
 						orient = 'S'
@@ -77,9 +91,9 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 				tobj.y = 'i'
 
 
-			if (orientation == 'W')
+			if orientation == 'N' or orientation == 'W' 
 				tobj.ki = -1
-			if (orientation == 'S')
+			if orientation == 'S' or orientation == 'W'
 				tobj.kj = -1
 
 			return tobj
@@ -98,6 +112,13 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 
 			return newPoint
 
+		rect: (p1,p2) ->
+			b = {}
+			b.left = Math.min(p1.i, p2.i)
+			b.right = Math.max(p1.i, p2.i)
+			b.top = Math.min(p1.j, p2.j)
+			b.bottom = Math.max(p1.j, p2.j)
+			return b
 
 		recalcPath:->
 
@@ -107,69 +128,106 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 			startBlock =  @get('connectedStart')
 			endBlock 	 = @get('connectedEnd')
 
-			sb = startBlock.get('startIJ')
 
-			#
-			oStart = "E"
-			oEnd = "W"
 			if startBlock 
 				oStart = @getOrientation(startBlock,startIJ)
+			else
+				oStart = "E"
 
 			# трансформация
 			t = @transfObject(startIJ,oStart)
+			startPoint = @transform(t,startIJ)
 			endPoint = @transform(t,endIJ)
-			
+
+			if endBlock
+				oEnd = @getOrientation(endBlock,endIJ,t)
+			else
+				oEnd = "W"
+
+
+			if (startPoint.i > endPoint.i) #and (startPoint.j < endPoint.j) and (oEnd!="W")
+
+				tt = @transfObject(endIJ,oEnd)
+				ep = @transform(tt,endIJ)
+				sp = @transform(tt,startIJ)
+
+				if ep.i<sp.i
+
+					tmp = startPoint; startPoint = endPoint; endPoint = tmp
+					tmp = startIJ; startIJ = endIJ; endIJ = tmp
+					tmp = startBlock; startBlock = endBlock; endBlock = tmp
+
+					#if startBlock 
+					#	oStart = @getOrientation(startBlock,startIJ)
+					#else
+					#	oStart = "E"
+
+					# трансформация
+					#t = @transfObject(startIJ,oStart)
+					startPoint = @transform(tt,startIJ)
+					endPoint = @transform(tt,endIJ)
+					t = tt
+
+
+			if startBlock
+				startBlockR = @rect(@transform(t,startBlock.get('startIJ')),@transform(t,startBlock.get('endIJ')))
+
 			if endBlock 
 				oEnd = @getOrientation(endBlock,endIJ,t)
 				endBlock1 = @transform(t,endBlock.get('startIJ'))
 				endBlock2 = @transform(t,endBlock.get('endIJ'))
+				endBlockR = @rect(endBlock1,endBlock2)
+
 
 			@pushPoint startIJ, 0
 
-			if (endPoint.i>0)
-				if oEnd == 'W'
-					#intX = endPoint.i+Math.round(Math.abs(startIJ.i - endIJ.i)/2);
-					intX = Math.round(endPoint.i/2);
-					xy = {i: intX, j: 0}
+			console.log(oEnd)
+
+
+			#if (endPoint.i>0)
+			if oEnd == 'W'
+				#intX = endPoint.i+Math.round(Math.abs(startIJ.i - endIJ.i)/2);
+				intX = Math.round(endPoint.i/2);
+				xy = {i: intX, j: 0}
+				@pushPoint @transform(t,xy,true),1
+				xy1 = {i: intX, j: endPoint.j}
+				@pushPoint @transform(t,xy1,true),2
+
+	
+
+			if oEnd == 'N' or oEnd == 'S'
+				if ((endPoint.j > 0) and (oEnd == 'N')) or ((endPoint.j < 0) and (oEnd == 'S'))
+					# вправо и вниз
+					xy = {i: endPoint.i, j: 0}
 					@pushPoint @transform(t,xy,true),1
-					xy1 = {i: intX, j: endPoint.j}
-					@pushPoint @transform(t,xy1,true),2
+				else
+					intX = Math.round(endPoint.i/2);
+					
+					if intX<=startBlockR.right
+						intX = startBlockR.right+1
+					
+					if intX>=endBlockR.left
+						intX = Math.max(endBlockR.left-1,startBlockR.right+1)
 
-				if oEnd == 'S' 
-					if endPoint.j < 0
-						# вправо и вверх
-						xy = {i: endPoint.i, j: 0}
-						@pushPoint @transform(t,xy,true),1
-					else
-						intX = Math.round(endPoint.i/2);
+					if endBlockR.left<=(startBlockR.right+1)
+						intX = endBlockR.right+1
+					if intX>=0
 						xy = {i: intX, j: 0}
 						@pushPoint @transform(t,xy,true),1
-						xy1 = {i: intX, j: endPoint.j}
-						@pushPoint @transform(t,xy1,true),2		
+					xy1 = {i: Math.max(intX,0), j: endPoint.j}
+					@pushPoint @transform(t,xy1,true),2	
 
-				if oEnd == 'N' 
-					if endPoint.j > 0
-						# вправо и вниз
-						xy = {i: endPoint.i, j: 0}
+			if oEnd == 'E' 
+					if endBlock and endBlockR.top<1 and endBlockR.bottom>0
+						xy = {i: endBlockR.left-1, j: 0}
 						@pushPoint @transform(t,xy,true),1
+						xy = {i: endBlockR.left-1, j: endBlockR.top-1}
+						@pushPoint @transform(t,xy,true),2
+						xy = {i: endBlockR.right, j: endBlockR.top-1}
+						@pushPoint @transform(t,xy,true),3
 					else
-						intX = Math.round(endPoint.i/2);
-						xy = {i: intX, j: 0}
-						@pushPoint @transform(t,xy,true),1
-						xy1 = {i: intX, j: endPoint.j}
-						@pushPoint @transform(t,xy1,true),2	
-
-				if oEnd == 'E' 
-						if endBlock and endBlock1.j<1 and endBlock2.j>0
-							xy = {i: endBlock1.i-1, j: 0}
-							@pushPoint @transform(t,xy,true),1
-							xy = {i: endBlock1.i-1, j: endBlock1.j-1}
-							@pushPoint @transform(t,xy,true),2
-							xy = {i: endBlock2.i, j: endBlock1.j-1}
-							@pushPoint @transform(t,xy,true),3
-						else
-							xy = {i: endPoint.i, j: 0}
-							@pushPoint @transform(t,xy,true),1					
+						xy = {i: endPoint.i, j: 0}
+						@pushPoint @transform(t,xy,true),1					
 
 
 			@pushPoint endIJ, 33			

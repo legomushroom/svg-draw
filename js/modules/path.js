@@ -64,21 +64,37 @@
       };
 
       Path.prototype.getOrientation = function(block, point, tobj) {
-        var b1, b2, orient, point1;
+        var b1, b2, orient, point1, pt1, pt2, tmp;
 
+        pt1 = {};
+        pt2 = {};
+        pt1.i = block.get('startIJ').i - 1;
+        pt1.j = block.get('startIJ').j - 1;
+        pt2.i = block.get('endIJ').i;
+        pt2.j = block.get('endIJ').j;
         if (tobj) {
           point1 = this.transform(tobj, point);
-          b1 = this.transform(tobj, block.get('startIJ'));
-          b2 = this.transform(tobj, block.get('endIJ'));
+          b1 = this.transform(tobj, pt1);
+          b2 = this.transform(tobj, pt2);
+          if (b1.i > b2.i) {
+            tmp = b1.i;
+            b1.i = b2.i;
+            b2.i = tmp;
+          }
+          if (b1.j > b2.j) {
+            tmp = b1.j;
+            b1.j = b2.j;
+            b2.j = tmp;
+          }
         } else {
           point1 = point;
-          b1 = block.get('startIJ');
-          b2 = block.get('endIJ');
+          b1 = pt1;
+          b2 = pt2;
         }
-        if (point1.i === b1.i - 1) {
+        if (point1.i === b1.i) {
           orient = 'W';
         } else {
-          if (point1.j === b1.j - 1) {
+          if (point1.j === b1.j) {
             orient = 'N';
           } else {
             if (point1.i === b2.i) {
@@ -106,10 +122,10 @@
           tobj.x = 'j';
           tobj.y = 'i';
         }
-        if (orientation === 'W') {
+        if (orientation === 'N' || orientation === 'W') {
           tobj.ki = -1;
         }
-        if (orientation === 'S') {
+        if (orientation === 'S' || orientation === 'W') {
           tobj.kj = -1;
         }
         return tobj;
@@ -129,108 +145,136 @@
         return newPoint;
       };
 
+      Path.prototype.rect = function(p1, p2) {
+        var b;
+
+        b = {};
+        b.left = Math.min(p1.i, p2.i);
+        b.right = Math.max(p1.i, p2.i);
+        b.top = Math.min(p1.j, p2.j);
+        b.bottom = Math.max(p1.j, p2.j);
+        return b;
+      };
+
       Path.prototype.recalcPath = function() {
-        var cur, endBlock, endBlock1, endBlock2, endIJ, endPoint, intX, oEnd, oStart, sb, startBlock, startIJ, t, xy, xy1;
+        var cur, endBlock, endBlock1, endBlock2, endBlockR, endIJ, endPoint, ep, intX, oEnd, oStart, sp, startBlock, startBlockR, startIJ, startPoint, t, tmp, tt, xy, xy1;
 
         this.points = [];
         startIJ = this.get('startIJ');
         endIJ = this.get('endIJ');
         startBlock = this.get('connectedStart');
         endBlock = this.get('connectedEnd');
-        sb = startBlock.get('startIJ');
-        oStart = "E";
-        oEnd = "W";
         if (startBlock) {
           oStart = this.getOrientation(startBlock, startIJ);
+        } else {
+          oStart = "E";
         }
         t = this.transfObject(startIJ, oStart);
+        startPoint = this.transform(t, startIJ);
         endPoint = this.transform(t, endIJ);
+        if (endBlock) {
+          oEnd = this.getOrientation(endBlock, endIJ, t);
+        } else {
+          oEnd = "W";
+        }
+        if (startPoint.i > endPoint.i) {
+          tt = this.transfObject(endIJ, oEnd);
+          ep = this.transform(tt, endIJ);
+          sp = this.transform(tt, startIJ);
+          if (ep.i < sp.i) {
+            tmp = startPoint;
+            startPoint = endPoint;
+            endPoint = tmp;
+            tmp = startIJ;
+            startIJ = endIJ;
+            endIJ = tmp;
+            tmp = startBlock;
+            startBlock = endBlock;
+            endBlock = tmp;
+            startPoint = this.transform(tt, startIJ);
+            endPoint = this.transform(tt, endIJ);
+            t = tt;
+          }
+        }
+        if (startBlock) {
+          startBlockR = this.rect(this.transform(t, startBlock.get('startIJ')), this.transform(t, startBlock.get('endIJ')));
+        }
         if (endBlock) {
           oEnd = this.getOrientation(endBlock, endIJ, t);
           endBlock1 = this.transform(t, endBlock.get('startIJ'));
           endBlock2 = this.transform(t, endBlock.get('endIJ'));
+          endBlockR = this.rect(endBlock1, endBlock2);
         }
         this.pushPoint(startIJ, 0);
-        if (endPoint.i > 0) {
-          if (oEnd === 'W') {
-            intX = Math.round(endPoint.i / 2);
+        console.log(oEnd);
+        if (oEnd === 'W') {
+          intX = Math.round(endPoint.i / 2);
+          xy = {
+            i: intX,
+            j: 0
+          };
+          this.pushPoint(this.transform(t, xy, true), 1);
+          xy1 = {
+            i: intX,
+            j: endPoint.j
+          };
+          this.pushPoint(this.transform(t, xy1, true), 2);
+        }
+        if (oEnd === 'N' || oEnd === 'S') {
+          if (((endPoint.j > 0) && (oEnd === 'N')) || ((endPoint.j < 0) && (oEnd === 'S'))) {
             xy = {
-              i: intX,
+              i: endPoint.i,
               j: 0
             };
             this.pushPoint(this.transform(t, xy, true), 1);
+          } else {
+            intX = Math.round(endPoint.i / 2);
+            if (intX <= startBlockR.right) {
+              intX = startBlockR.right + 1;
+            }
+            if (intX >= endBlockR.left) {
+              intX = Math.max(endBlockR.left - 1, startBlockR.right + 1);
+            }
+            if (endBlockR.left <= (startBlockR.right + 1)) {
+              intX = endBlockR.right + 1;
+            }
+            if (intX >= 0) {
+              xy = {
+                i: intX,
+                j: 0
+              };
+              this.pushPoint(this.transform(t, xy, true), 1);
+            }
             xy1 = {
-              i: intX,
+              i: Math.max(intX, 0),
               j: endPoint.j
             };
             this.pushPoint(this.transform(t, xy1, true), 2);
           }
-          if (oEnd === 'S') {
-            if (endPoint.j < 0) {
-              xy = {
-                i: endPoint.i,
-                j: 0
-              };
-              this.pushPoint(this.transform(t, xy, true), 1);
-            } else {
-              intX = Math.round(endPoint.i / 2);
-              xy = {
-                i: intX,
-                j: 0
-              };
-              this.pushPoint(this.transform(t, xy, true), 1);
-              xy1 = {
-                i: intX,
-                j: endPoint.j
-              };
-              this.pushPoint(this.transform(t, xy1, true), 2);
-            }
-          }
-          if (oEnd === 'N') {
-            if (endPoint.j > 0) {
-              xy = {
-                i: endPoint.i,
-                j: 0
-              };
-              this.pushPoint(this.transform(t, xy, true), 1);
-            } else {
-              intX = Math.round(endPoint.i / 2);
-              xy = {
-                i: intX,
-                j: 0
-              };
-              this.pushPoint(this.transform(t, xy, true), 1);
-              xy1 = {
-                i: intX,
-                j: endPoint.j
-              };
-              this.pushPoint(this.transform(t, xy1, true), 2);
-            }
-          }
-          if (oEnd === 'E') {
-            if (endBlock && endBlock1.j < 1 && endBlock2.j > 0) {
-              xy = {
-                i: endBlock1.i - 1,
-                j: 0
-              };
-              this.pushPoint(this.transform(t, xy, true), 1);
-              xy = {
-                i: endBlock1.i - 1,
-                j: endBlock1.j - 1
-              };
-              this.pushPoint(this.transform(t, xy, true), 2);
-              xy = {
-                i: endBlock2.i,
-                j: endBlock1.j - 1
-              };
-              this.pushPoint(this.transform(t, xy, true), 3);
-            } else {
-              xy = {
-                i: endPoint.i,
-                j: 0
-              };
-              this.pushPoint(this.transform(t, xy, true), 1);
-            }
+        }
+        if (oEnd === 'E') {
+          if (endBlock && endBlockR.top < 1 && endBlockR.bottom > 0) {
+            xy = {
+              i: endBlockR.left - 1,
+              j: 0
+            };
+            this.pushPoint(this.transform(t, xy, true), 1);
+            xy = {
+              i: endBlockR.left - 1,
+              j: endBlockR.top - 1
+            };
+            this.pushPoint(this.transform(t, xy, true), 2);
+            xy = {
+              i: endBlockR.right,
+              j: endBlockR.top - 1
+            };
+            this.pushPoint(this.transform(t, xy, true), 3);
+          } else {
+            xy = {
+              i: endPoint.i,
+              j: 0
+            };
+            this.pushPoint(this.transform(t, xy, true), 1);
           }
         }
         this.pushPoint(endIJ, 33);
