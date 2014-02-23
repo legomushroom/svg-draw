@@ -8,7 +8,6 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 			@path = null
 
 			@o.parent and (@set 'parent', @o.parent)
-			@set 'connections': 	[]
 
 			@set 'coords', @o.coords
 			@setIJ()
@@ -16,6 +15,7 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 			@addConnection @o.path
 			@render()
 			@events()
+			@onChange()
 			@on 'change:ij', _.bind @onChange, @
 
 			@
@@ -98,7 +98,7 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 				el = App.SVG.createElement 'rect', attrs
 				App.SVG.lineToDom el
 			else 
-				size = size*App.gs
+				size = App.gs
 				attrs =
 					width:  size
 					height: size
@@ -138,7 +138,6 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 										'connectedEnd': @get 'parent'
 					
 					path.set 'in', @
-
 
 
 			@set 'connection',

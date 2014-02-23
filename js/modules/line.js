@@ -58,7 +58,6 @@
         data = $segment.data();
         coords = App.grid.getNearestCellCenter(App.helpers.getEventCoords(e));
         points = this.get('points');
-        console.log(data.segment);
         if (data.direction === 'x') {
           points[data.segment].y = coords.y;
           points[data.segment + 1].y = coords.y;
@@ -135,6 +134,7 @@
         startPort = path.get('from');
         endPort = path.get('in');
         points = this.get('points').slice(0);
+        console.log(startPort, endPort);
         endX = 0;
         endY = 0;
         startX = 0;

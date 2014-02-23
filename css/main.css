@@ -50,7 +50,7 @@ html {
   left: 0;
   width: 100%;
   height: 2em;
-  background-color: #cdd3dc;
+  background-color: #edf3fa;
   box-shadow: 0 0 0.25em rgba(0,0,0,0.75);
 }
 .tools-l .btn-b {
@@ -79,15 +79,15 @@ html {
   cursor: pointer;
 }
 .btn-b.is-hoverable:hover {
-  box-shadow: inset 0 -0.125em 0 #fff;
+  box-shadow: inset 0 -0.125em 0 #9399a6;
 }
 .btn-b.is-check {
-  box-shadow: inset 0 -0.125em 0 #fff;
+  box-shadow: inset 0 -0.125em 0 #9399a6;
 }
 .btn-b .iconmelon {
   width: 1em;
   height: 1em;
-  fill: #2f3337;
+  fill: #777f8f;
 }
 #svg-canvas {
   display: block;

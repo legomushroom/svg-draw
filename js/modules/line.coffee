@@ -30,7 +30,6 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 			coords = App.grid.getNearestCellCenter App.helpers.getEventCoords e
 			points = @get 'points'
 
-			console.log data.segment
 			if data.direction is 'x'
 				points[data.segment].y 	= coords.y
 				points[data.segment+1].y = coords.y
@@ -101,6 +100,7 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 			endPort  	  = path.get 'in'
 			points = @get('points').slice(0)
 
+			console.log startPort, endPort
 			endX = 0
 			endY = 0
 			startX = 0
