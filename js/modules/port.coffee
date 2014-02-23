@@ -46,29 +46,67 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 
 
 		onChange:->
-			for connection,i in @get 'connections'
-				connection.path.set "#{connection.direction}IJ", @get 'ij'
+			connection = @get 'connection'
+			connection.path.set "#{connection.direction}IJ", @get 'ij'
 
 			App.grid.refreshGrid()
 			@render()
 
 		render:->
 			@el ?= @createDomElement()
-			ij = @get('ij')
-			App.SVG.setAttributes @el, 
-				x: ij.i*App.gs
-				y: ij.j*App.gs
-			
-		createDomElement:->
 			ij 		= @get('ij')
 			size 	= @get('size')
-			attrs =
-				width:  size*App.gs
-				height: size*App.gs
-				fill: 	'orange'
+			size = size*App.gs
+			@addition = @normalizeArrowCoords()
+			App.SVG.setAttributes @el, 
+				transform: "translate(#{(ij.i*App.gs)+@addition.x},#{(ij.j*App.gs)+@addition.y}) rotate(#{@addition.angle},#{size/2},#{size/2})"
+
+		normalizeArrowCoords:->
+			coords = @get 'coords'
+			angle  			= 0
+			x 	= 0
+			y 	= 0
+			if @get('connection').direction is 'end'
+				if coords.dir is 'i'
+					if coords.side is 'startIJ'
+						angle = -90
+						x = (App.gs/2) + 2
+					else 
+						angle = 90
+						x = -(App.gs/2) - 2
+				else 
+					if coords.side is 'startIJ'
+						y = (App.gs/2) + 2
+					else 
+						angle = 180
+						y = -(App.gs/2) - 2
+
+			angle: 	angle
+			x: x
+			y: y
 			
-			el = App.SVG.createElement 'rect', attrs
-			App.SVG.lineToDom el
+		createDomElement:->
+			connection =  @get 'connection'
+			size 	= @get('size')
+			if connection.direction is 'start'
+				attrs =
+					width:  size*App.gs
+					height: size*App.gs
+					class: 'port'
+			
+				el = App.SVG.createElement 'rect', attrs
+				App.SVG.lineToDom el
+			else 
+				size = size*App.gs
+				attrs =
+					width:  size
+					height: size
+					class: 'port-arrow'
+					points: "3,0 #{size - 3},0 #{size/2},#{size - 10}"
+
+				el = App.SVG.createElement 'polygon', attrs
+				App.SVG.lineToDom el
+
 			el
 
 		removeFromDom:->
@@ -102,14 +140,10 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 
 
 
-			connections = @get('connections')
-			connections.push {
+			@set 'connection',
 													direction: direction
 													path: path
 													id: App.helpers.genHash()
-												}
-
-			@set 'connections', connections
 			@path = path
 			path
 

@@ -69,42 +69,85 @@
       };
 
       Port.prototype.onChange = function() {
-        var connection, i, _i, _len, _ref1;
+        var connection;
 
-        _ref1 = this.get('connections');
-        for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
-          connection = _ref1[i];
-          connection.path.set("" + connection.direction + "IJ", this.get('ij'));
-        }
+        connection = this.get('connection');
+        connection.path.set("" + connection.direction + "IJ", this.get('ij'));
         App.grid.refreshGrid();
         return this.render();
       };
 
       Port.prototype.render = function() {
-        var ij, _ref1;
+        var ij, size, _ref1;
 
         if ((_ref1 = this.el) == null) {
           this.el = this.createDomElement();
         }
         ij = this.get('ij');
+        size = this.get('size');
+        size = size * App.gs;
+        this.addition = this.normalizeArrowCoords();
         return App.SVG.setAttributes(this.el, {
-          x: ij.i * App.gs,
-          y: ij.j * App.gs
+          transform: "translate(" + ((ij.i * App.gs) + this.addition.x) + "," + ((ij.j * App.gs) + this.addition.y) + ") rotate(" + this.addition.angle + "," + (size / 2) + "," + (size / 2) + ")"
         });
       };
 
-      Port.prototype.createDomElement = function() {
-        var attrs, el, ij, size;
+      Port.prototype.normalizeArrowCoords = function() {
+        var angle, coords, x, y;
 
-        ij = this.get('ij');
-        size = this.get('size');
-        attrs = {
-          width: size * App.gs,
-          height: size * App.gs,
-          fill: 'orange'
+        coords = this.get('coords');
+        angle = 0;
+        x = 0;
+        y = 0;
+        if (this.get('connection').direction === 'end') {
+          if (coords.dir === 'i') {
+            if (coords.side === 'startIJ') {
+              angle = -90;
+              x = (App.gs / 2) + 2;
+            } else {
+              angle = 90;
+              x = -(App.gs / 2) - 2;
+            }
+          } else {
+            if (coords.side === 'startIJ') {
+              y = (App.gs / 2) + 2;
+            } else {
+              angle = 180;
+              y = -(App.gs / 2) - 2;
+            }
+          }
+        }
+        return {
+          angle: angle,
+          x: x,
+          y: y
         };
-        el = App.SVG.createElement('rect', attrs);
-        App.SVG.lineToDom(el);
+      };
+
+      Port.prototype.createDomElement = function() {
+        var attrs, connection, el, size;
+
+        connection = this.get('connection');
+        size = this.get('size');
+        if (connection.direction === 'start') {
+          attrs = {
+            width: size * App.gs,
+            height: size * App.gs,
+            "class": 'port'
+          };
+          el = App.SVG.createElement('rect', attrs);
+          App.SVG.lineToDom(el);
+        } else {
+          size = size * App.gs;
+          attrs = {
+            width: size,
+            height: size,
+            "class": 'port-arrow',
+            points: "3,0 " + (size - 3) + ",0 " + (size / 2) + "," + (size - 10)
+          };
+          el = App.SVG.createElement('polygon', attrs);
+          App.SVG.lineToDom(el);
+        }
         return el;
       };
 
@@ -113,7 +156,7 @@
       };
 
       Port.prototype.addConnection = function(path) {
-        var connections, direction, point;
+        var direction, point;
 
         direction = '';
         if (path == null) {
@@ -142,13 +185,11 @@
             path.set('in', this);
           }
         }
-        connections = this.get('connections');
-        connections.push({
+        this.set('connection', {
           direction: direction,
           path: path,
           id: App.helpers.genHash()
         });
-        this.set('connections', connections);
         this.path = path;
         return path;
       };

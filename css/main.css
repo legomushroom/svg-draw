@@ -12,19 +12,13 @@ html {
   overflow-y: auto;
   font-family: monospace;
   font-size: 16px;
+  background-color: #fff;
 }
 .main-l {
   min-width: 100%;
   min-height: 100%;
   position: relative;
   margin: 0 auto;
-  background-color: #343838;
-}
-.main-l #svg-canvas {
-  background-color: #343838;
-  background-image: linear-gradient(#005f6b 0.125em, transparent 0.125em), linear-gradient(90deg, #005f6b 0.125em, transparent 0.125em), linear-gradient(#005f6b 0.0625em, transparent 0.0625em), linear-gradient(90deg, #005f6b 0.0625em, transparent 0.0625em);
-  background-size: 8em 8em, 8em 8em, 1em 1em, 1em 1em;
-  background-position: -0.125em -0.125em, -0.125em -0.125em, -0.0625em -0.0625em, -0.0625em -0.0625em;
 }
 .place-preview-e {
   position: absolute;
@@ -33,8 +27,9 @@ html {
 }
 .block-e {
   position: absolute;
-  border: 0.0625em solid #00dffc;
-  background-color: rgba(0,223,252,0.1);
+  border: 0.0625em solid #b1c0d3;
+  background-color: #edf3fa;
+  border-radius: 0.125em;
 }
 .block-e.is-connect-path {
   box-shadow: 0 0 1em #00dffc;
@@ -46,7 +41,7 @@ html {
 }
 .block-e.is-drag {
   cursor: move;
-  box-shadow: 0 0 1em #12ff00;
+  box-shadow: 0.25em 0.25em 0.5em #b1c0d3;
 }
 .tools-l {
   position: fixed;
@@ -99,10 +94,16 @@ html {
   display: block;
 }
 #svg-canvas path {
-  stroke: #00dffc;
+  stroke: #9399a5;
+  stroke-width: 0.0625em;
 }
-#svg-canvas path:hover {
-  stroke: #008000;
+#svg-canvas .port,
+#svg-canvas .port-arrow {
+  fill: #9399a5;
+}
+#svg-canvas .path-handle {
+  stroke: #9399a5;
+  fill: #fff;
 }
 #svg-canvas .path-handle:hover {
   cursor: pointer;
