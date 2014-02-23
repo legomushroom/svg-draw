@@ -49,8 +49,8 @@ body, html
 	left 0
 	width 100%
 	height 4*gs
-	background-color rgba(#005F6B, .95)
-	box-shadow 0 0 (gs/2) black
+	background-color #cdd3dc
+	box-shadow 0 0 (gs/2) rgba(0,0,0,.75)
 
 	.btn-b
 		float: left
@@ -68,22 +68,20 @@ body, html
 		rect 100%
 
 .btn-b
-	background-color #008C9E
 	display inline-block
 	padding gs
-	activeShadow = inset 0 (- 2*ex) 0 #00DFFC
+	activeShadow = inset 0 (- 2*ex) 0 white
 	&.is-hoverable
 		cursor pointer
 		&:hover
 			box-shadow activeShadow
-
 
 	&.is-check
 		box-shadow activeShadow
 
 	.iconmelon
 		rect 2*gs
-		fill white
+		fill #2f3337
 
 #svg-canvas
 	display block

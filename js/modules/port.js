@@ -133,7 +133,8 @@
           attrs = {
             width: size * App.gs,
             height: size * App.gs,
-            "class": 'port'
+            "class": 'port',
+            rx: App.gs / 2
           };
           el = App.SVG.createElement('rect', attrs);
           App.SVG.lineToDom(el);

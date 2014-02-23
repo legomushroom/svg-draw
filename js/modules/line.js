@@ -151,19 +151,20 @@
       };
 
       Line.prototype.appendHandles = function() {
-        var attr, handle, handleSvg, i, _i, _len, _ref1, _results;
+        var attr, dir, handle, handleSvg, i, _i, _len, _ref1, _results;
 
         _ref1 = this.handles;
         _results = [];
         for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
           handle = _ref1[i];
+          dir = handle.direction;
           attr = {
             fill: 'red',
             'marker-mid': 'url(#marker-mid)',
-            x: handle.x - (App.gs / 2),
-            y: handle.y - (App.gs / 2),
-            width: App.gs,
-            height: App.gs,
+            x: dir === 'x' ? handle.x - App.gs : handle.x - (App.gs / 4),
+            y: dir === 'y' ? handle.y - (App.gs / 2) : handle.y - App.gs,
+            width: dir === 'y' ? App.gs / 2 : App.gs,
+            height: dir === 'x' ? App.gs / 2 : App.gs,
             "class": 'path-handle',
             id: 'js-path-handle',
             'data-segment': handle.segment,

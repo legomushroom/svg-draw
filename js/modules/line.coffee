@@ -92,6 +92,7 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 			@addHandles(points)
 			@
 
+
 		addHandles:(points)->
 			points ?= @get('points')
 			@handles = []
@@ -109,13 +110,14 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 
 		appendHandles:->
 			for handle, i in @handles
+				dir = handle.direction
 				attr = 
 					fill: 					'red'
 					'marker-mid': 		'url(#marker-mid)'
-					x: handle.x - (App.gs/2)
-					y: handle.y - (App.gs/2)
-					width:  App.gs
-					height: App.gs
+					x: if dir is 'x' then handle.x - (App.gs) else handle.x - (App.gs/4)
+					y: if dir is 'y' then handle.y - (App.gs/2) else handle.y - App.gs
+					width:  if dir is 'y' then App.gs/2 else App.gs
+					height: if dir is 'x' then App.gs/2 else App.gs
 					class: 	'path-handle'
 					id: 		'js-path-handle'
 					'data-segment':   handle.segment
