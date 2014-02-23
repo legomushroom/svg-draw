@@ -57,8 +57,10 @@
             case 'port':
               coords = App.currBlock.getNearestPort(App.grid.normalizeCoords(helpers.getEventCoords(e)));
           }
-          _this.set('coords', coords);
-          console.log(coords);
+          _this.set({
+            'coords': coords,
+            'parent': App.currBlock
+          });
           _this.setIJ();
           App.currPath = null;
           e.preventDefault();

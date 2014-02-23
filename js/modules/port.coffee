@@ -34,8 +34,11 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 						coords = App.currBlock.getNearestPort App.currBlock.placeCurrentEvent e
 					when 'port' 
 						coords = App.currBlock.getNearestPort App.grid.normalizeCoords helpers.getEventCoords e
-				@set 'coords', coords
-				console.log coords
+				
+				@set 
+						'coords': coords
+						'parent': App.currBlock
+
 				@setIJ()
 				App.currPath = null
 				e.preventDefault()
