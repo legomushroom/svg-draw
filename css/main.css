@@ -31,10 +31,6 @@ html {
   background-color: #edf3fa;
   border-radius: 0.125em;
 }
-.block-e.is-connect-path {
-  box-shadow: 0 0 1em #b1c0d3;
-  cursor: se-resize;
-}
 .block-e.is-invalid {
   border-color: #ff0009;
   background-color: #ff0009;

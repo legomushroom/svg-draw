@@ -49,19 +49,11 @@
           return helpers.stopEvent(e);
         });
         return hammer(this.el).on('release', function(e) {
-          var coords;
-
-          switch (_this.get('type')) {
-            case 'event':
-              coords = App.currBlock.getNearestPort(App.currBlock.placeCurrentEvent(e));
-              break;
-            case 'port':
-              coords = App.currBlock.getNearestPort(App.grid.normalizeCoords(helpers.getEventCoords(e)));
-          }
           _this.set({
-            'coords': coords,
+            'coords': App.currBlock.getNearestPort(App.grid.normalizeCoords(helpers.getEventCoords(e))),
             'parent': App.currBlock
           });
+          console.log(_this.get('coords'));
           _this.setIJ();
           App.currPath = null;
           e.preventDefault();
@@ -125,13 +117,13 @@
         y = 0;
         if (coords.dir === 'i') {
           if (coords.side === 'startIJ') {
-            x = sizeU / 2;
+            x = size === 2 ? 0 : sizeU / 2;
           } else {
             x = -sizeU / 2;
           }
         } else {
           if (coords.side === 'startIJ') {
-            y = sizeU / 2;
+            y = size === 2 ? 0 : sizeU / 2;
           } else {
             y = -sizeU / 2;
           }

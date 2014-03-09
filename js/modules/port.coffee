@@ -31,14 +31,11 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 			hammer(@el).on 'touch', (e)=> helpers.stopEvent(e)
 
 			hammer(@el).on 'release', (e)=>
-				switch @get 'type'
-					when 'event' 
-						coords = App.currBlock.getNearestPort App.currBlock.placeCurrentEvent e
-					when 'port' 
-						coords = App.currBlock.getNearestPort App.grid.normalizeCoords helpers.getEventCoords e
 				@set 
-						'coords': coords
+						'coords': App.currBlock.getNearestPort App.grid.normalizeCoords helpers.getEventCoords e
 						'parent': App.currBlock
+
+				console.log @get 'coords'
 
 				@setIJ()
 				App.currPath = null
@@ -86,12 +83,12 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 			y 	= 0
 			if coords.dir is 'i'
 				if coords.side is 'startIJ'
-					x = sizeU/2
+					x = if size is 2 then 0 else sizeU/2
 				else 
 					x = -sizeU/2
 			else 
 				if coords.side is 'startIJ'
-					y = sizeU/2
+					y = if size is 2 then 0 else sizeU/2
 				else 
 					y = -sizeU/2
 
