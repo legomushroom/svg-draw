@@ -25,8 +25,10 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 				coords = App.grid.normalizeCoords helpers.getEventCoords e
 				App.currPath = @path
 				@set 'ij', coords
-				e.preventDefault()
-				e.stopPropagation()
+				block = @get('parent')
+				App.currBlock = block
+				block.highlightCurrPort e
+				helpers.stopEvent(e)
 
 			hammer(@el).on 'touch', (e)=> helpers.stopEvent(e)
 
@@ -34,8 +36,6 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 				@set 
 						'coords': App.currBlock.getNearestPort App.grid.normalizeCoords helpers.getEventCoords e
 						'parent': App.currBlock
-
-				console.log @get 'coords'
 
 				@setIJ()
 				App.currPath = null
@@ -72,28 +72,8 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 			if @get('connection').direction is 'end'
 				returnValue = @normalizeArrowCoords()
 			else 
-				returnValue = @normalizePortCoords()
+				returnValue = App.grid.normalizePortCoords(@get('coords'),@get('size'))
 			returnValue
-
-		normalizePortCoords:->
-			coords = @get 'coords'
-			size = @get('size')
-			sizeU = size*App.gs
-			x 	= 0
-			y 	= 0
-			if coords.dir is 'i'
-				if coords.side is 'startIJ'
-					x = if size is 2 then 0 else sizeU/2
-				else 
-					x = -sizeU/2
-			else 
-				if coords.side is 'startIJ'
-					y = if size is 2 then 0 else sizeU/2
-				else 
-					y = -sizeU/2
-
-			x: x
-			y: y
 
 		normalizeArrowCoords:->
 			coords = @get 'coords'

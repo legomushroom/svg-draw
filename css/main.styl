@@ -35,9 +35,11 @@ body, html
 	&.is-invalid
 		border-color #ff0009
 		background-color #ff0009
-	&.is-drag
+	&.is-can-drag
 		cursor move
+	&.is-drag
 		box-shadow (gs/2) (gs/2) gs #b1c0d3
+		z-index 10
 
 .tools-l
 	position: fixed
@@ -77,12 +79,23 @@ body, html
 		rect 2*gs
 		fill darken(#9399a6, 10)
 
-.port, .event
-	background-color #9399a5
+color = #9399a5
+port = 'port'
+event = 'event'
+.{port}, .{event}, .{port}-ghost, .{event}-ghost
+	background-color color
 	border-radius 50%
 	position absolute
+	rect 2*gs
+
+.{port}-ghost, .{event}-ghost
+	background-color rgba(color, .2)
+	
 .event
 	border-radius 3px
+	&-ghost
+		rect 4*gs
+		border-radius 3px
 
 #svg-canvas
 	display block

@@ -35,9 +35,12 @@ html {
   border-color: #ff0009;
   background-color: #ff0009;
 }
-.block-e.is-drag {
+.block-e.is-can-drag {
   cursor: move;
+}
+.block-e.is-drag {
   box-shadow: 0.25em 0.25em 0.5em #b1c0d3;
+  z-index: 10;
 }
 .tools-l {
   position: fixed;
@@ -86,12 +89,25 @@ html {
   fill: #777f8f;
 }
 .port,
-.event {
+.event,
+.port-ghost,
+.event-ghost {
   background-color: #9399a5;
   border-radius: 50%;
   position: absolute;
+  width: 1em;
+  height: 1em;
+}
+.port-ghost,
+.event-ghost {
+  background-color: rgba(147,153,165,0.2);
 }
 .event {
+  border-radius: 3px;
+}
+.event-ghost {
+  width: 2em;
+  height: 2em;
   border-radius: 3px;
 }
 #svg-canvas {

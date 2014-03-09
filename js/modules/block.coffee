@@ -96,6 +96,9 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 					App.isBlockToPath = port.path
 
+				if App.currTool is 'block'
+					@$el.addClass 'is-drag'
+
 				helpers.stopEvent e
 
 			hammer(@$el[0]).on 'drag', (e)=>
@@ -116,7 +119,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				App.currBlock = @
 				if App.currTool is 'path'
 					@$el.addClass 'is-connect-path'
-				# else @$el.addClass 'is-drag'
+				else if App.currTool is 'block' 
+					@$el.addClass 'is-can-drag'
 
 			@$el.on 'mouseleave', (e)=>
 				@highlighted  		and App.grid.lowlightCell(@highlighted)
@@ -126,27 +130,21 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				App.currBlock = null
 				if App.currTool is 'path'
 					@$el.removeClass 'is-connect-path'
-				# else @$el.removeClass 'is-drag'
+				else if App.currTool is 'block' 
+					@$el.removeClass 'is-drag'
 
 			@$el.on 'mousemove', (e)=>
 				if App.currTool is 'path'
 					@highlightCurrPort e
 
 				if App.currTool is 'event'
-					@highlightCurrPort e
+					@highlightCurrPort e, 'event'
 
-		# placeCurrentEvent:(e)->
-		# 	@highlightedEvent and App.grid.lowlightEvent(@highlightedEvent)
-		# 	if !App.currBlock then return true
-		# 	portCoords = @translateToNearestPort e, true
-		# 	App.grid.highlightEvent portCoords
-		# 	@highlightedEvent = portCoords
-
-		highlightCurrPort:(e)->
+		highlightCurrPort:(e, type='port')->
 			@highlighted and App.grid.lowlightCell(@highlighted)
 			if !App.currBlock then return true
 			portCoords = @translateToNearestPort e
-			App.grid.highlightCell portCoords
+			App.grid.highlightCell portCoords, type
 			@highlighted = portCoords
 
 		translateToNearestPort:(e, isEvent)->
@@ -171,10 +169,13 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 
 			i: i
 			j: j
+			coords: relativePortCoords
 
 
 		release:(e)->
 			@highlighted and App.grid.lowlightCell(@highlighted)
+
+			@$el.removeClass 'is-drag'
 
 			coords = helpers.getEventCoords e
 			coordsIJ = App.grid.normalizeCoords coords

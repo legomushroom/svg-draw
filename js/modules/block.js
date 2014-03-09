@@ -134,6 +134,9 @@
             });
             App.isBlockToPath = port.path;
           }
+          if (App.currTool === 'block') {
+            _this.$el.addClass('is-drag');
+          }
           return helpers.stopEvent(e);
         });
         hammer(this.$el[0]).on('drag', function(e) {
@@ -162,6 +165,8 @@
           App.currBlock = _this;
           if (App.currTool === 'path') {
             return _this.$el.addClass('is-connect-path');
+          } else if (App.currTool === 'block') {
+            return _this.$el.addClass('is-can-drag');
           }
         });
         this.$el.on('mouseleave', function(e) {
@@ -173,6 +178,8 @@
           App.currBlock = null;
           if (App.currTool === 'path') {
             return _this.$el.removeClass('is-connect-path');
+          } else if (App.currTool === 'block') {
+            return _this.$el.removeClass('is-drag');
           }
         });
         return this.$el.on('mousemove', function(e) {
@@ -180,20 +187,23 @@
             _this.highlightCurrPort(e);
           }
           if (App.currTool === 'event') {
-            return _this.highlightCurrPort(e);
+            return _this.highlightCurrPort(e, 'event');
           }
         });
       };
 
-      Block.prototype.highlightCurrPort = function(e) {
+      Block.prototype.highlightCurrPort = function(e, type) {
         var portCoords;
 
+        if (type == null) {
+          type = 'port';
+        }
         this.highlighted && App.grid.lowlightCell(this.highlighted);
         if (!App.currBlock) {
           return true;
         }
         portCoords = this.translateToNearestPort(e);
-        App.grid.highlightCell(portCoords);
+        App.grid.highlightCell(portCoords, type);
         return this.highlighted = portCoords;
       };
 
@@ -222,7 +232,8 @@
         }
         return {
           i: i,
-          j: j
+          j: j,
+          coords: relativePortCoords
         };
       };
 
@@ -230,6 +241,7 @@
         var coords, coordsIJ, method, port;
 
         this.highlighted && App.grid.lowlightCell(this.highlighted);
+        this.$el.removeClass('is-drag');
         coords = helpers.getEventCoords(e);
         coordsIJ = App.grid.normalizeCoords(coords);
         if (App.currTool === 'path' || App.currTool === 'event') {

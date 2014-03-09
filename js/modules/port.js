@@ -37,13 +37,15 @@
         var _this = this;
 
         hammer(this.el).on('drag', function(e) {
-          var coords;
+          var block, coords;
 
           coords = App.grid.normalizeCoords(helpers.getEventCoords(e));
           App.currPath = _this.path;
           _this.set('ij', coords);
-          e.preventDefault();
-          return e.stopPropagation();
+          block = _this.get('parent');
+          App.currBlock = block;
+          block.highlightCurrPort(e);
+          return helpers.stopEvent(e);
         });
         hammer(this.el).on('touch', function(e) {
           return helpers.stopEvent(e);
@@ -53,7 +55,6 @@
             'coords': App.currBlock.getNearestPort(App.grid.normalizeCoords(helpers.getEventCoords(e))),
             'parent': App.currBlock
           });
-          console.log(_this.get('coords'));
           _this.setIJ();
           App.currPath = null;
           e.preventDefault();
@@ -102,36 +103,9 @@
         if (this.get('connection').direction === 'end') {
           returnValue = this.normalizeArrowCoords();
         } else {
-          returnValue = this.normalizePortCoords();
+          returnValue = App.grid.normalizePortCoords(this.get('coords'), this.get('size'));
         }
         return returnValue;
-      };
-
-      Port.prototype.normalizePortCoords = function() {
-        var coords, size, sizeU, x, y;
-
-        coords = this.get('coords');
-        size = this.get('size');
-        sizeU = size * App.gs;
-        x = 0;
-        y = 0;
-        if (coords.dir === 'i') {
-          if (coords.side === 'startIJ') {
-            x = size === 2 ? 0 : sizeU / 2;
-          } else {
-            x = -sizeU / 2;
-          }
-        } else {
-          if (coords.side === 'startIJ') {
-            y = size === 2 ? 0 : sizeU / 2;
-          } else {
-            y = -sizeU / 2;
-          }
-        }
-        return {
-          x: x,
-          y: y
-        };
       };
 
       Port.prototype.normalizeArrowCoords = function() {

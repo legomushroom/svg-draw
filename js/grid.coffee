@@ -95,53 +95,43 @@ define 'grid', ['path-finder', 'underscore'], (PathFinder, _)->
 			path
 
 
-		highlightEvent:(coords)->
-			return if @highLightsEvent["#{coords.i}#{coords.j}"]
-			i = coords.i
-			j = coords.j
-			attrs = 
-				x: "#{i-1}em"
-				y: "#{j-1}em"
-				width: 	"2em"
-				height: "2em"
-				fill: 'rgba(0,255,0,.5)'
-			rect = App.SVG.createElement 'rect', attrs
-			App.SVG.lineToDom rect
-			@highLightsEvent["#{coords.i}#{coords.j}"] = rect
-
-		highlightCell:(coords)->
+		highlightCell:(coords, type)->
 			return if @highLights["#{coords.i}#{coords.j}"]
 			i = coords.i
 			j = coords.j
-			attrs = 
-				x: "#{i}em"
-				y: "#{j}em"
-				width: 	"1em"
-				height: "1em"
-				fill: 'rgba(0,255,0,.5)'
-			rect = App.SVG.createElement 'rect', attrs
-			App.SVG.lineToDom rect
-			@highLights["#{coords.i}#{coords.j}"] = rect
+			$div = $('<div/>')
+			addition = @normalizePortCoords coords.coords, if App.currTool is 'path' then 1 else 2
+			$div.css(
+								left:"#{i*App.gs+addition.x}px"
+								top:"#{j*App.gs+addition.y}px"
+							).addClass("#{type}-ghost")
+
+			App.$main.append $div
+			@highLights["#{coords.i}#{coords.j}"] = $div
+
+		normalizePortCoords:(coords,size)->
+			sizeU = size*App.gs
+			x 	= 0
+			y 	= 0
+			if coords.dir is 'i'
+				if coords.side is 'startIJ'
+					x = if size is 2 then 0 else sizeU/2
+				else 
+					x = -sizeU/2
+			else 
+				if coords.side is 'startIJ'
+					y = if size is 2 then 0 else sizeU/2
+				else 
+					y = -sizeU/2
+
+			x: x
+			y: y
 
 
 		lowlightCell:(coords)-> 
 			if @highLights["#{coords.i}#{coords.j}"] 
-				App.SVG.removeElem @highLights["#{coords.i}#{coords.j}"] 
+				@highLights["#{coords.i}#{coords.j}"].remove()
 				@highLights["#{coords.i}#{coords.j}"] = null
-
-		lowlightEvent:(coords)-> 
-			if @highLightsEvent["#{coords.i}#{coords.j}"] 
-				App.SVG.removeElem @highLightsEvent["#{coords.i}#{coords.j}"] 
-				@highLightsEvent["#{coords.i}#{coords.j}"] = null
-
-
-		# ifBlockCell:(coords)->
-		# 	if coords.x
-		# 		ij = @toIJ(coords)
-		# 	else ij = coords
-
-		# 	node = @grid.getNodeAt(ij.i, ij.j)
-		# 	return if node.holder?.type is 'block' then node.holder else false
 
 
 		# DEBUG SECTION
