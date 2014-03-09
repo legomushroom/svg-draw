@@ -28,9 +28,7 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 				e.preventDefault()
 				e.stopPropagation()
 
-			hammer(@el).on 'touch', (e)=>
-				e.stopPropagation()
-				e.preventDefault()
+			hammer(@el).on 'touch', (e)=> helpers.stopEvent(e)
 
 			hammer(@el).on 'release', (e)=>
 				switch @get 'type'
@@ -38,7 +36,6 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 						coords = App.currBlock.getNearestPort App.currBlock.placeCurrentEvent e
 					when 'port' 
 						coords = App.currBlock.getNearestPort App.grid.normalizeCoords helpers.getEventCoords e
-				
 				@set 
 						'coords': coords
 						'parent': App.currBlock
@@ -61,29 +58,64 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 			ij 		= @get('ij')
 			size 	= @get('size')
 			size = size*App.gs
-			@addition = @normalizeArrowCoords()
-			App.SVG.setAttributes @el, 
-				transform: "translate(#{(ij.i*App.gs)+@addition.x},#{(ij.j*App.gs)+@addition.y}) rotate(#{@addition.angle},#{size/2},#{size/2})"
+			@addition = @normalizeCoords()
+			x = (ij.i*App.gs)+@addition.x
+			y = (ij.j*App.gs)+@addition.y
+			connection =  @get 'connection'
+			if connection.direction is 'start'
+				@el.css
+					left: "#{x}px"
+					top:  "#{y}px"
+			else
+				App.SVG.setAttributes @el, 
+					transform: "translate(#{x},#{y}) rotate(#{@addition.angle},#{App.gs/2},#{App.gs/2})"
+
+		normalizeCoords:->
+			returnValue = null
+			if @get('connection').direction is 'end'
+				returnValue = @normalizeArrowCoords()
+			else 
+				returnValue = @normalizePortCoords()
+			returnValue
+
+		normalizePortCoords:->
+			coords = @get 'coords'
+			size = @get('size')
+			sizeU = size*App.gs
+			x 	= 0
+			y 	= 0
+			if coords.dir is 'i'
+				if coords.side is 'startIJ'
+					x = sizeU/2
+				else 
+					x = -sizeU/2
+			else 
+				if coords.side is 'startIJ'
+					y = sizeU/2
+				else 
+					y = -sizeU/2
+
+			x: x
+			y: y
 
 		normalizeArrowCoords:->
 			coords = @get 'coords'
-			angle  			= 0
+			angle  = 0
 			x 	= 0
 			y 	= 0
-			if @get('connection').direction is 'end'
-				if coords.dir is 'i'
-					if coords.side is 'startIJ'
-						angle = -90
-						x = (App.gs/2) + 2
-					else 
-						angle = 90
-						x = -(App.gs/2) - 2
+			if coords.dir is 'i'
+				if coords.side is 'startIJ'
+					angle = -90
+					x = (App.gs/2) + 2
 				else 
-					if coords.side is 'startIJ'
-						y = (App.gs/2) + 2
-					else 
-						angle = 180
-						y = -(App.gs/2) - 2
+					angle = 90
+					x = -(App.gs/2) - 2
+			else 
+				if coords.side is 'startIJ'
+					y = (App.gs/2) + 2
+				else 
+					angle = 180
+					y = -(App.gs/2) - 2
 
 			angle: 	angle
 			x: x
@@ -93,14 +125,17 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 			connection =  @get 'connection'
 			size 	= @get('size')
 			if connection.direction is 'start'
-				attrs =
+				$portEl = $('<div></div>')
+				$portEl.css
 					width:  size*App.gs
 					height: size*App.gs
-					class:  'port'
-					rx: 		(App.gs/2)
-			
-				el = App.SVG.createElement 'rect', attrs
-				App.SVG.lineToDom el
+					'border-radius': '50%'
+					'position': 'absolute'
+
+				$portEl.addClass  'port'
+
+				App.$main.append $portEl
+				el = $portEl
 			else 
 				size = App.gs
 				attrs =

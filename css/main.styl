@@ -29,15 +29,12 @@ body, html
 	border ex solid #b1c0d3
 	background-color #edf3fa
 	border-radius 2*ex
-	
 	&.is-connect-path
-		box-shadow 0 0 2*gs #00DFFC
+		box-shadow 0 0 2*gs #b1c0d3
 		cursor se-resize
-
 	&.is-invalid
 		border-color #ff0009
 		background-color #ff0009
-
 	&.is-drag
 		cursor move
 		box-shadow (gs/2) (gs/2) gs #b1c0d3
@@ -51,7 +48,6 @@ body, html
 	height 4*gs
 	background-color #edf3fa
 	box-shadow 0 0 (gs/2) rgba(0,0,0,.75)
-
 	.btn-b
 		float: left
 	
@@ -75,24 +71,22 @@ body, html
 		cursor pointer
 		&:hover
 			box-shadow activeShadow
-
 	&.is-check
 		box-shadow activeShadow
-
 	.iconmelon
 		rect 2*gs
 		fill darken(#9399a6, 10)
 
+.port
+	background-color #9399a5
+	
 #svg-canvas
 	display block
-
 	path
 		stroke #9399a5
 		stroke-width ex
-
 	.port, .port-arrow
 		fill #9399a5
-
 	.path-handle
 		stroke #9399a5
 		fill white

@@ -80,8 +80,7 @@
         attr = {
           stroke: '#00DFFC',
           'stroke-width': 2,
-          fill: 'none',
-          'marker-mid': 'url(#marker-mid)'
+          fill: 'none'
         };
         this.line = App.SVG.createElement('path', attr);
         this.g.appendChild(this.line);

@@ -50,7 +50,7 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 				stroke: 				'#00DFFC'
 				'stroke-width': 2
 				fill: 					'none'
-				'marker-mid': 		'url(#marker-mid)'
+				# 'marker-mid': 		'url(#marker-mid)'
 				# 'marker-start': 	'url(#marker-start)'
 				# 'marker-end': 		'url(#marker-end)'
 

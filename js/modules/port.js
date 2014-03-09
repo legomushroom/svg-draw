@@ -46,8 +46,7 @@
           return e.stopPropagation();
         });
         hammer(this.el).on('touch', function(e) {
-          e.stopPropagation();
-          return e.preventDefault();
+          return helpers.stopEvent(e);
         });
         return hammer(this.el).on('release', function(e) {
           var coords;
@@ -80,7 +79,7 @@
       };
 
       Port.prototype.render = function() {
-        var ij, size, _ref1;
+        var connection, ij, size, x, y, _ref1;
 
         if ((_ref1 = this.el) == null) {
           this.el = this.createDomElement();
@@ -88,10 +87,59 @@
         ij = this.get('ij');
         size = this.get('size');
         size = size * App.gs;
-        this.addition = this.normalizeArrowCoords();
-        return App.SVG.setAttributes(this.el, {
-          transform: "translate(" + ((ij.i * App.gs) + this.addition.x) + "," + ((ij.j * App.gs) + this.addition.y) + ") rotate(" + this.addition.angle + "," + (size / 2) + "," + (size / 2) + ")"
-        });
+        this.addition = this.normalizeCoords();
+        x = (ij.i * App.gs) + this.addition.x;
+        y = (ij.j * App.gs) + this.addition.y;
+        connection = this.get('connection');
+        if (connection.direction === 'start') {
+          return this.el.css({
+            left: "" + x + "px",
+            top: "" + y + "px"
+          });
+        } else {
+          return App.SVG.setAttributes(this.el, {
+            transform: "translate(" + x + "," + y + ") rotate(" + this.addition.angle + "," + (App.gs / 2) + "," + (App.gs / 2) + ")"
+          });
+        }
+      };
+
+      Port.prototype.normalizeCoords = function() {
+        var returnValue;
+
+        returnValue = null;
+        if (this.get('connection').direction === 'end') {
+          returnValue = this.normalizeArrowCoords();
+        } else {
+          returnValue = this.normalizePortCoords();
+        }
+        return returnValue;
+      };
+
+      Port.prototype.normalizePortCoords = function() {
+        var coords, size, sizeU, x, y;
+
+        coords = this.get('coords');
+        size = this.get('size');
+        sizeU = size * App.gs;
+        x = 0;
+        y = 0;
+        if (coords.dir === 'i') {
+          if (coords.side === 'startIJ') {
+            x = sizeU / 2;
+          } else {
+            x = -sizeU / 2;
+          }
+        } else {
+          if (coords.side === 'startIJ') {
+            y = sizeU / 2;
+          } else {
+            y = -sizeU / 2;
+          }
+        }
+        return {
+          x: x,
+          y: y
+        };
       };
 
       Port.prototype.normalizeArrowCoords = function() {
@@ -101,22 +149,20 @@
         angle = 0;
         x = 0;
         y = 0;
-        if (this.get('connection').direction === 'end') {
-          if (coords.dir === 'i') {
-            if (coords.side === 'startIJ') {
-              angle = -90;
-              x = (App.gs / 2) + 2;
-            } else {
-              angle = 90;
-              x = -(App.gs / 2) - 2;
-            }
+        if (coords.dir === 'i') {
+          if (coords.side === 'startIJ') {
+            angle = -90;
+            x = (App.gs / 2) + 2;
           } else {
-            if (coords.side === 'startIJ') {
-              y = (App.gs / 2) + 2;
-            } else {
-              angle = 180;
-              y = -(App.gs / 2) - 2;
-            }
+            angle = 90;
+            x = -(App.gs / 2) - 2;
+          }
+        } else {
+          if (coords.side === 'startIJ') {
+            y = (App.gs / 2) + 2;
+          } else {
+            angle = 180;
+            y = -(App.gs / 2) - 2;
           }
         }
         return {
@@ -127,19 +173,21 @@
       };
 
       Port.prototype.createDomElement = function() {
-        var attrs, connection, el, size;
+        var $portEl, attrs, connection, el, size;
 
         connection = this.get('connection');
         size = this.get('size');
         if (connection.direction === 'start') {
-          attrs = {
+          $portEl = $('<div></div>');
+          $portEl.css({
             width: size * App.gs,
             height: size * App.gs,
-            "class": 'port',
-            rx: App.gs / 2
-          };
-          el = App.SVG.createElement('rect', attrs);
-          App.SVG.lineToDom(el);
+            'border-radius': '50%',
+            'position': 'absolute'
+          });
+          $portEl.addClass('port');
+          App.$main.append($portEl);
+          el = $portEl;
         } else {
           size = App.gs;
           attrs = {

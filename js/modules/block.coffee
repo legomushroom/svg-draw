@@ -133,14 +133,14 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 					@highlightCurrPort e
 
 				if App.currTool is 'event'
-					@placeCurrentEvent e
+					@highlightCurrPort e
 
-		placeCurrentEvent:(e)->
-			@highlightedEvent and App.grid.lowlightEvent(@highlightedEvent)
-			if !App.currBlock then return true
-			portCoords = @translateToNearestPort e, true
-			App.grid.highlightEvent portCoords
-			@highlightedEvent = portCoords
+		# placeCurrentEvent:(e)->
+		# 	@highlightedEvent and App.grid.lowlightEvent(@highlightedEvent)
+		# 	if !App.currBlock then return true
+		# 	portCoords = @translateToNearestPort e, true
+		# 	App.grid.highlightEvent portCoords
+		# 	@highlightedEvent = portCoords
 
 		highlightCurrPort:(e)->
 			@highlighted and App.grid.lowlightCell(@highlighted)
@@ -152,7 +152,8 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 		translateToNearestPort:(e, isEvent)->
 			coords = App.grid.normalizeCoords helpers.getEventCoords e
 			relativePortCoords = App.currBlock.getNearestPort coords
-			coef = if relativePortCoords.side is 'startIJ' and !isEvent then -1 else 0
+			# coef = if relativePortCoords.side is 'startIJ' and !isEvent then -1 else 0
+			coef = if relativePortCoords.side is 'startIJ' then -1 else 0
 			if relativePortCoords.dir is 'j'
 				if relativePortCoords.side is 'startIJ'
 					i = App.currBlock.get(relativePortCoords.side).i + relativePortCoords.coord

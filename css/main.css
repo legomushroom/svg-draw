@@ -32,7 +32,7 @@ html {
   border-radius: 0.125em;
 }
 .block-e.is-connect-path {
-  box-shadow: 0 0 1em #00dffc;
+  box-shadow: 0 0 1em #b1c0d3;
   cursor: se-resize;
 }
 .block-e.is-invalid {
@@ -88,6 +88,9 @@ html {
   width: 1em;
   height: 1em;
   fill: #777f8f;
+}
+.port {
+  background-color: #9399a5;
 }
 #svg-canvas {
   display: block;
