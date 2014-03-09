@@ -45,6 +45,10 @@
           e.preventDefault();
           return e.stopPropagation();
         });
+        hammer(this.el).on('touch', function(e) {
+          e.stopPropagation();
+          return e.preventDefault();
+        });
         return hammer(this.el).on('release', function(e) {
           var coords;
 

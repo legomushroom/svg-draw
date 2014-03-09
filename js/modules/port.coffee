@@ -28,6 +28,10 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 				e.preventDefault()
 				e.stopPropagation()
 
+			hammer(@el).on 'touch', (e)=>
+				e.stopPropagation()
+				e.preventDefault()
+
 			hammer(@el).on 'release', (e)=>
 				switch @get 'type'
 					when 'event' 

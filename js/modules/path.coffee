@@ -181,8 +181,6 @@ define 'path', ['jquery', 'helpers', 'ProtoClass', 'line', 'underscore', 'hammer
 
 			@pushPoint startIJ, 0
 
-			console.log(oEnd)
-
 
 			#if (endPoint.i>0)
 			if oEnd == 'W'

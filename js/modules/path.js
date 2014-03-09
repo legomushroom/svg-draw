@@ -206,7 +206,6 @@
           endBlockR = this.rect(endBlock1, endBlock2);
         }
         this.pushPoint(startIJ, 0);
-        console.log(oEnd);
         if (oEnd === 'W') {
           intX = Math.round(endPoint.i / 2);
           xy = {

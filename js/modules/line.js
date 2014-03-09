@@ -134,7 +134,6 @@
         startPort = path.get('from');
         endPort = path.get('in');
         points = this.get('points').slice(0);
-        console.log(startPort, endPort);
         endX = 0;
         endY = 0;
         startX = 0;

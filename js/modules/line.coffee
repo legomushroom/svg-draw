@@ -100,7 +100,6 @@ define 'line', ['ProtoClass', 'helpers', 'hammer'], (ProtoClass, helpers, hammer
 			endPort  	  = path.get 'in'
 			points = @get('points').slice(0)
 
-			console.log startPort, endPort
 			endX = 0
 			endY = 0
 			startX = 0
