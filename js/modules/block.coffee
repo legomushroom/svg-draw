@@ -116,7 +116,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				App.currBlock = @
 				if App.currTool is 'path'
 					@$el.addClass 'is-connect-path'
-				else @$el.addClass 'is-drag'
+				# else @$el.addClass 'is-drag'
 
 			@$el.on 'mouseleave', (e)=>
 				@highlighted  		and App.grid.lowlightCell(@highlighted)
@@ -126,7 +126,7 @@ define 'block', ['backbone', 'underscore', 'helpers', 'ProtoClass', 'hammer', 'p
 				App.currBlock = null
 				if App.currTool is 'path'
 					@$el.removeClass 'is-connect-path'
-				else @$el.removeClass 'is-drag'
+				# else @$el.removeClass 'is-drag'
 
 			@$el.on 'mousemove', (e)=>
 				if App.currTool is 'path'

@@ -85,8 +85,14 @@ html {
   height: 1em;
   fill: #777f8f;
 }
-.port {
+.port,
+.event {
   background-color: #9399a5;
+  border-radius: 50%;
+  position: absolute;
+}
+.event {
+  border-radius: 3px;
 }
 #svg-canvas {
   display: block;

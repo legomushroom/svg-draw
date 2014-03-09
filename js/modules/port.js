@@ -173,11 +173,9 @@
           $portEl = $('<div></div>');
           $portEl.css({
             width: size * App.gs,
-            height: size * App.gs,
-            'border-radius': '50%',
-            'position': 'absolute'
+            height: size * App.gs
           });
-          $portEl.addClass('port');
+          $portEl.addClass(this.get('type'));
           App.$main.append($portEl);
           el = $portEl;
         } else {

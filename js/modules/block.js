@@ -162,8 +162,6 @@
           App.currBlock = _this;
           if (App.currTool === 'path') {
             return _this.$el.addClass('is-connect-path');
-          } else {
-            return _this.$el.addClass('is-drag');
           }
         });
         this.$el.on('mouseleave', function(e) {
@@ -175,8 +173,6 @@
           App.currBlock = null;
           if (App.currTool === 'path') {
             return _this.$el.removeClass('is-connect-path');
-          } else {
-            return _this.$el.removeClass('is-drag');
           }
         });
         return this.$el.on('mousemove', function(e) {

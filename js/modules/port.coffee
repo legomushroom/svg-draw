@@ -126,10 +126,8 @@ define 'port', ['ProtoClass', 'path', 'helpers', 'hammer'], (ProtoClass, Path, h
 				$portEl.css
 					width:  size*App.gs
 					height: size*App.gs
-					'border-radius': '50%'
-					'position': 'absolute'
 
-				$portEl.addClass  'port'
+				$portEl.addClass  @get('type')
 
 				App.$main.append $portEl
 				el = $portEl
